@@ -80,7 +80,7 @@ const CompanySignupFlow = () => {
             if (response?.data?.data?.link) {
                 let link = response?.data.data.link;
                 setLink(`${link}`)
-                window.open(`${link}`, '_blank');
+                window.open(`https://${link}`, '_blank');
                 setStep('success');
             }
         } catch (error) {
