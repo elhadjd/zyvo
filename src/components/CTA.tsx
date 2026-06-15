@@ -80,11 +80,6 @@ const CompanySignupFlow = () => {
             if (response?.data?.data?.link) {
                 let link = response?.data.data.link;
                 setLink(`${link}`)
-                // se não tiver http ou https, adiciona
-                if (!link.startsWith('http://') && !link.startsWith('https://')) {
-                    link = link;
-                }
-
                 window.open(`${link}`, '_blank');
                 setStep('success');
             }
@@ -360,7 +355,7 @@ const CompanySignupFlow = () => {
 
                             <a
                                 target='_blank'
-                                href={`${link}`}
+                                href={`https://${link}`}
                                 className="w-full flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
                             >
                                 Go to Dashboard

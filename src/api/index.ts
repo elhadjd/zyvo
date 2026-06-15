@@ -1,7 +1,7 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import axios from "axios";
 
-export const baseApiURL = 'https://app.zyvoerp.com/api';
+export const baseApiURL = 'https://app.zyvoerp.com';
 
 export interface ApiResponse<T = unknown> {
   data: T;
@@ -13,7 +13,7 @@ export interface ApiResponse<T = unknown> {
 
 // Configuração base do Axios
 const axiosConfig: AxiosRequestConfig = {
-  baseURL: baseApiURL,
+  baseURL: `${baseApiURL}/api`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
