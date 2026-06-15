@@ -79,13 +79,13 @@ const CompanySignupFlow = () => {
             const response = await routePost('/app/save-company', data);
             if (response?.data?.data?.link) {
                 let link = response?.data.data.link;
-                setLink(`${baseApiURL}${link}`)
+                setLink(`${link}`)
                 // se não tiver http ou https, adiciona
                 if (!link.startsWith('http://') && !link.startsWith('https://')) {
                     link = link;
                 }
 
-                window.open(`${baseApiURL}${link}`, '_blank');
+                window.open(`${link}`, '_blank');
                 setStep('success');
             }
         } catch (error) {
