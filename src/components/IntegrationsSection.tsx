@@ -8,8 +8,8 @@ export default function IntegrationsSection() {
       <div className="container mx-auto px-4 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
           <div>
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 mb-6">
-              <span className="text-sm font-semibold text-blue-700 dark:text-blue-400">INTEGRATIONS</span>
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-brand-primary-light dark:bg-brand-primary/20 border border-brand-primary/20 dark:border-brand-primary/30 mb-6">
+              <span className="text-sm font-semibold text-brand-primary dark:text-brand-accent">INTEGRATIONS</span>
             </div>
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
               Connect with the platforms your customers already use
@@ -20,7 +20,7 @@ export default function IntegrationsSection() {
             </p>
             <Link
               to="/integrations"
-              className="inline-flex items-center text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+              className="inline-flex items-center text-brand-primary dark:text-brand-accent font-semibold hover:underline"
             >
               View all integrations
               <ArrowRight className="ml-2 w-5 h-5" />

@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, ArrowUp } from 'lucide-react';
+import { TRUST_MESSAGE } from '../data/site';
+import { industryLandings } from '../data/industry-landings';
 
 const footerLinks: Record<string, { label: string; href: string }[]> = {
   Product: [
@@ -7,30 +9,30 @@ const footerLinks: Record<string, { label: string; href: string }[]> = {
     { label: 'Pricing', href: '/pricing' },
     { label: 'Security', href: '/security' },
     { label: 'Integrations', href: '/integrations' },
-    { label: 'All Solutions', href: '/solutions' },
+    { label: 'FAQ', href: '/faq' },
   ],
   Solutions: [
     { label: 'Point of Sale', href: '/solutions/point-of-sale' },
     { label: 'Queue & SMS', href: '/solutions/customer-queue-management' },
-    { label: 'Inventory Management', href: '/solutions/inventory-management' },
-    { label: 'Employee Management', href: '/solutions/employee-management' },
-    { label: 'Online Store', href: '/solutions/online-store' },
+    { label: 'Inventory', href: '/solutions/inventory-management' },
+    { label: 'Employees', href: '/solutions/employee-management' },
+    { label: 'All Solutions', href: '/solutions' },
   ],
-  Industries: [
-    { label: 'Retail', href: '/industries/retail' },
-    { label: 'Salons & Barbershops', href: '/industries/beauty-salons' },
-    { label: 'Manufacturing', href: '/industries/manufacturing' },
-    { label: 'Professional Services', href: '/industries/professional-services' },
-    { label: 'E-Commerce', href: '/industries/ecommerce' },
-  ],
+  Industries: industryLandings.map((l) => ({ label: l.industryName, href: l.path })),
   Company: [
     { label: 'About', href: '/about' },
     { label: 'Contact', href: '/contact' },
+    { label: 'Book a Demo', href: '/demo' },
     { label: 'Blog', href: '/blog' },
-    { label: 'Privacy Policy', href: '/privacy-policy' },
-    { label: 'Terms of Service', href: '/terms-of-service' },
   ],
 };
+
+const legalLinks = [
+  { label: 'Privacy Policy', href: '/privacy-policy' },
+  { label: 'Terms of Service', href: '/terms-of-service' },
+  { label: 'Refund Policy', href: '/refund-policy' },
+  { label: 'Cookie Policy', href: '/cookie-policy' },
+];
 
 const contactInfo = [
   { icon: <Mail className="w-4 h-4" />, text: 'commercial@zyvoerp.com', href: 'mailto:commercial@zyvoerp.com' },
@@ -49,7 +51,7 @@ const Footer = () => {
         <div className="grid lg:grid-cols-2 gap-12 mb-12">
           <div>
             <Link to="/" className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-brand-primary flex items-center justify-center">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -57,10 +59,7 @@ const Footer = () => {
               <span className="text-2xl font-bold">ZYVO</span>
             </Link>
 
-            <p className="text-gray-400 mb-8 max-w-md">
-              The leading business management platform for US companies. Streamline operations,
-              enhance productivity, and drive growth with our all-in-one ERP solution.
-            </p>
+            <p className="text-gray-400 mb-8 max-w-md">{TRUST_MESSAGE}</p>
 
             <div className="space-y-3">
               {contactInfo.map((info, index) => (
@@ -69,7 +68,7 @@ const Footer = () => {
                   href={info.href}
                   target={info.href.startsWith('http') ? '_blank' : undefined}
                   rel={info.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                  className="flex items-center space-x-3 text-gray-400 hover:text-white transition-colors"
+                  className="flex items-center space-x-3 text-gray-400 hover:text-white transition-colors text-sm"
                 >
                   {info.icon}
                   <span>{info.text}</span>
@@ -81,8 +80,8 @@ const Footer = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {Object.entries(footerLinks).map(([category, links]) => (
               <div key={category}>
-                <h4 className="font-semibold text-lg mb-4">{category}</h4>
-                <ul className="space-y-3">
+                <h4 className="font-semibold text-base mb-4">{category}</h4>
+                <ul className="space-y-2.5">
                   {links.map((link) => (
                     <li key={link.href}>
                       <Link to={link.href} className="text-gray-400 hover:text-white transition-colors text-sm">
@@ -98,37 +97,23 @@ const Footer = () => {
 
         <div className="border-t border-gray-800 my-8" />
 
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="text-gray-400 text-sm mb-4 md:mb-0">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-gray-400 text-sm">
             © {new Date().getFullYear()} ZYVO Technologies, Inc. All rights reserved.
           </div>
-          <div className="flex space-x-6">
-            <Link to="/privacy-policy" className="text-gray-400 hover:text-white text-sm transition-colors">
-              Privacy Policy
-            </Link>
-            <Link to="/terms-of-service" className="text-gray-400 hover:text-white text-sm transition-colors">
-              Terms of Service
-            </Link>
-            <Link to="/cookie-policy" className="text-gray-400 hover:text-white text-sm transition-colors">
-              Cookie Policy
-            </Link>
-          </div>
-        </div>
-
-        <div className="mt-8 pt-8 border-t border-gray-800">
-          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400">
-            <span>ISO 27001 Certified</span>
-            <div className="w-px h-4 bg-gray-700" />
-            <span>SOC2 Type II</span>
-            <div className="w-px h-4 bg-gray-700" />
-            <span>GDPR Compliant</span>
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
+            {legalLinks.map((link) => (
+              <Link key={link.href} to={link.href} className="text-gray-400 hover:text-white text-sm transition-colors">
+                {link.label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>
 
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-6 right-6 w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-lg hover:bg-blue-700 hover:shadow-xl transition-all duration-300 z-40"
+        className="fixed bottom-6 right-6 w-11 h-11 rounded-full bg-brand-primary flex items-center justify-center text-white shadow-lg hover:bg-brand-primary-hover transition-all z-40"
         aria-label="Back to top"
       >
         <ArrowUp className="w-5 h-5" />

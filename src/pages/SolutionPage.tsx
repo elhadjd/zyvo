@@ -37,10 +37,10 @@ export default function SolutionPage() {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <Icon className="w-7 h-7 text-blue-600 dark:text-blue-400" />
+              <div className="w-14 h-14 rounded-xl bg-brand-primary-light dark:bg-brand-primary/20 flex items-center justify-center">
+                <Icon className="w-7 h-7 text-brand-primary dark:text-brand-accent" />
               </div>
-              <span className="text-sm font-medium px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full">
+              <span className="text-sm font-medium px-3 py-1 bg-brand-primary-light dark:bg-brand-primary/20 text-brand-primary dark:text-brand-accent rounded-full">
                 {solution.category}
               </span>
             </div>
@@ -64,7 +64,7 @@ export default function SolutionPage() {
                 <ul className="space-y-4">
                   {solution.benefits.map((benefit) => (
                     <li key={benefit} className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="w-5 h-5 text-brand-primary dark:text-brand-accent flex-shrink-0 mt-0.5" />
                       <span className="text-gray-700 dark:text-gray-300">{benefit}</span>
                     </li>
                   ))}
@@ -97,12 +97,12 @@ export default function SolutionPage() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 text-white text-center">
+            <div className="bg-gradient-to-r from-brand-primary to-brand-primary-hover rounded-2xl p-8 text-white text-center">
               <h2 className="text-2xl font-bold mb-4">Try {solution.shortTitle} free for 7 days</h2>
-              <p className="text-blue-100 mb-6">No credit card required. Full access to all features.</p>
+              <p className="text-white/80 mb-6">No credit card required. Full access to all features.</p>
               <Link
                 to="/getting-started"
-                className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+                className="inline-flex items-center px-8 py-4 bg-white text-brand-primary font-semibold rounded-lg hover:bg-gray-100 transition-colors"
               >
                 Start Free Trial
                 <ArrowRight className="ml-2 w-5 h-5" />

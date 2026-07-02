@@ -40,8 +40,8 @@ export default function IndustryPage() {
       <article className="py-16 lg:py-24 bg-white dark:bg-gray-900">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-4xl mx-auto">
-            <div className="w-16 h-16 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-6">
-              <Icon className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+            <div className="w-16 h-16 rounded-xl bg-brand-primary-light dark:bg-brand-primary/20 flex items-center justify-center mb-6">
+              <Icon className="w-8 h-8 text-brand-primary dark:text-brand-accent" />
             </div>
 
             <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
@@ -58,7 +58,7 @@ export default function IndustryPage() {
             <div className="grid grid-cols-3 gap-6 mb-16">
               {industry.stats.map((stat) => (
                 <div key={stat.label} className="text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-1">{stat.value}</div>
+                  <div className="text-3xl font-bold text-brand-primary dark:text-brand-accent mb-1">{stat.value}</div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">{stat.label}</div>
                 </div>
               ))}
@@ -84,10 +84,10 @@ export default function IndustryPage() {
                       <Link
                         key={solution.slug}
                         to={`/solutions/${solution.slug}`}
-                        className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
+                        className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-brand-primary/40 dark:hover:border-brand-accent/40 transition-colors"
                       >
                         <span className="font-medium text-gray-900 dark:text-white">{solution.shortTitle}</span>
-                        <ArrowRight className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        <ArrowRight className="w-4 h-4 text-brand-primary dark:text-brand-accent" />
                       </Link>
                     ) : null
                   )}
@@ -95,11 +95,11 @@ export default function IndustryPage() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 text-white text-center">
+            <div className="bg-gradient-to-r from-brand-primary to-brand-primary-hover rounded-2xl p-8 text-white text-center">
               <h2 className="text-2xl font-bold mb-4">Ready to transform your {industry.slug.replace('-', ' ')} business?</h2>
               <Link
                 to="/getting-started"
-                className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+                className="inline-flex items-center px-8 py-4 bg-white text-brand-primary font-semibold rounded-lg hover:bg-gray-100 transition-colors"
               >
                 Start Free Trial
                 <ArrowRight className="ml-2 w-5 h-5" />

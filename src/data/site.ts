@@ -1,14 +1,15 @@
 export const SITE_URL = 'https://www.zyvoerp.com';
 export const SITE_NAME = 'ZYVO';
-export const SITE_TAGLINE = 'Business Management Software for US Companies';
+export const SITE_TAGLINE = 'Business Management Software for Growing US Businesses';
 export const SITE_DESCRIPTION =
-  'ZYVO is the all-in-one business management platform trusted by 2,500+ US companies. POS, inventory, HR, finance, e-commerce, and AI analytics in one unified ERP solution.';
+  'ZYVO helps local businesses streamline operations with modern cloud software. Inventory, POS, employees, appointments, customers, accounting, and analytics—all in one easy-to-use system.';
 export const SITE_KEYWORDS =
-  'business management software, ERP software USA, small business management platform, inventory management software, POS system, accounting software, HR management, ZYVO';
+  'business management software, POS system, inventory management, salon software, restaurant POS, retail management, small business ERP, ZYVO';
 
 export const COMPANY = {
   name: 'ZYVO Technologies, Inc.',
   email: 'commercial@zyvoerp.com',
+  supportEmail: 'support@zyvoerp.com',
   phone: '+1 (973) 524-9725',
   address: {
     street: '358 Hutchinson Ave',
@@ -18,11 +19,21 @@ export const COMPANY = {
     country: 'US',
   },
   founded: 2020,
-  employees: '45+',
-  customers: '2,500+',
 };
 
-export const SOCIAL = {
-  linkedin: 'https://www.linkedin.com/company/zyvo',
-  twitter: 'https://twitter.com/zyvoerp',
-};
+export const TRUST_MESSAGE =
+  'Helping local businesses streamline operations with modern cloud software.';
+
+export const VALUE_PROPOSITION =
+  'Built for growing businesses that need simplicity, automation, and control.';
+
+export const AUDIENCES = [
+  'Retail stores',
+  'Boutiques',
+  'Restaurants',
+  'Salons',
+  'Barbershops',
+  'Clinics',
+  'Pharmacies',
+  'Service businesses',
+];

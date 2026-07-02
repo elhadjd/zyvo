@@ -31,7 +31,7 @@ export default function FeaturesPage() {
           </p>
           <Link
             to="/getting-started"
-            className="inline-flex items-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center px-8 py-4 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors"
           >
             Start Free Trial
             <ArrowRight className="ml-2 w-5 h-5" />

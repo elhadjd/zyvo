@@ -67,14 +67,14 @@ const Pricing = () => {
             <div className="container mx-auto px-4 lg:px-8">
                 {/* Section Header */}
                 <div className="text-center max-w-3xl mx-auto mb-16">
-                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 mb-6">
-                        <span className="text-sm font-semibold text-blue-700 dark:text-blue-400">
+                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-brand-primary-light dark:bg-brand-primary/20 border border-brand-primary/20 dark:border-brand-primary/30 mb-6">
+                        <span className="text-sm font-semibold text-brand-primary dark:text-brand-accent">
                             TRANSPARENT PRICING
                         </span>
                     </div>
                     <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
                         Simple, Predictable
-                        <span className="text-blue-600 dark:text-blue-400"> Pricing </span>
+                        <span className="text-brand-primary dark:text-brand-accent"> Pricing </span>
                     </h2>
                     <p className="text-xl text-gray-600 dark:text-gray-300">
                         Choose the perfect plan for your business needs. All plans include a 30-day free trial.
@@ -101,7 +101,7 @@ const Pricing = () => {
                                 }`}
                         >
                             Annual billing
-                            <span className="ml-2 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400 px-2 py-1 rounded-full">
+                            <span className="ml-2 text-xs bg-brand-primary-light dark:bg-blue-900 text-brand-primary dark:text-brand-accent px-2 py-1 rounded-full">
                                 Save 20%
                             </span>
                         </button>
@@ -117,14 +117,14 @@ const Pricing = () => {
                         >
                             {plan.popular && (
                                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                                    <div className="px-4 py-1.5 bg-blue-600 text-white text-sm font-semibold rounded-full">
+                                    <div className="px-4 py-1.5 bg-brand-primary text-white text-sm font-semibold rounded-full">
                                         Most Popular
                                     </div>
                                 </div>
                             )}
 
                             <div className={`h-full bg-white dark:bg-gray-800 rounded-xl border-2 ${plan.popular
-                                ? 'border-blue-500 shadow-xl'
+                                ? 'border-brand-primary shadow-xl'
                                 : 'border-gray-200 dark:border-gray-700'
                                 } p-8`}
                             >
@@ -149,7 +149,7 @@ const Pricing = () => {
                                         )}
                                     </div>
                                     {billingCycle === 'annual' && plan.price.annual !== "Custom" && (
-                                        <div className="text-sm text-blue-600 dark:text-blue-400">
+                                        <div className="text-sm text-brand-primary dark:text-brand-accent">
                                             Save ${(parseInt(plan.price.monthly.replace('$', '')) * 12 - parseInt(plan.price.annual.replace('$', '')) * 12)} annually
                                         </div>
                                     )}
@@ -158,7 +158,7 @@ const Pricing = () => {
                                 <a
                                     href="#"
                                     className={`block w-full py-3.5 px-6 text-center font-semibold rounded-lg mb-8 transition-all ${plan.popular
-                                        ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
+                                        ? 'bg-brand-primary text-white hover:bg-brand-primary-hover shadow-lg hover:shadow-xl'
                                         : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
                                         }`}
                                 >
@@ -168,7 +168,7 @@ const Pricing = () => {
                                 <ul className="space-y-4">
                                     {plan.features.map((feature, idx) => (
                                         <li key={idx} className="flex items-start">
-                                            <Check className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
+                                            <Check className="w-5 h-5 text-brand-accent mr-3 mt-0.5 flex-shrink-0" />
                                             <span className="text-gray-700 dark:text-gray-300">
                                                 {feature}
                                             </span>
@@ -183,8 +183,8 @@ const Pricing = () => {
                 {/* Additional Info */}
                 <div className="text-center">
                     <div className="inline-flex items-center justify-center space-x-4 bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-                        <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                            <CreditCard className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                        <div className="w-12 h-12 rounded-lg bg-brand-primary-light dark:bg-brand-primary/20 flex items-center justify-center">
+                            <CreditCard className="w-6 h-6 text-brand-primary dark:text-brand-accent" />
                         </div>
                         <div className="text-left">
                             <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
@@ -194,7 +194,7 @@ const Pricing = () => {
                                 30-day free trial • No credit card required • Cancel anytime • 60-day money-back guarantee
                             </p>
                         </div>
-                        <button className="flex items-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
+                        <button className="flex items-center text-sm text-brand-primary dark:text-brand-accent hover:text-brand-primary dark:hover:text-blue-300">
                             <HelpCircle className="w-4 h-4 mr-1" />
                             Learn more
                         </button>
