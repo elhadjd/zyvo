@@ -164,9 +164,9 @@ const CompanySignupFlow = () => {
                         <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl mb-4">
                             <Building className="w-6 h-6 text-white" />
                         </div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                             Start with ZYVO
-                        </h1>
+                        </h2>
                         <p className="text-gray-600 dark:text-gray-400">
                             Join 2,500+ US companies using ZYVO
                         </p>

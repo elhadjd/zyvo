@@ -1,5 +1,4 @@
-// components/Features.jsx
-import React from 'react';
+import { Link } from 'react-router-dom';
 import {
     Brain,
     Lock,
@@ -117,19 +116,19 @@ const Features = () => {
                                 Join thousands of US companies that trust ZYVO for their critical business operations.
                             </p>
                             <div className="flex items-center space-x-4">
-                                <a
-                                    href="#"
+                                <Link
+                                    to="/contact"
                                     className="inline-flex items-center justify-center px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
                                 >
                                     Schedule a Demo
                                     <ArrowRight className="ml-2 w-4 h-4" />
-                                </a>
-                                <a
-                                    href="#"
+                                </Link>
+                                <Link
+                                    to="/blog"
                                     className="text-white hover:text-blue-100 font-medium"
                                 >
                                     View case studies →
-                                </a>
+                                </Link>
                             </div>
                         </div>
 

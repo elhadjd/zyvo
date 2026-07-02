@@ -1,5 +1,5 @@
-// components/PricingSection.jsx
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Check, HelpCircle, Users, Shield } from 'lucide-react';
 
 const PricingSection = () => {
@@ -163,12 +163,29 @@ const PricingSection = () => {
                                     ))}
                                 </ul>
 
-                                <button className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${plan.popular
-                                    ? 'bg-blue-600 text-white hover:bg-blue-700'
-                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
-                                    }`}>
-                                    {plan.cta}
-                                </button>
+                                {plan.name === 'Business' ? (
+                                    <Link
+                                        to="/contact"
+                                        className={`block w-full text-center py-3 px-6 rounded-lg font-semibold transition-colors ${
+                                            plan.popular
+                                                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                                : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
+                                        }`}
+                                    >
+                                        {plan.cta}
+                                    </Link>
+                                ) : (
+                                    <Link
+                                        to="/getting-started"
+                                        className={`block w-full text-center py-3 px-6 rounded-lg font-semibold transition-colors ${
+                                            plan.popular
+                                                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                                : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
+                                        }`}
+                                    >
+                                        {plan.cta}
+                                    </Link>
+                                )}
 
                                 {plan.name === 'Business' && (
                                     <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-3">

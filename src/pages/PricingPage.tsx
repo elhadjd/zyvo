@@ -1,0 +1,50 @@
+import SEO from '../components/SEO';
+import Breadcrumbs from '../components/Breadcrumbs';
+import PricingSection from '../components/PricingSection';
+import { getBreadcrumbSchema, getFAQSchema } from '../data/structured-data';
+import { SITE_URL } from '../data/site';
+
+const pricingFaqs = [
+  {
+    question: 'How much does ZYVO cost?',
+    answer:
+      'ZYVO offers three plans: Starter at $39/month (annual), Growth at $79/month, and Business at $159/month. All plans include a 7-day free trial.',
+  },
+  {
+    question: 'Is there a free trial?',
+    answer:
+      'Yes. Every ZYVO plan includes a 7-day free trial with full access to all features in your chosen plan. No credit card required to start.',
+  },
+  {
+    question: 'Can I switch plans later?',
+    answer:
+      'Yes. You can upgrade or downgrade your plan at any time. Changes take effect at the start of your next billing cycle.',
+  },
+  {
+    question: 'Do you offer discounts for annual billing?',
+    answer:
+      'Yes. Annual billing saves approximately 20% compared to monthly billing on all plans.',
+  },
+];
+
+export default function PricingPage() {
+  return (
+    <>
+      <SEO
+        title="Pricing — Affordable Business Management Software Plans"
+        description="ZYVO pricing starts at $39/month. Choose Starter, Growth, or Business plans for US companies. 7-day free trial, no credit card required."
+        keywords="business management software pricing, ERP pricing USA, affordable business software, ZYVO pricing"
+        canonical="/pricing"
+        structuredData={[
+          getBreadcrumbSchema([
+            { name: 'Home', url: SITE_URL },
+            { name: 'Pricing', url: `${SITE_URL}/pricing` },
+          ]),
+          getFAQSchema(pricingFaqs),
+        ]}
+      />
+      <Breadcrumbs items={[{ label: 'Pricing' }]} />
+      <PricingSection />
+    </>
+  );
+}
