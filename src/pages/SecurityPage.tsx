@@ -28,8 +28,8 @@ const securityFeatures = [
   },
   {
     icon: FileCheck,
-    title: 'GDPR & HIPAA Ready',
-    description: 'Built-in compliance tools for GDPR data requests and HIPAA-ready configurations for healthcare clients.',
+    title: 'GDPR Compliant',
+    description: 'Built-in compliance tools for GDPR data requests and privacy regulations for US and international customers.',
   },
 ];
 
@@ -38,8 +38,8 @@ export default function SecurityPage() {
     <>
       <SEO
         title="Security & Compliance — Enterprise-Grade Protection"
-        description="ZYVO is SOC 2 Type II certified with AES-256 encryption, US-based data centers, GDPR compliance, and HIPAA-ready configurations for US businesses."
-        keywords="business software security, SOC 2 certified ERP, HIPAA ready software, GDPR compliant business platform USA"
+        description="ZYVO is SOC 2 Type II certified with AES-256 encryption, US-based data centers, and GDPR compliance for US businesses."
+        keywords="business software security, SOC 2 certified ERP, GDPR compliant business platform USA"
         canonical="/security"
         structuredData={getBreadcrumbSchema([
           { name: 'Home', url: SITE_URL },

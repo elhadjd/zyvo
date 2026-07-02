@@ -10,6 +10,7 @@ import {
   CreditCard,
   FileText,
   ShoppingBag,
+  ListOrdered,
 } from 'lucide-react';
 
 export interface Solution {
@@ -25,6 +26,8 @@ export interface Solution {
   benefits: string[];
   features: string[];
   useCases: string[];
+  image?: string;
+  imageAlt?: string;
 }
 
 export const solutions: Solution[] = [
@@ -191,10 +194,47 @@ export const solutions: Solution[] = [
       'Team availability views',
     ],
     useCases: [
-      'Medical and dental practices',
-      'Salons and spas',
+      'Salons and barbershops',
+      'Spas and nail studios',
       'Consulting firms',
       'Fitness studios and gyms',
+    ],
+  },
+  {
+    slug: 'customer-queue-management',
+    title: 'Customer Queue Management with SMS',
+    shortTitle: 'Queue & SMS',
+    description:
+      'Manage walk-in customer queues and automatically notify clients via SMS about wait times, service progress, product availability, and promotional actions.',
+    category: 'Service',
+    icon: ListOrdered,
+    image: '/images/salon-queue.png',
+    imageAlt: 'Salon customer queue with SMS progress notifications',
+    metaTitle: 'Customer Queue Management with SMS for Salons | ZYVO',
+    metaDescription:
+      'Digital walk-in queue with SMS notifications for salons, barbershops, and service businesses. Update customers on wait time, service progress, and offers.',
+    keywords:
+      'customer queue management, SMS queue notifications, salon queue software, barbershop waitlist, walk-in queue USA',
+    benefits: [
+      'Reduce walk-aways by up to 60% with transparent wait times',
+      'Send automatic SMS updates on queue position and service progress',
+      'Notify customers about product availability and promotions',
+      'Free staff from manually calling out customer names',
+    ],
+    features: [
+      'Digital walk-in queue with estimated wait times',
+      'Automatic SMS when customer is next in line',
+      'Service progress updates sent to customer phone',
+      'Product and promotion alerts via SMS',
+      'QR code check-in for contactless queue joining',
+      'Display board for in-store queue status',
+      'Integration with scheduling and POS modules',
+    ],
+    useCases: [
+      'Hair salons and barbershops',
+      'Nail salons and spas',
+      'Auto service centers',
+      'Busy retail service counters',
     ],
   },
   {

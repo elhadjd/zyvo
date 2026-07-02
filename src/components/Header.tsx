@@ -28,7 +28,7 @@ const Header = () => {
       name: 'Industries',
       href: '/industries',
       submenu: industries.map((i) => ({
-        name: i.title.replace(' Business Management', '').replace(' ERP Software', '').replace(' Practice Management', '').replace(' & Restaurant Management', '').replace(' Management', ''),
+        name: i.slug === 'beauty-salons' ? 'Salons & Barbershops' : i.title.split(' ')[0],
         href: `/industries/${i.slug}`,
       })),
     },
@@ -38,6 +38,7 @@ const Header = () => {
       submenu: [
         { name: 'Features', href: '/features' },
         { name: 'Security', href: '/security' },
+        { name: 'Integrations', href: '/integrations' },
         { name: 'Pricing', href: '/pricing' },
       ],
     },

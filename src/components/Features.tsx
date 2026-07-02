@@ -4,8 +4,8 @@ import {
     Lock,
     BarChart3,
     Cloud,
-    Users,
-    Workflow,
+    MessageSquare,
+    Share2,
     CheckCircle,
     ArrowRight,
     Shield
@@ -13,6 +13,18 @@ import {
 
 const Features = () => {
     const features = [
+        {
+            icon: <MessageSquare className="w-8 h-8" />,
+            title: "Queue Management & SMS",
+            description: "Digital walk-in queues with automatic SMS updates on wait time, service progress, and promotions.",
+            details: ["Walk-in queue display", "SMS progress alerts", "Product & promo notifications"]
+        },
+        {
+            icon: <Share2 className="w-8 h-8" />,
+            title: "Meta Integrations",
+            description: "Full integration with Facebook, Instagram, and WhatsApp Business for messaging and engagement.",
+            details: ["Facebook & Instagram DMs", "WhatsApp Business API", "Unified inbox"]
+        },
         {
             icon: <Brain className="w-8 h-8" />,
             title: "AI-Powered Analytics",
@@ -37,18 +49,6 @@ const Features = () => {
             description: "Scalable, reliable cloud platform with 99.9% uptime guarantee.",
             details: ["AWS infrastructure", "Auto-scaling", "Global CDN"]
         },
-        {
-            icon: <Users className="w-8 h-8" />,
-            title: "Team Collaboration",
-            description: "Seamless collaboration tools built for distributed teams.",
-            details: ["Real-time editing", "Comment threads", "Task assignments"]
-        },
-        {
-            icon: <Workflow className="w-8 h-8" />,
-            title: "Workflow Automation",
-            description: "Automate repetitive processes with drag-and-drop workflow builder.",
-            details: ["Visual builder", "API integrations", "Conditional logic"]
-        }
     ];
 
     return (

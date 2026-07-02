@@ -8,7 +8,7 @@ const SolutionsSection = () => {
   const [activeCategory, setActiveCategory] = useState('All');
 
   const stats = [
-    { value: '10+', label: 'Integrated Solutions', icon: <CheckCircle className="w-4 h-4" /> },
+    { value: '11+', label: 'Integrated Solutions', icon: <CheckCircle className="w-4 h-4" /> },
     { value: '2,500+', label: 'US Companies Trust Us', icon: <TrendingUp className="w-4 h-4" /> },
     { value: '99.9%', label: 'Uptime SLA', icon: <Clock className="w-4 h-4" /> },
     { value: '24/7', label: 'US-Based Support', icon: <Users className="w-4 h-4" /> },
@@ -28,7 +28,7 @@ const SolutionsSection = () => {
             Everything you need to run your business
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300">
-            10+ integrated solutions that work together seamlessly. No more juggling multiple tools.
+            11+ integrated solutions that work together seamlessly. No more juggling multiple tools.
           </p>
         </div>
 

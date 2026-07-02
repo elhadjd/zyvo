@@ -1,5 +1,7 @@
 import SEO from '../components/SEO';
 import Hero from '../components/Hero';
+import QueueShowcase from '../components/QueueShowcase';
+import IntegrationsSection from '../components/IntegrationsSection';
 import ProductSection from '../components/Products';
 import Testimonials from '../components/Testimonials';
 import PricingSection from '../components/PricingSection';
@@ -21,6 +23,8 @@ export default function HomePage() {
       />
       <Hero />
       <ProductSection />
+      <QueueShowcase />
+      <IntegrationsSection />
       <Features />
       <Testimonials />
       <PricingSection />

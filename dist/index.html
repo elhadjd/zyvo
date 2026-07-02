@@ -43,8 +43,15 @@
       }
     }
     </script>
-    <script type="module" crossorigin src="/assets/index-CV2uwcVS.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-kQvz_Dq4.css">
+    <script>
+      (function () {
+        var dark = localStorage.theme === 'dark' ||
+          (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', dark);
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-Iucq0sIS.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-N2gN6CDw.css">
   </head>
   <body>
     <noscript>

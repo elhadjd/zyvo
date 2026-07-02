@@ -6,21 +6,21 @@ const footerLinks: Record<string, { label: string; href: string }[]> = {
     { label: 'Features', href: '/features' },
     { label: 'Pricing', href: '/pricing' },
     { label: 'Security', href: '/security' },
+    { label: 'Integrations', href: '/integrations' },
     { label: 'All Solutions', href: '/solutions' },
-    { label: 'Help Center', href: '/help-center' },
   ],
   Solutions: [
     { label: 'Point of Sale', href: '/solutions/point-of-sale' },
+    { label: 'Queue & SMS', href: '/solutions/customer-queue-management' },
     { label: 'Inventory Management', href: '/solutions/inventory-management' },
     { label: 'Employee Management', href: '/solutions/employee-management' },
-    { label: 'Financial Management', href: '/solutions/financial-management' },
     { label: 'Online Store', href: '/solutions/online-store' },
   ],
   Industries: [
     { label: 'Retail', href: '/industries/retail' },
+    { label: 'Salons & Barbershops', href: '/industries/beauty-salons' },
     { label: 'Manufacturing', href: '/industries/manufacturing' },
-    { label: 'Healthcare', href: '/industries/healthcare' },
-    { label: 'Hospitality', href: '/industries/hospitality' },
+    { label: 'Professional Services', href: '/industries/professional-services' },
     { label: 'E-Commerce', href: '/industries/ecommerce' },
   ],
   Company: [
@@ -122,8 +122,6 @@ const Footer = () => {
             <span>SOC2 Type II</span>
             <div className="w-px h-4 bg-gray-700" />
             <span>GDPR Compliant</span>
-            <div className="w-px h-4 bg-gray-700" />
-            <span>HIPAA Ready</span>
           </div>
         </div>
       </div>

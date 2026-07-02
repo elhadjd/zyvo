@@ -47,7 +47,13 @@ export default function IndustryPage() {
             <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
               {industry.title}
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-12">{industry.description}</p>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">{industry.description}</p>
+
+            <img
+              src={industry.image}
+              alt={industry.imageAlt}
+              className="w-full rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 mb-12 object-cover max-h-96"
+            />
 
             <div className="grid grid-cols-3 gap-6 mb-16">
               {industry.stats.map((stat) => (

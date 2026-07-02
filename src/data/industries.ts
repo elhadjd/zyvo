@@ -1,11 +1,13 @@
 import type { LucideIcon } from 'lucide-react';
-import { Store, Factory, Heart, Utensils, Briefcase, ShoppingBag } from 'lucide-react';
+import { Store, Factory, Scissors, Briefcase, ShoppingBag } from 'lucide-react';
 
 export interface Industry {
   slug: string;
   title: string;
   description: string;
   icon: LucideIcon;
+  image: string;
+  imageAlt: string;
   metaTitle: string;
   metaDescription: string;
   keywords: string;
@@ -21,6 +23,8 @@ export const industries: Industry[] = [
     description:
       'From single boutiques to multi-location chains, ZYVO gives US retailers the tools to sell smarter, manage inventory, and grow revenue.',
     icon: Store,
+    image: '/images/hero-dashboard.png',
+    imageAlt: 'ZYVO retail management dashboard on laptop',
     metaTitle: 'Retail Management Software for US Stores | ZYVO',
     metaDescription:
       'All-in-one retail management: POS, inventory, e-commerce, and analytics for US retail businesses. Trusted by 800+ retailers.',
@@ -44,6 +48,8 @@ export const industries: Industry[] = [
     description:
       'Streamline production, manage raw materials, and optimize your supply chain with ZYVO manufacturing management tools.',
     icon: Factory,
+    image: '/images/hero-dashboard.png',
+    imageAlt: 'Manufacturing operations dashboard in ZYVO',
     metaTitle: 'Manufacturing ERP Software for US Companies | ZYVO',
     metaDescription:
       'Production planning, inventory control, and supply chain management for US manufacturers. ZYVO manufacturing ERP.',
@@ -62,51 +68,29 @@ export const industries: Industry[] = [
     ],
   },
   {
-    slug: 'healthcare',
-    title: 'Healthcare Practice Management',
+    slug: 'beauty-salons',
+    title: 'Salons & Barbershops',
     description:
-      'HIPAA-ready practice management for clinics, dental offices, and healthcare providers across the United States.',
-    icon: Heart,
-    metaTitle: 'Healthcare Practice Management Software | ZYVO',
+      'Manage walk-in queues, appointment scheduling, and SMS customer updates for salons, barbershops, spas, and beauty studios across the US.',
+    icon: Scissors,
+    image: '/images/salon-queue.png',
+    imageAlt: 'Salon with digital customer queue and SMS notifications',
+    metaTitle: 'Salon & Barbershop Management Software | ZYVO',
     metaDescription:
-      'HIPAA-compliant scheduling, billing, and patient management for US healthcare practices. Secure and easy to use.',
+      'Customer queue management with SMS notifications, scheduling, and POS for US salons and barbershops. Keep clients informed in real time.',
     keywords:
-      'healthcare practice management, HIPAA software, medical office software, clinic management USA',
+      'salon management software, barbershop software, customer queue SMS, beauty salon POS USA, walk-in queue management',
     challenges: [
-      'HIPAA compliance and data security',
-      'Patient scheduling and no-show reduction',
-      'Medical billing and insurance claims',
-      'Staff scheduling across multiple providers',
+      'Managing walk-in queues during peak hours',
+      'Keeping customers informed about wait times',
+      'Reducing no-shows for appointments',
+      'Tracking stylist performance and commissions',
     ],
-    solutions: ['scheduling', 'invoicing', 'employee-management', 'financial-management'],
+    solutions: ['customer-queue-management', 'scheduling', 'point-of-sale', 'employee-management'],
     stats: [
-      { value: '150+', label: 'Healthcare Practices' },
-      { value: 'HIPAA', label: 'Ready Platform' },
-      { value: '50%', label: 'Fewer No-Shows' },
-    ],
-  },
-  {
-    slug: 'hospitality',
-    title: 'Hospitality & Restaurant Management',
-    description:
-      'Manage reservations, staff, inventory, and finances for restaurants, hotels, and hospitality businesses.',
-    icon: Utensils,
-    metaTitle: 'Restaurant & Hospitality Management Software | ZYVO',
-    metaDescription:
-      'POS, scheduling, inventory, and financial management for US restaurants and hospitality businesses. Try ZYVO free.',
-    keywords:
-      'restaurant management software, hospitality software, restaurant POS USA, hotel management',
-    challenges: [
-      'High staff turnover and scheduling complexity',
-      'Food cost control and waste reduction',
-      'Managing reservations and table turnover',
-      'Multi-location menu and pricing consistency',
-    ],
-    solutions: ['point-of-sale', 'employee-management', 'inventory-management', 'scheduling'],
-    stats: [
-      { value: '400+', label: 'Restaurants' },
-      { value: '20%', label: 'Food Cost Savings' },
-      { value: '3x', label: 'Faster Checkout' },
+      { value: '500+', label: 'Salons & Barbershops' },
+      { value: '60%', label: 'Fewer Walk-aways' },
+      { value: 'SMS', label: 'Real-time Updates' },
     ],
   },
   {
@@ -115,6 +99,8 @@ export const industries: Industry[] = [
     description:
       'Project tracking, time billing, invoicing, and client management for consultants, agencies, and professional firms.',
     icon: Briefcase,
+    image: '/images/hero-dashboard.png',
+    imageAlt: 'Professional services business dashboard',
     metaTitle: 'Professional Services Software for US Firms | ZYVO',
     metaDescription:
       'Time tracking, project management, and invoicing for US consulting firms and professional services. ZYVO Pro Services.',
@@ -139,6 +125,8 @@ export const industries: Industry[] = [
     description:
       'Run your online business with integrated inventory, order fulfillment, marketing analytics, and financial reporting.',
     icon: ShoppingBag,
+    image: '/images/integrations-hub.png',
+    imageAlt: 'E-commerce integrations and order management',
     metaTitle: 'E-Commerce Management Platform for US Brands | ZYVO',
     metaDescription:
       'Online store, inventory sync, order management, and marketing analytics for US e-commerce brands. Scale with ZYVO.',

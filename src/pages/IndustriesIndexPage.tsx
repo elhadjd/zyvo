@@ -11,8 +11,8 @@ export default function IndustriesIndexPage() {
     <>
       <SEO
         title="Industries — Business Management by Sector"
-        description="ZYVO serves retail, manufacturing, healthcare, hospitality, professional services, and e-commerce businesses across the United States."
-        keywords="industry business software, retail ERP, manufacturing software, healthcare practice management USA"
+        description="ZYVO serves retail, manufacturing, salons & barbershops, professional services, and e-commerce businesses across the United States."
+        keywords="industry business software, retail ERP, salon management software, barbershop queue SMS USA"
         canonical="/industries"
         structuredData={getBreadcrumbSchema([
           { name: 'Home', url: SITE_URL },
@@ -38,17 +38,25 @@ export default function IndustriesIndexPage() {
                 <Link
                   key={industry.slug}
                   to={`/industries/${industry.slug}`}
-                  className="group p-8 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 transition-all hover:shadow-lg"
+                  className="group overflow-hidden bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 transition-all hover:shadow-lg"
                 >
-                  <div className="w-14 h-14 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors">
-                    <Icon className="w-7 h-7 text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors" />
+                  <img
+                    src={industry.image}
+                    alt={industry.imageAlt}
+                    className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
+                  />
+                  <div className="p-6">
+                    <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
+                      <Icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">{industry.title}</h2>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">{industry.description}</p>
+                    <span className="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400">
+                      Explore solutions
+                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </span>
                   </div>
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">{industry.title}</h2>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">{industry.description}</p>
-                  <span className="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400">
-                    Explore solutions
-                    <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                  </span>
                 </Link>
               );
             })}

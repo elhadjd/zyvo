@@ -17,6 +17,7 @@ import HelpCenterPage from '../pages/HelpCenterPage';
 import PrivacyPage from '../pages/PrivacyPage';
 import TermsPage from '../pages/TermsPage';
 import CookiesPage from '../pages/CookiesPage';
+import IntegrationsPage from '../pages/IntegrationsPage';
 import NotFoundPage from '../pages/NotFoundPage';
 
 export default function AppRouter() {
@@ -35,6 +36,7 @@ export default function AppRouter() {
         <Route path="industries/:slug" element={<IndustryPage />} />
         <Route path="blog" element={<BlogIndexPage />} />
         <Route path="blog/:slug" element={<BlogPostPage />} />
+        <Route path="integrations" element={<IntegrationsPage />} />
         <Route path="getting-started" element={<GettingStartedPage />} />
         <Route path="help-center" element={<HelpCenterPage />} />
         <Route path="privacy-policy" element={<PrivacyPage />} />

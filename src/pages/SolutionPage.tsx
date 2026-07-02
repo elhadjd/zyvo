@@ -48,7 +48,15 @@ export default function SolutionPage() {
             <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
               {solution.title}
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-12">{solution.description}</p>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">{solution.description}</p>
+
+            {solution.image && (
+              <img
+                src={solution.image}
+                alt={solution.imageAlt ?? solution.title}
+                className="w-full rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 mb-12 object-cover max-h-96"
+              />
+            )}
 
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>

@@ -21,6 +21,7 @@ const staticRoutes = [
   { path: '/industries', priority: '0.9', changefreq: 'weekly' },
   { path: '/blog', priority: '0.8', changefreq: 'weekly' },
   { path: '/getting-started', priority: '0.9', changefreq: 'monthly' },
+  { path: '/integrations', priority: '0.8', changefreq: 'monthly' },
   { path: '/help-center', priority: '0.6', changefreq: 'monthly' },
   { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
   { path: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
@@ -29,12 +30,12 @@ const staticRoutes = [
 
 const solutionSlugs = [
   'point-of-sale', 'inventory-management', 'employee-management', 'logistics',
-  'scheduling', 'marketing-analytics', 'online-store', 'financial-management',
-  'invoicing', 'purchasing',
+  'scheduling', 'customer-queue-management', 'marketing-analytics', 'online-store',
+  'financial-management', 'invoicing', 'purchasing',
 ];
 
 const industrySlugs = [
-  'retail', 'manufacturing', 'healthcare', 'hospitality',
+  'retail', 'manufacturing', 'beauty-salons',
   'professional-services', 'ecommerce',
 ];
 
