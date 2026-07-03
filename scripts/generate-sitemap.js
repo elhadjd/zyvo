@@ -1,8 +1,4 @@
 #!/usr/bin/env node
-/**
- * Generates sitemap.xml from route definitions.
- * Run: node scripts/generate-sitemap.js
- */
 import { writeFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -15,6 +11,8 @@ const staticRoutes = [
   { path: '/features', priority: '0.9', changefreq: 'monthly' },
   { path: '/pricing', priority: '0.9', changefreq: 'monthly' },
   { path: '/security', priority: '0.8', changefreq: 'monthly' },
+  { path: '/demo', priority: '0.9', changefreq: 'monthly' },
+  { path: '/faq', priority: '0.8', changefreq: 'monthly' },
   { path: '/about', priority: '0.7', changefreq: 'monthly' },
   { path: '/contact', priority: '0.7', changefreq: 'monthly' },
   { path: '/solutions', priority: '0.9', changefreq: 'weekly' },
@@ -25,7 +23,17 @@ const staticRoutes = [
   { path: '/help-center', priority: '0.6', changefreq: 'monthly' },
   { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
   { path: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
+  { path: '/refund-policy', priority: '0.3', changefreq: 'yearly' },
   { path: '/cookie-policy', priority: '0.3', changefreq: 'yearly' },
+];
+
+const industryLandingSlugs = [
+  'salon-management-software',
+  'barbershop-management-software',
+  'restaurant-pos-system',
+  'retail-management-software',
+  'clinic-management-software',
+  'pharmacy-management-software',
 ];
 
 const solutionSlugs = [
@@ -35,8 +43,7 @@ const solutionSlugs = [
 ];
 
 const industrySlugs = [
-  'retail', 'manufacturing', 'beauty-salons',
-  'professional-services', 'ecommerce',
+  'retail', 'manufacturing', 'beauty-salons', 'professional-services', 'ecommerce',
 ];
 
 const blogSlugs = [
@@ -50,8 +57,9 @@ const lastmod = new Date().toISOString().split('T')[0];
 
 const urls = [
   ...staticRoutes,
+  ...industryLandingSlugs.map((slug) => ({ path: `/${slug}`, priority: '0.9', changefreq: 'monthly' })),
   ...solutionSlugs.map((slug) => ({ path: `/solutions/${slug}`, priority: '0.8', changefreq: 'monthly' })),
-  ...industrySlugs.map((slug) => ({ path: `/industries/${slug}`, priority: '0.8', changefreq: 'monthly' })),
+  ...industrySlugs.map((slug) => ({ path: `/industries/${slug}`, priority: '0.7', changefreq: 'monthly' })),
   ...blogSlugs.map((slug) => ({ path: `/blog/${slug}`, priority: '0.7', changefreq: 'monthly' })),
 ];
 
@@ -66,6 +74,5 @@ ${urls.map((route) => `  <url>
 </urlset>
 `;
 
-const outputPath = join(__dirname, '..', 'public', 'sitemap.xml');
-writeFileSync(outputPath, xml);
-console.log(`Sitemap generated: ${outputPath} (${urls.length} URLs)`);
+writeFileSync(join(__dirname, '..', 'public', 'sitemap.xml'), xml);
+console.log(`Sitemap generated (${urls.length} URLs)`);

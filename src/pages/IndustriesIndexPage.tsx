@@ -38,7 +38,7 @@ export default function IndustriesIndexPage() {
                 <Link
                   key={industry.slug}
                   to={`/industries/${industry.slug}`}
-                  className="group overflow-hidden bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 transition-all hover:shadow-lg"
+                  className="group overflow-hidden bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-brand-primary/40 dark:hover:border-brand-accent/40 transition-all hover:shadow-lg"
                 >
                   <img
                     src={industry.image}
@@ -47,12 +47,12 @@ export default function IndustriesIndexPage() {
                     loading="lazy"
                   />
                   <div className="p-6">
-                    <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
-                      <Icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    <div className="w-12 h-12 rounded-xl bg-brand-primary-light dark:bg-brand-primary/20 flex items-center justify-center mb-4">
+                      <Icon className="w-6 h-6 text-brand-primary dark:text-brand-accent" />
                     </div>
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">{industry.title}</h2>
                     <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">{industry.description}</p>
-                    <span className="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400">
+                    <span className="inline-flex items-center text-sm font-medium text-brand-primary dark:text-brand-accent">
                       Explore solutions
                       <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                     </span>

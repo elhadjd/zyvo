@@ -63,8 +63,8 @@ const PricingSection = () => {
             <div className="container mx-auto px-4 lg:px-8">
                 {/* Header */}
                 <div className="text-center max-w-3xl mx-auto mb-12">
-                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 mb-4">
-                        <span className="text-sm font-medium text-blue-700 dark:text-blue-400">
+                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-brand-primary-light dark:bg-brand-primary/20 border border-brand-primary/20 dark:border-brand-primary/30 mb-4">
+                        <span className="text-sm font-medium text-brand-primary dark:text-brand-accent">
                             SIMPLE PRICING
                         </span>
                     </div>
@@ -80,7 +80,7 @@ const PricingSection = () => {
                         <button
                             onClick={() => setAnnual(false)}
                             className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${!annual
-                                ? 'bg-blue-600 text-white'
+                                ? 'bg-brand-primary text-white'
                                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                                 }`}
                         >
@@ -89,7 +89,7 @@ const PricingSection = () => {
                         <button
                             onClick={() => setAnnual(true)}
                             className={`px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center ${annual
-                                ? 'bg-blue-600 text-white'
+                                ? 'bg-brand-primary text-white'
                                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                                 }`}
                         >
@@ -111,13 +111,13 @@ const PricingSection = () => {
                             <div
                                 key={index}
                                 className={`relative bg-white dark:bg-gray-800 rounded-2xl border ${plan.popular
-                                    ? 'border-blue-500 shadow-xl scale-105 lg:scale-110'
+                                    ? 'border-brand-primary shadow-xl scale-105 lg:scale-110'
                                     : 'border-gray-200 dark:border-gray-700 shadow-sm'
                                     } p-8`}
                             >
                                 {plan.popular && (
                                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                                        <div className="px-4 py-1 bg-blue-600 text-white text-sm font-medium rounded-full">
+                                        <div className="px-4 py-1 bg-brand-primary text-white text-sm font-medium rounded-full">
                                             Most Popular
                                         </div>
                                     </div>
@@ -168,7 +168,7 @@ const PricingSection = () => {
                                         to="/contact"
                                         className={`block w-full text-center py-3 px-6 rounded-lg font-semibold transition-colors ${
                                             plan.popular
-                                                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                                ? 'bg-brand-primary text-white hover:bg-brand-primary-hover'
                                                 : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
                                         }`}
                                     >
@@ -179,7 +179,7 @@ const PricingSection = () => {
                                         to="/getting-started"
                                         className={`block w-full text-center py-3 px-6 rounded-lg font-semibold transition-colors ${
                                             plan.popular
-                                                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                                ? 'bg-brand-primary text-white hover:bg-brand-primary-hover'
                                                 : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
                                         }`}
                                     >
@@ -201,7 +201,7 @@ const PricingSection = () => {
                 <div className="mt-16">
                     <div className="flex flex-wrap items-center justify-center gap-8 p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
                         <div className="flex items-center">
-                            <Shield className="w-5 h-5 text-blue-600 mr-2" />
+                            <Shield className="w-5 h-5 text-brand-primary mr-2" />
                             <span className="text-sm text-gray-700 dark:text-gray-300">7-day money-back guarantee</span>
                         </div>
                         <div className="w-px h-6 bg-gray-300 dark:bg-gray-700"></div>
@@ -211,7 +211,7 @@ const PricingSection = () => {
                         </div>
                         <div className="w-px h-6 bg-gray-300 dark:bg-gray-700"></div>
                         <div className="flex items-center">
-                            <Users className="w-5 h-5 text-blue-600 mr-2" />
+                            <Users className="w-5 h-5 text-brand-primary mr-2" />
                             <span className="text-sm text-gray-700 dark:text-gray-300">Used by 500+ SMBs</span>
                         </div>
                     </div>
@@ -219,10 +219,10 @@ const PricingSection = () => {
 
                 {/* FAQ Link */}
                 <div className="mt-8 text-center">
-                    <a href="#" className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600">
+                    <Link to="/faq" className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-brand-primary">
                         <HelpCircle className="w-4 h-4 mr-1" />
                         Have questions? Check our FAQ
-                    </a>
+                    </Link>
                 </div>
             </div>
         </section>

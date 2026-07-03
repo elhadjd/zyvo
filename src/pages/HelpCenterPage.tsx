@@ -24,7 +24,7 @@ const faqs = [
   {
     question: 'Is my data secure?',
     answer:
-      'Absolutely. ZYVO uses AES-256 encryption, is SOC 2 Type II certified, and stores all data in US-based AWS data centers. See our Security page for details.',
+      'We use encrypted communications, secure cloud hosting in the United States, daily backups, and role-based permissions. See our Security page for details.',
   },
   {
     question: 'How do I contact support?',
@@ -73,10 +73,10 @@ export default function HelpCenterPage() {
               <Link
                 key={resource.title}
                 to={resource.href}
-                className="p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 transition-all text-center"
+                className="p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-brand-primary/40 dark:hover:border-brand-accent/40 transition-all text-center"
               >
-                <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-4">
-                  <resource.icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                <div className="w-12 h-12 rounded-lg bg-brand-primary-light dark:bg-brand-primary/20 flex items-center justify-center mx-auto mb-4">
+                  <resource.icon className="w-6 h-6 text-brand-primary dark:text-brand-accent" />
                 </div>
                 <h2 className="font-semibold text-gray-900 dark:text-white mb-2">{resource.title}</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400">{resource.description}</p>

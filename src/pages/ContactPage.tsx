@@ -54,32 +54,32 @@ export default function ContactPage() {
           <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
             <div className="space-y-8">
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                  <Mail className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                <div className="w-12 h-12 rounded-lg bg-brand-primary-light dark:bg-brand-primary/20 flex items-center justify-center flex-shrink-0">
+                  <Mail className="w-6 h-6 text-brand-primary dark:text-brand-accent" />
                 </div>
                 <div>
                   <h2 className="font-semibold text-gray-900 dark:text-white mb-1">Email</h2>
-                  <a href={`mailto:${COMPANY.email}`} className="text-blue-600 dark:text-blue-400 hover:underline">
+                  <a href={`mailto:${COMPANY.email}`} className="text-brand-primary dark:text-brand-accent hover:underline">
                     {COMPANY.email}
                   </a>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Response within 24 hours</p>
                 </div>
               </div>
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                  <Phone className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                <div className="w-12 h-12 rounded-lg bg-brand-primary-light dark:bg-brand-primary/20 flex items-center justify-center flex-shrink-0">
+                  <Phone className="w-6 h-6 text-brand-primary dark:text-brand-accent" />
                 </div>
                 <div>
                   <h2 className="font-semibold text-gray-900 dark:text-white mb-1">Phone</h2>
-                  <a href="tel:+19735249725" className="text-blue-600 dark:text-blue-400 hover:underline">
+                  <a href="tel:+19735249725" className="text-brand-primary dark:text-brand-accent hover:underline">
                     {COMPANY.phone}
                   </a>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Mon–Fri, 9am–6pm ET</p>
                 </div>
               </div>
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                <div className="w-12 h-12 rounded-lg bg-brand-primary-light dark:bg-brand-primary/20 flex items-center justify-center flex-shrink-0">
+                  <MapPin className="w-6 h-6 text-brand-primary dark:text-brand-accent" />
                 </div>
                 <div>
                   <h2 className="font-semibold text-gray-900 dark:text-white mb-1">Headquarters</h2>
@@ -145,7 +145,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={processing}
-                    className="w-full flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                    className="w-full flex items-center justify-center px-6 py-3 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors disabled:opacity-50"
                   >
                     {processing ? 'Sending...' : 'Send Message'}
                     <ArrowRight className="ml-2 w-4 h-4" />

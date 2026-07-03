@@ -44,14 +44,14 @@ const Testimonials = () => {
             <div className="container mx-auto px-4 lg:px-8">
                 {/* Section Header */}
                 <div className="text-center max-w-3xl mx-auto mb-16">
-                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 mb-6">
-                        <span className="text-sm font-semibold text-blue-700 dark:text-blue-400">
+                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-brand-primary-light dark:bg-brand-primary/20 border border-brand-primary/20 dark:border-brand-primary/30 mb-6">
+                        <span className="text-sm font-semibold text-brand-primary dark:text-brand-accent">
                             TRUSTED BY LEADERS
                         </span>
                     </div>
                     <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
                         Trusted by Industry
-                        <span className="text-blue-600 dark:text-blue-400"> Leaders </span>
+                        <span className="text-brand-primary dark:text-brand-accent"> Leaders </span>
                     </h2>
                     <p className="text-xl text-gray-600 dark:text-gray-300">
                         See how top US companies are transforming their operations with ZYVO.
@@ -67,8 +67,8 @@ const Testimonials = () => {
                         >
                             {/* Quote Icon */}
                             <div className="mb-6">
-                                <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                    <Quote className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                                <div className="w-12 h-12 rounded-lg bg-brand-primary-light dark:bg-brand-primary/20 flex items-center justify-center">
+                                    <Quote className="w-6 h-6 text-brand-primary dark:text-brand-accent" />
                                 </div>
                             </div>
 
@@ -107,7 +107,7 @@ const Testimonials = () => {
                                 <div className="space-y-2">
                                     {testimonial.results.map((result, idx) => (
                                         <div key={idx} className="flex items-center text-sm">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></div>
+                                            <div className="w-1.5 h-1.5 rounded-full bg-brand-surface0 mr-2"></div>
                                             <span className="text-gray-600 dark:text-gray-400">{result}</span>
                                         </div>
                                     ))}
@@ -142,23 +142,23 @@ const Testimonials = () => {
                 </div>
 
                 {/* Stats */}
-                <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-12 text-white text-center">
+                <div className="bg-gradient-to-r from-brand-primary to-brand-primary-hover rounded-2xl p-12 text-white text-center">
                     <div className="grid md:grid-cols-4 gap-8">
                         <div>
                             <div className="text-4xl font-bold mb-2">2,500+</div>
-                            <div className="text-blue-100">US Companies</div>
+                            <div className="text-white/80">US Companies</div>
                         </div>
                         <div>
                             <div className="text-4xl font-bold mb-2">99.8%</div>
-                            <div className="text-blue-100">Uptime</div>
+                            <div className="text-white/80">Uptime</div>
                         </div>
                         <div>
                             <div className="text-4xl font-bold mb-2">98%</div>
-                            <div className="text-blue-100">Satisfaction Rate</div>
+                            <div className="text-white/80">Satisfaction Rate</div>
                         </div>
                         <div>
                             <div className="text-4xl font-bold mb-2">4.9/5</div>
-                            <div className="text-blue-100">Average Rating</div>
+                            <div className="text-white/80">Average Rating</div>
                         </div>
                     </div>
                 </div>

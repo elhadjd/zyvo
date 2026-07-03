@@ -45,7 +45,7 @@ export default function BlogPostPage() {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-3xl mx-auto">
             <div className="flex items-center gap-3 mb-6">
-              <span className="text-sm font-medium px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full">
+              <span className="text-sm font-medium px-3 py-1 bg-brand-primary-light dark:bg-brand-primary/20 text-brand-primary dark:text-brand-accent rounded-full">
                 {post.category}
               </span>
               <span className="text-sm text-gray-500 dark:text-gray-400">{post.readTime}</span>
@@ -71,12 +71,12 @@ export default function BlogPostPage() {
               ))}
             </div>
 
-            <div className="mt-12 p-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl text-white text-center">
+            <div className="mt-12 p-8 bg-gradient-to-r from-brand-primary to-brand-primary-hover rounded-2xl text-white text-center">
               <h2 className="text-2xl font-bold mb-4">Ready to put these insights into action?</h2>
-              <p className="text-blue-100 mb-6">Start your 7-day free trial of ZYVO today.</p>
+              <p className="text-white/80 mb-6">Start your 7-day free trial of ZYVO today.</p>
               <Link
                 to="/getting-started"
-                className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+                className="inline-flex items-center px-8 py-4 bg-white text-brand-primary font-semibold rounded-lg hover:bg-gray-100 transition-colors"
               >
                 Start Free Trial
                 <ArrowRight className="ml-2 w-5 h-5" />

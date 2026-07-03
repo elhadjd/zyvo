@@ -49,7 +49,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">4. Data Security</h2>
               <p>
-                We implement AES-256 encryption, SOC 2 Type II certified controls, and store all data in US-based AWS data centers. See our Security page for complete details on our security practices.
+                We use industry-standard security practices including encrypted communications (TLS), secure cloud hosting, daily backups, and role-based access controls. See our <a href="/security" className="text-brand-primary dark:text-brand-accent hover:underline">Security page</a> for details.
               </p>
             </section>
             <section>

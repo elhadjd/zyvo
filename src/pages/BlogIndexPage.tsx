@@ -35,11 +35,11 @@ export default function BlogIndexPage() {
             {blogPosts.map((post) => (
               <article
                 key={post.slug}
-                className="group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-blue-300 dark:hover:border-blue-700 transition-all hover:shadow-lg"
+                className="group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-brand-primary/40 dark:hover:border-brand-accent/40 transition-all hover:shadow-lg"
               >
                 <div className="p-8">
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="text-xs font-medium px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full">
+                    <span className="text-xs font-medium px-2 py-1 bg-brand-primary-light dark:bg-brand-primary/20 text-brand-primary dark:text-brand-accent rounded-full">
                       {post.category}
                     </span>
                     <span className="flex items-center text-xs text-gray-500 dark:text-gray-400">
@@ -47,7 +47,7 @@ export default function BlogIndexPage() {
                       {post.readTime}
                     </span>
                   </div>
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 group-hover:text-brand-primary dark:group-hover:text-brand-accent transition-colors">
                     <Link to={`/blog/${post.slug}`}>{post.title}</Link>
                   </h2>
                   <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">{post.excerpt}</p>
@@ -57,7 +57,7 @@ export default function BlogIndexPage() {
                     </span>
                     <Link
                       to={`/blog/${post.slug}`}
-                      className="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400"
+                      className="inline-flex items-center text-sm font-medium text-brand-primary dark:text-brand-accent"
                     >
                       Read more
                       <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />

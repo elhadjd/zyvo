@@ -8,7 +8,6 @@ import {
     Share2,
     CheckCircle,
     ArrowRight,
-    Shield
 } from 'lucide-react';
 
 const Features = () => {
@@ -35,7 +34,7 @@ const Features = () => {
             icon: <Lock className="w-8 h-8" />,
             title: "Enterprise Security",
             description: "Bank-level encryption and comprehensive compliance with US regulations.",
-            details: ["SOC2 Type II certified", "GDPR compliant", "Role-based access control"]
+            details: ['Encrypted communications', 'Role-based access control', 'Daily backups']
         },
         {
             icon: <BarChart3 className="w-8 h-8" />,
@@ -46,8 +45,8 @@ const Features = () => {
         {
             icon: <Cloud className="w-8 h-8" />,
             title: "Cloud Infrastructure",
-            description: "Scalable, reliable cloud platform with 99.9% uptime guarantee.",
-            details: ["AWS infrastructure", "Auto-scaling", "Global CDN"]
+            description: 'Reliable cloud platform designed for everyday business operations.',
+            details: ['AWS infrastructure', 'Mobile access', 'No local servers to maintain']
         },
     ];
 
@@ -56,14 +55,14 @@ const Features = () => {
             <div className="container mx-auto px-4 lg:px-8">
                 {/* Section Header */}
                 <div className="text-center max-w-3xl mx-auto mb-16">
-                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 mb-6">
-                        <span className="text-sm font-semibold text-blue-700 dark:text-blue-400">
+                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-brand-primary-light dark:bg-brand-primary/20 border border-brand-primary/20 dark:border-brand-primary/30 mb-6">
+                        <span className="text-sm font-semibold text-brand-primary dark:text-brand-accent">
                             ENTERPRISE FEATURES
                         </span>
                     </div>
                     <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
                         Built for Modern
-                        <span className="text-blue-600 dark:text-blue-400"> Business </span>
+                        <span className="text-brand-primary dark:text-brand-accent"> Business </span>
                         Operations
                     </h2>
                     <p className="text-xl text-gray-600 dark:text-gray-300">
@@ -77,10 +76,10 @@ const Features = () => {
                     {features.map((feature, index) => (
                         <div
                             key={index}
-                            className="group bg-white dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 hover:shadow-lg"
+                            className="group bg-white dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 hover:border-brand-primary/40 dark:hover:border-brand-accent/40 transition-all duration-300 hover:shadow-lg"
                         >
-                            <div className="w-14 h-14 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-6 group-hover:bg-blue-600 dark:group-hover:bg-blue-600 transition-colors">
-                                <div className="text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors">
+                            <div className="w-14 h-14 rounded-xl bg-brand-primary-light dark:bg-brand-primary/20 flex items-center justify-center mb-6 group-hover:bg-brand-primary dark:group-hover:bg-brand-primary transition-colors">
+                                <div className="text-brand-primary dark:text-brand-accent group-hover:text-white transition-colors">
                                     {feature.icon}
                                 </div>
                             </div>
@@ -96,7 +95,7 @@ const Features = () => {
                             <ul className="space-y-2">
                                 {feature.details.map((detail, idx) => (
                                     <li key={idx} className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                                        <CheckCircle className="w-4 h-4 text-blue-500 mr-2" />
+                                        <CheckCircle className="w-4 h-4 text-brand-accent mr-2" />
                                         {detail}
                                     </li>
                                 ))}
@@ -106,50 +105,49 @@ const Features = () => {
                 </div>
 
                 {/* CTA Section */}
-                <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 lg:p-12 text-white">
+                <div className="bg-gradient-to-r from-brand-primary to-brand-primary-hover rounded-2xl p-8 lg:p-12 text-white">
                     <div className="grid lg:grid-cols-2 gap-8 items-center">
                         <div>
                             <h3 className="text-3xl font-bold mb-4">
                                 Ready to Transform Your Business Operations?
                             </h3>
-                            <p className="text-blue-100 mb-6">
-                                Join thousands of US companies that trust ZYVO for their critical business operations.
+                            <p className="text-white/80 mb-6">
+                                See how ZYVO can simplify your daily operations with a free trial or personalized demo.
                             </p>
-                            <div className="flex items-center space-x-4">
+                            <div className="flex flex-col sm:flex-row gap-3">
                                 <Link
-                                    to="/contact"
-                                    className="inline-flex items-center justify-center px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+                                    to="/demo"
+                                    className="inline-flex items-center justify-center px-6 py-3 bg-white text-brand-primary font-semibold rounded-lg hover:bg-gray-100 transition-colors min-h-[48px]"
                                 >
-                                    Schedule a Demo
+                                    Book a Demo
                                     <ArrowRight className="ml-2 w-4 h-4" />
                                 </Link>
                                 <Link
-                                    to="/blog"
-                                    className="text-white hover:text-blue-100 font-medium"
+                                    to="/getting-started"
+                                    className="inline-flex items-center justify-center px-6 py-3 border-2 border-white/40 text-white font-semibold rounded-lg hover:bg-white/10 transition-colors min-h-[48px]"
                                 >
-                                    View case studies →
+                                    Start Free Trial
                                 </Link>
                             </div>
                         </div>
 
                         <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                            <div className="flex items-center space-x-4 mb-6">
-                                <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
-                                    <Shield className="w-6 h-6" />
+                            <div className="grid grid-cols-2 gap-4 text-center">
+                                <div>
+                                    <div className="text-2xl font-bold">Cloud</div>
+                                    <div className="text-sm text-white/80">Access anywhere</div>
                                 </div>
                                 <div>
-                                    <div className="text-sm text-blue-100">Security First</div>
-                                    <div className="text-2xl font-bold">99.9% Uptime</div>
+                                    <div className="text-2xl font-bold">Mobile</div>
+                                    <div className="text-sm text-white/80">Works on phones</div>
                                 </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold">45%</div>
-                                    <div className="text-sm text-blue-100">Efficiency Gain</div>
+                                <div>
+                                    <div className="text-2xl font-bold">Simple</div>
+                                    <div className="text-sm text-white/80">Easy onboarding</div>
                                 </div>
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold">24/7</div>
-                                    <div className="text-sm text-blue-100">Support</div>
+                                <div>
+                                    <div className="text-2xl font-bold">US</div>
+                                    <div className="text-sm text-white/80">Based support</div>
                                 </div>
                             </div>
                         </div>

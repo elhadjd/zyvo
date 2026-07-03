@@ -9,7 +9,7 @@ export default function AboutPage() {
     <>
       <SEO
         title="About ZYVO — Our Mission to Help US Businesses Grow"
-        description="Learn about ZYVO Technologies, founded in 2020. We serve 2,500+ US companies with all-in-one business management software from our Columbus, OH headquarters."
+        description="Learn about ZYVO Technologies. We help US small and medium businesses streamline operations with modern cloud software from Columbus, OH."
         keywords="about ZYVO, ZYVO Technologies, business management company USA, Columbus Ohio software company"
         canonical="/about"
         structuredData={getBreadcrumbSchema([

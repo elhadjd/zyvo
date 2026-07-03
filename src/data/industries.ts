@@ -37,9 +37,9 @@ export const industries: Industry[] = [
     ],
     solutions: ['point-of-sale', 'inventory-management', 'online-store', 'employee-management'],
     stats: [
-      { value: '800+', label: 'US Retailers' },
-      { value: '35%', label: 'Avg. Revenue Growth' },
-      { value: '99.9%', label: 'Uptime SLA' },
+      { value: 'POS', label: 'Built-in' },
+      { value: 'Multi', label: 'Location' },
+      { value: 'Cloud', label: 'Based' },
     ],
   },
   {
@@ -62,9 +62,9 @@ export const industries: Industry[] = [
     ],
     solutions: ['inventory-management', 'purchasing', 'logistics', 'financial-management'],
     stats: [
-      { value: '200+', label: 'Manufacturers' },
-      { value: '25%', label: 'Cost Reduction' },
-      { value: '40%', label: 'Less Stockouts' },
+      { value: 'ERP', label: 'Modules' },
+      { value: 'Cloud', label: 'Based' },
+      { value: 'US', label: 'Focused' },
     ],
   },
   {
@@ -88,9 +88,9 @@ export const industries: Industry[] = [
     ],
     solutions: ['customer-queue-management', 'scheduling', 'point-of-sale', 'employee-management'],
     stats: [
-      { value: '500+', label: 'Salons & Barbershops' },
-      { value: '60%', label: 'Fewer Walk-aways' },
-      { value: 'SMS', label: 'Real-time Updates' },
+      { value: 'SMS', label: 'Queue Alerts' },
+      { value: 'Walk-in', label: 'Queues' },
+      { value: 'POS', label: 'Integrated' },
     ],
   },
   {
@@ -114,9 +114,9 @@ export const industries: Industry[] = [
     ],
     solutions: ['invoicing', 'scheduling', 'financial-management', 'employee-management'],
     stats: [
-      { value: '350+', label: 'Service Firms' },
-      { value: '2x', label: 'Faster Invoicing' },
-      { value: '30%', label: 'More Billable Hours' },
+      { value: 'Billing', label: 'Tools' },
+      { value: 'Projects', label: 'Tracking' },
+      { value: 'Cloud', label: 'Based' },
     ],
   },
   {
@@ -140,9 +140,9 @@ export const industries: Industry[] = [
     ],
     solutions: ['online-store', 'inventory-management', 'marketing-analytics', 'logistics'],
     stats: [
-      { value: '600+', label: 'E-Commerce Brands' },
-      { value: '45%', label: 'Revenue Growth' },
-      { value: '0%', label: 'Transaction Fees' },
+      { value: 'Online', label: 'Store' },
+      { value: 'Inventory', label: 'Sync' },
+      { value: 'Analytics', label: 'Built-in' },
     ],
   },
 ];

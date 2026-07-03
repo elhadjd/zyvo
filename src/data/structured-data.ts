@@ -1,28 +1,22 @@
-import { COMPANY, SITE_NAME, SITE_URL, SITE_DESCRIPTION } from './site';
-
 export function getOrganizationSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: COMPANY.name,
-    url: SITE_URL,
-    logo: `${SITE_URL}/favicon.svg`,
-    description: SITE_DESCRIPTION,
-    email: COMPANY.email,
-    telephone: COMPANY.phone,
-    foundingDate: String(COMPANY.founded),
+    name: 'ZYVO Technologies, Inc.',
+    url: 'https://www.zyvoerp.com',
+    logo: 'https://www.zyvoerp.com/favicon.svg',
+    description:
+      'Cloud business management software for US small and medium businesses.',
+    email: 'commercial@zyvoerp.com',
+    telephone: '+1-973-524-9725',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: COMPANY.address.street,
-      addressLocality: COMPANY.address.city,
-      addressRegion: COMPANY.address.state,
-      postalCode: COMPANY.address.zip,
-      addressCountry: COMPANY.address.country,
+      streetAddress: '358 Hutchinson Ave',
+      addressLocality: 'Columbus',
+      addressRegion: 'OH',
+      postalCode: '43235',
+      addressCountry: 'US',
     },
-    sameAs: [
-      'https://www.linkedin.com/company/zyvo',
-      'https://twitter.com/zyvoerp',
-    ],
   };
 }
 
@@ -30,22 +24,16 @@ export function getSoftwareApplicationSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: SITE_NAME,
+    name: 'ZYVO',
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web, iOS, Android',
-    description: SITE_DESCRIPTION,
+    description:
+      'All-in-one business management: inventory, POS, employees, appointments, customers, accounting, and analytics.',
     offers: {
-      '@type': 'AggregateOffer',
-      lowPrice: '39',
-      highPrice: '199',
+      '@type': 'Offer',
+      price: '39',
       priceCurrency: 'USD',
-      offerCount: '3',
-    },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      ratingCount: '487',
-      bestRating: '5',
+      description: 'Plans start with a 7-day free trial. No credit card required.',
     },
   };
 }
@@ -90,19 +78,13 @@ export function getArticleSchema(post: {
     '@type': 'Article',
     headline: post.title,
     description: post.description,
-    author: {
-      '@type': 'Person',
-      name: post.author,
-    },
+    author: { '@type': 'Person', name: post.author },
     datePublished: post.date,
     publisher: {
       '@type': 'Organization',
-      name: COMPANY.name,
-      logo: {
-        '@type': 'ImageObject',
-        url: `${SITE_URL}/favicon.svg`,
-      },
+      name: 'ZYVO Technologies, Inc.',
+      logo: { '@type': 'ImageObject', url: 'https://www.zyvoerp.com/favicon.svg' },
     },
-    mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,
+    mainEntityOfPage: `https://www.zyvoerp.com/blog/${post.slug}`,
   };
 }

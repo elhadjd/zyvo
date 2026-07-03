@@ -1,4 +1,4 @@
-// components/CompanySignupFlow.jsx
+import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { ArrowRight, Shield, Mail, Lock, Check, ChevronRight, Building } from 'lucide-react';
 import { baseApiURL, Requests } from '../api';
@@ -161,14 +161,14 @@ const CompanySignupFlow = () => {
                 <div className="max-w-md mx-auto">
                     {/* Logo */}
                     <div className="text-center mb-8">
-                        <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl mb-4">
+                        <div className="inline-flex items-center justify-center w-12 h-12 bg-brand-primary rounded-xl mb-4">
                             <Building className="w-6 h-6 text-white" />
                         </div>
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                             Start with ZYVO
                         </h2>
-                        <p className="text-gray-600 dark:text-gray-400">
-                            Join 2,500+ US companies using ZYVO
+                            <p className="text-gray-600 dark:text-gray-400">
+                            7-day free trial · No credit card required
                         </p>
                     </div>
 
@@ -190,7 +190,7 @@ const CompanySignupFlow = () => {
                                                 setErrors({});
                                             }}
                                             placeholder="name@company.com"
-                                            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent"
                                             autoFocus
                                         />
                                     </div>
@@ -202,7 +202,7 @@ const CompanySignupFlow = () => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full flex items-center justify-center px-6 py-3 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {loading ? (
                                         <div className="flex items-center">
@@ -219,9 +219,9 @@ const CompanySignupFlow = () => {
 
                                 <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">
                                     By continuing, you agree to our{' '}
-                                    <a href="#" className="text-blue-600 hover:underline">Terms</a>
+                                    <Link to="/terms-of-service" className="text-brand-primary hover:underline">Terms</Link>
                                     {' '}and{' '}
-                                    <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a>
+                                    <Link to="/privacy-policy" className="text-brand-primary hover:underline">Privacy Policy</Link>
                                 </p>
                             </form>
                         </div>
@@ -256,7 +256,7 @@ const CompanySignupFlow = () => {
                                                 setErrors({});
                                             }}
                                             placeholder="e.g., Acme Corporation"
-                                            className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent"
                                             autoFocus
                                         />
                                         {errors.name && (
@@ -273,7 +273,7 @@ const CompanySignupFlow = () => {
                                             value={companyData.nif}
                                             onChange={(e) => setCompanyData({ ...companyData, nif: e.target.value })}
                                             placeholder="XX-XXXXXXX"
-                                            className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent"
                                         />
                                         <p className="text-xs text-gray-500 mt-1">
                                             You can add this later. Not required to start your trial.
@@ -290,7 +290,7 @@ const CompanySignupFlow = () => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+                                    className="w-full flex items-center justify-center px-6 py-3 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6"
                                 >
                                     {loading ? (
                                         <div className="flex items-center">
@@ -332,12 +332,12 @@ const CompanySignupFlow = () => {
                                 <span className="font-medium text-gray-900 dark:text-white">{email}</span>
                             </p>
 
-                            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6 text-left">
-                                <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2 flex items-center">
+                            <div className="bg-brand-surface dark:bg-brand-primary/10 rounded-lg p-4 mb-6 text-left">
+                                <h3 className="font-medium text-brand-primary dark:text-brand-accent mb-2 flex items-center">
                                     <Shield className="w-4 h-4 mr-2" />
                                     What's next?
                                 </h3>
-                                <ul className="space-y-2 text-sm text-blue-700 dark:text-blue-400">
+                                <ul className="space-y-2 text-sm text-brand-primary dark:text-brand-accent">
                                     <li className="flex items-start">
                                         <span className="mr-2">•</span>
                                         Check your email to verify your account
@@ -356,7 +356,7 @@ const CompanySignupFlow = () => {
                             <a
                                 target='_blank'
                                 href={`https://${link}`}
-                                className="w-full flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                                className="w-full flex items-center justify-center px-6 py-3 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors"
                             >
                                 Go to Dashboard
                                 <ArrowRight className="ml-2 w-4 h-4" />
@@ -364,24 +364,25 @@ const CompanySignupFlow = () => {
 
                             <p className="text-xs text-gray-500 mt-4">
                                 Didn't receive the email? Check your spam or{' '}
-                                <button className="text-blue-600 hover:underline">resend</button>
+                                <button className="text-brand-primary hover:underline">resend</button>
                             </p>
                         </div>
                     )}
 
                     {/* Trust Badges */}
-                    <div className="mt-8 flex items-center justify-center space-x-6 text-xs text-gray-500 dark:text-gray-400">
+                    <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                         <div className="flex items-center">
                             <Shield className="w-4 h-4 mr-1" />
-                            SOC2 Type II
+                            Encrypted data
                         </div>
-                        <div className="w-px h-4 bg-gray-300 dark:bg-gray-700"></div>
+                        <div className="w-px h-4 bg-gray-300 dark:bg-gray-700 hidden sm:block" />
                         <div className="flex items-center">
-                            <Lock className="w-4 h-4 mr-1" />
-                            256-bit encryption
+                            7-day free trial
                         </div>
-                        <div className="w-px h-4 bg-gray-300 dark:bg-gray-700"></div>
-                        <div>7-day free trial</div>
+                        <div className="w-px h-4 bg-gray-300 dark:bg-gray-700 hidden sm:block" />
+                        <div className="flex items-center">
+                            No credit card
+                        </div>
                     </div>
                 </div>
             </div>
