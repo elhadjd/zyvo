@@ -65,7 +65,7 @@ export default function DevelopmentServicesPage() {
               {hubMeta.subheadline}
             </p>
             <Link
-              to="/contact"
+              to="/contact?service=not-sure"
               className="inline-flex items-center justify-center px-8 py-4 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors"
             >
               Get a free project quote
@@ -195,7 +195,7 @@ export default function DevelopmentServicesPage() {
             Tell us about your business and goals. We will respond with a clear scope, timeline, and quote — no pressure.
           </p>
           <Link
-            to="/contact"
+            to="/contact?service=not-sure"
             className="inline-flex items-center justify-center px-8 py-4 bg-white text-brand-primary font-semibold rounded-lg hover:bg-brand-surface transition-colors"
           >
             Contact our team

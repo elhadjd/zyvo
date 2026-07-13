@@ -47,7 +47,7 @@ export default function DevelopmentServicesSection() {
                 <ArrowRight className="ml-2 w-5 h-5" aria-hidden="true" />
               </Link>
               <Link
-                to="/contact"
+                to="/contact?service=not-sure"
                 className="inline-flex items-center justify-center px-6 py-3.5 border-2 border-brand-primary text-brand-primary dark:border-brand-accent dark:text-brand-accent font-semibold rounded-lg hover:bg-brand-primary-light dark:hover:bg-gray-800 transition-colors"
               >
                 Get a free quote
@@ -124,7 +124,7 @@ export default function DevelopmentServicesSection() {
                   ))}
                 </ul>
                 <Link
-                  to="/contact"
+                  to={`/contact?service=${tier.service}`}
                   className={`block w-full text-center py-2.5 px-4 rounded-lg text-sm font-semibold transition-colors ${
                     tier.popular
                       ? 'bg-brand-primary text-white hover:bg-brand-primary-hover'

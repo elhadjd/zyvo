@@ -84,7 +84,7 @@ export default function DevelopmentServiceDetailPage({ slug: slugProp }: Props) 
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
-                  to="/contact"
+                  to={`/contact?service=${service.slug}`}
                   className="inline-flex items-center justify-center px-6 py-3.5 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors"
                 >
                   Get a free quote
@@ -162,7 +162,7 @@ export default function DevelopmentServiceDetailPage({ slug: slugProp }: Props) 
                     ))}
                   </ul>
                   <Link
-                    to="/contact"
+                    to={`/contact?service=${service.slug}`}
                     className="block w-full text-center py-3 px-4 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors"
                   >
                     Request quote
@@ -198,7 +198,7 @@ export default function DevelopmentServiceDetailPage({ slug: slugProp }: Props) 
             Share your vision and we will craft a proposal with clear pricing and timeline.
           </p>
           <Link
-            to="/contact"
+            to={`/contact?service=${service.slug}`}
             className="inline-flex items-center justify-center px-8 py-4 bg-white text-brand-primary font-semibold rounded-lg hover:bg-brand-surface transition-colors"
           >
             Start your project
