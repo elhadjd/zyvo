@@ -4,7 +4,7 @@ export const SITE_TAGLINE = 'Business Management Software for Growing US Busines
 export const SITE_DESCRIPTION =
   'ZYVO helps local businesses streamline operations with modern cloud software. Inventory, POS, employees, appointments, customers, accounting, and analytics—all in one easy-to-use system.';
 export const SITE_KEYWORDS =
-  'business management software, POS system, inventory management, salon software, restaurant POS, retail management, small business ERP, ZYVO';
+  'business management software, POS system, inventory management, salon software, restaurant POS, retail management, small business ERP, ZYVO, custom website development, custom software development, website maintenance services';
 
 export const COMPANY = {
   name: 'ZYVO Technologies, Inc.',

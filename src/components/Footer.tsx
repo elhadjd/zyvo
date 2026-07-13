@@ -21,9 +21,16 @@ const footerLinks: Record<string, { label: string; href: string }[]> = {
   Industries: industryLandings.map((l) => ({ label: l.industryName, href: l.path })),
   Company: [
     { label: 'About', href: '/about' },
+    { label: 'Development Services', href: '/development-services' },
     { label: 'Contact', href: '/contact' },
     { label: 'Book a Demo', href: '/demo' },
     { label: 'Blog', href: '/blog' },
+  ],
+  Services: [
+    { label: 'Custom Websites', href: '/custom-website-development' },
+    { label: 'Custom Software', href: '/custom-software-development' },
+    { label: 'Maintenance', href: '/website-maintenance-services' },
+    { label: 'View Portfolio', href: '/development-services#portfolio' },
   ],
 };
 
@@ -77,7 +84,7 @@ const Footer = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
             {Object.entries(footerLinks).map(([category, links]) => (
               <div key={category}>
                 <h4 className="font-semibold text-base mb-4">{category}</h4>

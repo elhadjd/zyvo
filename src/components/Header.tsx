@@ -33,6 +33,16 @@ const Header = () => {
       })),
     },
     {
+      name: 'Services',
+      href: '/development-services',
+      submenu: [
+        { name: 'All Development Services', href: '/development-services' },
+        { name: 'Custom Websites', href: '/custom-website-development' },
+        { name: 'Custom Software', href: '/custom-software-development' },
+        { name: 'Maintenance Plans', href: '/website-maintenance-services' },
+      ],
+    },
+    {
       name: 'Product',
       href: '/features',
       submenu: [

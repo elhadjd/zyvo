@@ -1,19 +1,9 @@
-import { useState, type FormEvent } from 'react';
-import { Target, Users, Shield, Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { apiKey, Requests } from '../api';
+import { Target, Users, Shield, Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
+import ContactForm from './ContactForm';
 import { COMPANY, TRUST_MESSAGE, VALUE_PROPOSITION } from '../data/site';
 
 const CompanySection = () => {
-  const [processingFormContact, setProcessingFormContact] = useState(false);
-  const [contactFormData, setContactFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-  });
-  const { routePost } = Requests();
-
   const values = [
     {
       icon: <Target className="w-6 h-6" />,
@@ -36,19 +26,6 @@ const CompanySection = () => {
       description: 'Talk to real people when you need help—not endless automated loops.',
     },
   ];
-
-  const SubmitContact = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setProcessingFormContact(true);
-    routePost('site/contacts/submit', { ...contactFormData, key: apiKey })
-      .then((response) => {
-        if (response.data?.success) {
-          setContactFormData({ name: '', email: '', phone: '', message: '' });
-        }
-      })
-      .catch(console.error)
-      .finally(() => setProcessingFormContact(false));
-  };
 
   return (
     <section id="company" className="py-16 lg:py-24 bg-white dark:bg-gray-900">
@@ -129,16 +106,17 @@ const CompanySection = () => {
             </div>
 
             <div className="bg-brand-surface dark:bg-gray-800 rounded-xl p-6 sm:p-8">
-              <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Send us a message</h4>
-              <form className="space-y-4" onSubmit={SubmitContact}>
-                <input type="text" placeholder="Your name" required value={contactFormData.name} onChange={(e) => setContactFormData({ ...contactFormData, name: e.target.value })} className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg min-h-[48px] focus:outline-none focus:ring-2 focus:ring-brand-accent" />
-                <input type="tel" placeholder="Phone" value={contactFormData.phone} onChange={(e) => setContactFormData({ ...contactFormData, phone: e.target.value })} className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg min-h-[48px] focus:outline-none focus:ring-2 focus:ring-brand-accent" />
-                <input type="email" placeholder="Email" required value={contactFormData.email} onChange={(e) => setContactFormData({ ...contactFormData, email: e.target.value })} className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg min-h-[48px] focus:outline-none focus:ring-2 focus:ring-brand-accent" />
-                <textarea rows={4} placeholder="Message" required value={contactFormData.message} onChange={(e) => setContactFormData({ ...contactFormData, message: e.target.value })} className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-accent" />
-                <button type="submit" disabled={processingFormContact} className="w-full flex items-center justify-center px-6 py-3 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors min-h-[48px] disabled:opacity-50">
-                  {processingFormContact ? 'Sending...' : <>Send message <ArrowRight className="ml-2 w-4 h-4" /></>}
-                </button>
-              </form>
+              <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Start your project</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                Websites, custom systems, maintenance, or ZYVO software — get a fixed quote in 24h.
+              </p>
+              <ContactForm variant="compact" />
+              <Link
+                to="/contact"
+                className="inline-flex items-center mt-4 text-sm text-brand-primary dark:text-brand-accent font-medium hover:underline"
+              >
+                Open full contact page <ArrowRight className="ml-1 w-4 h-4" />
+              </Link>
             </div>
           </div>
         </div>

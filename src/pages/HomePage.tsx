@@ -5,6 +5,7 @@ import QueueShowcase from '../components/QueueShowcase';
 import IntegrationsSection from '../components/IntegrationsSection';
 import ProductSection from '../components/Products';
 import Features from '../components/Features';
+import DevelopmentServicesSection from '../components/DevelopmentServicesSection';
 import TrustSection from '../components/TrustSection';
 import FAQSection from '../components/FAQSection';
 import PricingSection from '../components/PricingSection';
@@ -29,6 +30,7 @@ export default function HomePage() {
       <ProductSection />
       <QueueShowcase />
       <IntegrationsSection />
+      <DevelopmentServicesSection />
       <Features />
       <TrustSection />
       <PricingSection />

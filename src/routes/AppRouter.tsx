@@ -23,6 +23,9 @@ import RefundPage from '../pages/RefundPage';
 import IntegrationsPage from '../pages/IntegrationsPage';
 import DemoPage from '../pages/DemoPage';
 import FAQPage from '../pages/FAQPage';
+import DevelopmentServicesPage from '../pages/DevelopmentServicesPage';
+import DevelopmentServiceDetailPage from '../pages/DevelopmentServiceDetailPage';
+import { developmentServices } from '../data/development-services';
 import NotFoundPage from '../pages/NotFoundPage';
 
 export default function AppRouter() {
@@ -46,6 +49,14 @@ export default function AppRouter() {
             key={landing.slug}
             path={landing.slug}
             element={<IndustryLandingTemplate landing={landing} />}
+          />
+        ))}
+        <Route path="development-services" element={<DevelopmentServicesPage />} />
+        {developmentServices.map((service) => (
+          <Route
+            key={service.slug}
+            path={service.path.replace(/^\//, '')}
+            element={<DevelopmentServiceDetailPage slug={service.slug} />}
           />
         ))}
         <Route path="blog" element={<BlogIndexPage />} />
