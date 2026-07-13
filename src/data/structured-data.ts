@@ -66,6 +66,76 @@ export function getFAQSchema(faqs: { question: string; answer: string }[]) {
   };
 }
 
+export function getProfessionalServiceSchema(service: {
+  name: string;
+  description: string;
+  url: string;
+  priceFrom: number;
+  priceCurrency?: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ProfessionalService',
+    name: service.name,
+    description: service.description,
+    url: service.url,
+    provider: {
+      '@type': 'Organization',
+      name: 'ZYVO Technologies, Inc.',
+      url: 'https://www.zyvoerp.com',
+      telephone: '+1-973-524-9725',
+      email: 'commercial@zyvoerp.com',
+    },
+    areaServed: {
+      '@type': 'Country',
+      name: 'United States',
+    },
+    offers: {
+      '@type': 'Offer',
+      price: String(service.priceFrom),
+      priceCurrency: service.priceCurrency ?? 'USD',
+      availability: 'https://schema.org/InStock',
+    },
+  };
+}
+
+export function getServiceCatalogSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'ZYVO Development Services',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        item: {
+          '@type': 'Service',
+          name: 'Custom Website Development',
+          url: 'https://www.zyvoerp.com/custom-website-development',
+        },
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        item: {
+          '@type': 'Service',
+          name: 'Custom Business Software Development',
+          url: 'https://www.zyvoerp.com/custom-software-development',
+        },
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        item: {
+          '@type': 'Service',
+          name: 'Website & System Maintenance',
+          url: 'https://www.zyvoerp.com/website-maintenance-services',
+        },
+      },
+    ],
+  };
+}
+
 export function getArticleSchema(post: {
   title: string;
   description: string;
