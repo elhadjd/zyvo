@@ -168,7 +168,7 @@ export default function DevelopmentServicesPage() {
           </h2>
           <div className="prose prose-gray dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 space-y-4">
             <p>
-              When someone in your city searches for &ldquo;salon website design,&rdquo; &ldquo;custom school management system,&rdquo;
+              When someone in your city searches for &ldquo;salon website design,&rdquo; &ldquo;all-in-one business management software,&rdquo;
               or &ldquo;website maintenance for small business,&rdquo; you want to appear at the top — not on page three.
               That is why we treat search engine optimization as a foundation, not an afterthought.
             </p>

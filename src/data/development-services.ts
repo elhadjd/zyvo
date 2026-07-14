@@ -31,19 +31,19 @@ export const portfolioProjects: PortfolioProject[] = [
   {
     name: 'BB Salon Suites',
     url: 'https://bbsalonsuites.com',
-    category: 'Salon & Suite Booking Website',
+    category: 'Hair & Massage Services Website',
     description:
-      'A modern, conversion-focused website for a multi-suite salon business — built to help prospective tenants discover suites, explore amenities, and request tours online.',
-    tags: ['Custom Website', 'Salon Industry', 'Lead Generation', 'Mobile-First'],
+      'A polished website for BB Salon Suites — featuring Salam, The Blazer, E Angoon, and Sweetest Provision. Showcases hair styling and massage services with a modern, welcoming brand experience.',
+    tags: ['Custom Website', 'Hair & Massage', 'Beauty & Wellness', 'Multi-Brand'],
     highlight: 'Live client site',
   },
   {
-    name: 'SISGESC',
+    name: 'SIGESC',
     url: 'https://sisgesc.net',
-    category: 'School Management System',
+    category: 'All-in-One Business Management Software',
     description:
-      'A full school management platform covering enrollment, classes, grades, and parent communication — designed for administrators who need clarity without spreadsheet chaos.',
-    tags: ['Custom Software', 'Education', 'Web Application', 'Multi-Role Access'],
+      'A complete business management platform — sales, inventory, customers, finances, and daily operations in one system. Built for owners who want full control without juggling multiple tools.',
+    tags: ['Custom Software', 'Business Management', 'Web Application', 'All-in-One'],
     highlight: 'End-to-end system',
   },
   {
@@ -56,11 +56,11 @@ export const portfolioProjects: PortfolioProject[] = [
     highlight: 'Brand-forward design',
   },
   {
-    name: 'SISGESC Admin Panel',
+    name: 'SIGESC Admin Panel',
     url: 'https://admin.sisgesc.net',
-    category: 'Business Admin Dashboard',
+    category: 'Business Operations Dashboard',
     description:
-      'The secure administrative backend for SISGESC — dashboards, user management, reporting, and day-to-day operations in one organized control center.',
+      'The secure administrative backend for SIGESC — dashboards, user management, reporting, and day-to-day business operations in one organized control center.',
     tags: ['Admin Panel', 'Dashboard', 'Role-Based Access', 'Custom Backend'],
     highlight: 'Operations hub',
   },
@@ -139,12 +139,12 @@ export const developmentServices: DevelopmentService[] = [
     title: 'Custom Business Software Development',
     metaTitle: 'Custom Business Software & Web App Development — From $7,900',
     metaDescription:
-      'Custom web applications, admin panels, and business management systems for US companies. School systems, booking platforms, dashboards — from $7,900, below typical dev shop rates.',
+      'Custom web applications, admin panels, and all-in-one business management systems for US companies. ERP-style platforms, booking systems, dashboards — from $7,900, below typical dev shop rates.',
     keywords:
-      'custom software development, business web application, custom admin panel, school management system, booking system development, SMB software development USA, custom ERP development',
+      'custom software development, business web application, custom admin panel, business management system, all-in-one business software, booking system development, SMB software development USA, custom ERP development',
     headline: 'Custom systems built around how your business actually works',
     subheadline:
-      'Off-the-shelf software forces compromises. We build web applications, admin dashboards, and management systems tailored to your workflows — like the school platform and admin panels we have shipped for real clients.',
+      'Off-the-shelf software forces compromises. We build web applications, admin dashboards, and all-in-one management systems tailored to your workflows — like SIGESC at sisgesc.net and the admin panels we have shipped for real clients.',
     icon: 'code',
     priceFrom: 7900,
     priceLabel: 'From $7,900',
@@ -169,7 +169,7 @@ export const developmentServices: DevelopmentService[] = [
       {
         title: 'Proven delivery',
         description:
-          'See our live work: SISGESC school management at sisgesc.net and its admin panel at admin.sisgesc.net.',
+          'See our live work: SIGESC all-in-one business management at sisgesc.net and its admin panel at admin.sisgesc.net.',
       },
     ],
     includes: [
@@ -189,7 +189,7 @@ export const developmentServices: DevelopmentService[] = [
       {
         question: 'What types of systems do you build?',
         answer:
-          'We build school management platforms, booking systems, customer portals, inventory dashboards, multi-location admin panels, and industry-specific tools for salons, restaurants, retail, and service businesses.',
+          'We build all-in-one business management platforms, booking systems, customer portals, inventory dashboards, multi-location admin panels, and industry-specific tools for salons, restaurants, retail, and service businesses.',
       },
       {
         question: 'Can you integrate with ZYVO ERP?',
@@ -270,7 +270,7 @@ export const hubMeta = {
   path: '/development-services',
   metaTitle: 'Web Design, Custom Software & Maintenance Services for US Businesses',
   metaDescription:
-    'ZYVO builds custom websites, business software, and admin systems for US small businesses — with SEO optimization and pricing below typical agency rates. See live portfolio: Salon Suites, SISGESC, and more.',
+    'ZYVO builds custom websites, business software, and admin systems for US small businesses — with SEO optimization and pricing below typical agency rates. See live portfolio: BB Salon Suites, SIGESC, and more.',
   keywords:
     'web development services USA, custom website development, custom software development, website maintenance, small business web design, SEO website development, ZYVO development services',
   headline: 'We build the digital tools your business deserves',
@@ -358,7 +358,7 @@ export const developmentFaqs = [
   {
     question: 'Can I see examples of websites and systems you have built?',
     answer:
-      'Yes. Explore our live portfolio: BB Salon Suites (bbsalonsuites.com), SISGESC school management (sisgesc.net), Espaço Estético Malaca (espaco-estetico-malaca.com), and the SISGESC admin panel (admin.sisgesc.net).',
+      'Yes. Explore our live portfolio: BB Salon Suites — Salam, The Blazer, E Angoon & Sweetest Provision (bbsalonsuites.com), SIGESC all-in-one business management (sisgesc.net), Espaço Estético Malaca (espaco-estetico-malaca.com), and the SIGESC admin panel (admin.sisgesc.net).',
   },
   {
     question: 'Is SEO included in website development?',
