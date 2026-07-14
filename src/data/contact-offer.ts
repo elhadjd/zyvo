@@ -113,7 +113,7 @@ export const zyvoOfferPromise = [
   },
   {
     title: 'Real portfolio, live today',
-    description: 'Verify our work yourself — BB Salon Suites, SISGESC, and more are online now.',
+    description: 'Verify our work yourself — BB Salon Suites, SIGESC, and more are online now.',
   },
   {
     title: 'You own everything',
