@@ -2,6 +2,7 @@
 
 import { notFound } from 'next/navigation';
 import { useMarket } from '@/contexts/market-context';
+import MarketBreadcrumbs, { useMarketPageSeo } from '@/components/markets/MarketBreadcrumbs';
 import LocalizedLink from '@/components/markets/LocalizedLink';
 import MarketCTA from '@/components/markets/MarketCTA';
 import { ArrowRight } from 'lucide-react';
@@ -13,6 +14,7 @@ interface MarketIndustryPageProps {
 export default function MarketIndustryPage({ industryId }: MarketIndustryPageProps) {
   const { market } = useMarket();
   const industry = market.industries.find((i) => i.id === industryId);
+  const pageSeo = useMarketPageSeo();
 
   if (!industry) {
     notFound();
@@ -20,13 +22,14 @@ export default function MarketIndustryPage({ industryId }: MarketIndustryPagePro
 
   return (
     <>
-      <section className="pt-28 pb-12 lg:pt-36 bg-brand-surface dark:bg-gray-900">
+      <MarketBreadcrumbs />
+      <section className="pt-8 pb-12 lg:pt-12 bg-brand-surface dark:bg-gray-900">
         <div className="container mx-auto px-4 lg:px-8 max-w-3xl">
           <p className="text-sm font-medium text-brand-primary dark:text-brand-accent mb-3">
             Secteur · {market.countryNameLocal}
           </p>
           <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            {industry.name}
+            {pageSeo?.h1 ?? industry.name}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">{industry.description}</p>
           <LocalizedLink

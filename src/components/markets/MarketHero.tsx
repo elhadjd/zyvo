@@ -13,12 +13,15 @@ import {
 } from 'lucide-react';
 import { useMarket } from '@/contexts/market-context';
 import LocalizedLink from '@/components/markets/LocalizedLink';
+import { useMarketPageSeo } from '@/components/markets/MarketBreadcrumbs';
 
 const featureIcons = [Smartphone, Wifi, Building2, Receipt, Users, BarChart3];
 
 export default function MarketHero() {
   const { market } = useMarket();
+  const pageSeo = useMarketPageSeo();
   const { hero } = market;
+  const h1 = pageSeo?.h1 ?? hero.title;
 
   return (
     <section className="pt-28 pb-16 lg:pt-36 lg:pb-24 bg-brand-surface dark:bg-gray-900 relative overflow-hidden">
@@ -31,7 +34,7 @@ export default function MarketHero() {
             </p>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight mb-6">
-              {hero.title}
+              {h1}
             </h1>
 
             <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">

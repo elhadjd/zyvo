@@ -201,11 +201,124 @@ export function getMarketSoftwareSchema(market: MarketConfig) {
           price: String(starterPlan.annualPrice),
           priceCurrency: market.currency,
           description: 'Essai gratuit de 7 jours.',
+          availability: 'https://schema.org/InStock',
+          url: `${SITE_URL}${market.routePrefix ?? ''}/pricing`,
         }
       : undefined,
     areaServed: {
       '@type': 'Country',
       name: market.countryName,
     },
+    featureList: [
+      'Caisse POS',
+      'Gestion de stock',
+      'Orange Money',
+      'MTN Mobile Money',
+      'Facturation TVA',
+      'Comptabilité SYSCOHADA',
+      'Multi-magasins',
+    ],
+  };
+}
+
+export function getMarketWebSiteSchema(market: MarketConfig) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: `ZYVO ${market.countryNameLocal}`,
+    url: `${SITE_URL}${market.routePrefix ?? ''}`,
+    description: market.description,
+    inLanguage: market.language,
+    publisher: {
+      '@type': 'Organization',
+      name: 'ZYVO',
+      logo: `${SITE_URL}/favicon.svg`,
+    },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${SITE_URL}${market.routePrefix}/solutions?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+}
+
+export function getMarketLocalBusinessSchema(market: MarketConfig) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    '@id': `${SITE_URL}${market.routePrefix}#localbusiness`,
+    name: `ZYVO ${market.countryNameLocal}`,
+    description: market.description,
+    url: `${SITE_URL}${market.routePrefix ?? ''}`,
+    email: market.contact.email,
+    telephone: market.contact.phone,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: market.contact.address.street,
+      addressLocality: market.contact.address.city,
+      addressCountry: market.contact.address.country,
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 9.6412,
+      longitude: -13.5784,
+    },
+    areaServed: {
+      '@type': 'Country',
+      name: market.countryName,
+    },
+    priceRange: '$$',
+    openingHoursSpecification: {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      opens: '08:00',
+      closes: '18:00',
+    },
+  };
+}
+
+export function getMarketServiceSchema(
+  market: MarketConfig,
+  service: { name: string; description: string; url: string }
+) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: service.name,
+    description: service.description,
+    url: service.url,
+    provider: {
+      '@type': 'Organization',
+      name: 'ZYVO',
+      url: `${SITE_URL}${market.routePrefix ?? ''}`,
+    },
+    areaServed: {
+      '@type': 'Country',
+      name: market.countryName,
+    },
+    serviceType: 'Business Management Software',
+    inLanguage: market.language,
+  };
+}
+
+export function getMarketOfferCatalogSchema(market: MarketConfig) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'OfferCatalog',
+    name: `ZYVO ${market.countryNameLocal} — Plans tarifaires`,
+    url: `${SITE_URL}${market.routePrefix}/pricing`,
+    itemListElement: market.pricing.plans.map((plan, index) => ({
+      '@type': 'Offer',
+      position: index + 1,
+      name: plan.name,
+      description: plan.description,
+      price: String(plan.annualPrice),
+      priceCurrency: market.currency,
+      url: `${SITE_URL}${market.routePrefix}/pricing`,
+      availability: 'https://schema.org/InStock',
+    })),
   };
 }

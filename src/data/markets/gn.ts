@@ -41,7 +41,7 @@ export const gnMarket: MarketConfig = {
   hero: {
     eyebrow:
       'Logiciel de gestion pour boutiques, restaurants, salons et pharmacies en Guinée',
-    title: 'Gérez toute votre entreprise depuis une seule plateforme',
+    title: 'Logiciel de gestion d\'entreprise pour les PME guinéennes',
     subtitle:
       'Caisse (POS), inventaire, clients, employés, rendez-vous, facturation et tableaux de bord — un système simple, en français, adapté au marché guinéen.',
     valueProposition:
@@ -291,6 +291,16 @@ export const gnMarket: MarketConfig = {
       'Tarifs indicatifs en GNF. Paiement par virement, Orange Money ou arrangement local. TVA applicable selon la réglementation en vigueur.',
   },
   faqs: [
+    {
+      question: 'ZYVO est-il conforme au SYSCOHADA et à la DGI en Guinée ?',
+      answer:
+        'La Guinée est membre de l\'OHADA et applique le référentiel comptable SYSCOHADA. ZYVO génère des factures numérotées, suit la TVA à 18 % et exporte les journaux de ventes pour vos déclarations à la Direction Générale des Impôts (DGI). Consultez votre comptable pour la conformité spécifique à votre secteur.',
+    },
+    {
+      question: 'Quel est le meilleur logiciel de caisse pour une boutique à Conakry ?',
+      answer:
+        'ZYVO offre une caisse POS cloud adaptée aux boutiques de Kaloum, Ratoma, Matam et en province : encaissement rapide, Orange Money, MTN MoMo, gestion stock et rapports en GNF. Essai gratuit de 7 jours sans carte bancaire internationale.',
+    },
     {
       question: 'ZYVO fonctionne-t-il avec une connexion internet lente ?',
       answer:

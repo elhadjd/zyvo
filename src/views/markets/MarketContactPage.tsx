@@ -3,23 +3,26 @@
 import { Mail, Phone, MapPin, MessageCircle, Clock } from 'lucide-react';
 import { useMarket } from '@/contexts/market-context';
 import ContactForm from '@/components/ContactForm';
+import MarketBreadcrumbs, { useMarketPageSeo } from '@/components/markets/MarketBreadcrumbs';
 
 export default function MarketContactPage() {
   const { market } = useMarket();
   const { contact } = market;
+  const pageSeo = useMarketPageSeo();
 
   return (
     <>
-      <section className="pt-28 pb-12 lg:pt-36 bg-brand-surface dark:bg-gray-900">
+      <MarketBreadcrumbs />
+      <section className="pt-8 pb-12 lg:pt-12 bg-brand-surface dark:bg-gray-900">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12">
             <div>
               <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-                Contactez-nous
+                {pageSeo?.h1 ?? 'Contactez-nous'}
               </h1>
               <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-                Demandez une démo, un devis ou posez vos questions. Notre équipe répond en français
-                sous 24h ouvrées.
+                Demandez un devis pour votre logiciel de gestion, caisse POS ou ERP en Guinée.
+                Support WhatsApp en français, réponse sous 24h à Conakry.
               </p>
 
               <div className="space-y-5">
