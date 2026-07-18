@@ -1,4 +1,5 @@
 import type { MarketPageMeta } from '@/lib/markets/types';
+import { getMarketBlogPostBySlug } from '@/data/markets/blog';
 
 /** Mots-clés primaires identifiés pour le marché guinéen (recherche FR + concurrence locale) */
 export const GN_PRIMARY_KEYWORDS = [
@@ -42,7 +43,8 @@ export interface GnSeoPageMeta extends MarketPageMeta {
   h1?: string;
   ogTitle?: string;
   breadcrumb?: string;
-  schemaType?: 'home' | 'product' | 'service' | 'faq' | 'contact';
+  schemaType?: 'home' | 'product' | 'service' | 'faq' | 'contact' | 'article';
+  ogType?: 'website' | 'article';
 }
 
 const BASE_KEYWORDS = GN_PRIMARY_KEYWORDS.slice(0, 8).join(', ');
@@ -293,6 +295,17 @@ export const GN_PAGE_SEO: Record<string, GnSeoPageMeta> = {
     breadcrumb: 'Services B2B',
     schemaType: 'service',
   },
+  blog: {
+    title: 'Blog ZYVO Guinée — Conseils gestion, caisse POS & digitalisation PME',
+    description:
+      'Articles pratiques pour entrepreneurs guinéens : choisir un ERP, gérer son stock, Orange Money à la caisse, SYSCOHADA et TVA DGI. Par ZYVO Conakry.',
+    keywords:
+      'blog ERP Guinée, conseils gestion Conakry, digitalisation PME Guinée, articles caisse POS Guinée',
+    path: '/gn/blog',
+    h1: 'Conseils pour entreprises guinéennes',
+    breadcrumb: 'Blog',
+    schemaType: 'service',
+  },
 };
 
 export function getGnSeoPath(slug: string[]): string {
@@ -302,6 +315,24 @@ export function getGnSeoPath(slug: string[]): string {
 
 export function getGnPageSeo(slug: string[]): GnSeoPageMeta {
   const path = getGnSeoPath(slug);
+
+  if (path.startsWith('blog/')) {
+    const postSlug = path.slice('blog/'.length);
+    const post = getMarketBlogPostBySlug('gn', postSlug);
+    if (post) {
+      return {
+        title: post.metaTitle,
+        description: post.metaDescription,
+        keywords: post.keywords,
+        path: `/gn/blog/${post.slug}`,
+        h1: post.title,
+        breadcrumb: post.category,
+        schemaType: 'article',
+        ogType: 'article',
+      };
+    }
+  }
+
   return GN_PAGE_SEO[path] ?? GN_PAGE_SEO.home;
 }
 

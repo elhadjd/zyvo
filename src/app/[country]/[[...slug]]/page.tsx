@@ -6,6 +6,7 @@ import { isValidMarketCode, getMarket } from '@/lib/markets/registry';
 import { resolveMarketPage, getAllMarketStaticParams } from '@/lib/markets/pages';
 import { buildMarketMetadata, buildMarketBreadcrumbs } from '@/lib/markets/metadata';
 import { getMarketPageSeo } from '@/lib/markets/seo';
+import { getMarketBlogPostBySlug } from '@/data/markets/blog';
 import JsonLd from '@/components/JsonLd';
 import {
   getMarketOrganizationSchema,
@@ -14,6 +15,7 @@ import {
   getMarketLocalBusinessSchema,
   getMarketOfferCatalogSchema,
   getMarketServiceSchema,
+  getMarketArticleSchema,
   getFAQSchema,
   getBreadcrumbSchema,
 } from '@/data/structured-data';
@@ -57,6 +59,19 @@ function buildPageSchemas(marketCode: MarketCode, slug: string[], market: Return
     schemas.push(getMarketOfferCatalogSchema(market), getMarketSoftwareSchema(market));
   } else if (slug[0] === 'faq') {
     schemas.push(getFAQSchema(market.faqs));
+  } else if (slug[0] === 'blog' && slug.length === 2) {
+    const post = getMarketBlogPostBySlug(marketCode, slug[1]);
+    if (post) {
+      schemas.push(
+        getMarketArticleSchema(market, {
+          title: post.title,
+          description: post.metaDescription,
+          author: post.author,
+          date: post.date,
+          slug: post.slug,
+        })
+      );
+    }
   } else if (pageSeo && (slug[0] === 'solutions' || slug[0] === 'industries')) {
     schemas.push(
       getMarketServiceSchema(market, {
@@ -90,10 +105,12 @@ export default async function CountryPage({ params }: CountryPageProps) {
   const Page = resolved.component as ComponentType<{
     industryId?: string;
     solutionSlug?: string;
+    postSlug?: string;
   }>;
   const pageProps = {
     industryId: resolved.params.industry,
     solutionSlug: resolved.params.solution,
+    postSlug: resolved.params.post,
   };
 
   const schemas = buildPageSchemas(country as MarketCode, slug, market);

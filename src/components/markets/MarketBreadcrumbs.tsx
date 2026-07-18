@@ -40,6 +40,11 @@ export default function MarketBreadcrumbs() {
     if (slug.length > 1) {
       segments.push({ label: pageSeo?.breadcrumb ?? slug[1], href: `/industries/${slug[1]}` });
     }
+  } else if (slug[0] === 'blog') {
+    segments.push({ label: 'Blog', href: '/blog' });
+    if (slug.length > 1) {
+      segments.push({ label: pageSeo?.h1 ?? slug[1], href: `/blog/${slug[1]}` });
+    }
   } else if (pageSeo?.breadcrumb) {
     segments.push({ label: pageSeo.breadcrumb, href: path });
   }

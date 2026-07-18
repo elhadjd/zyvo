@@ -30,6 +30,7 @@ export function buildMarketMetadata(
     keywords,
     canonical: canonicalPath,
     locale: market.locale,
+    ogType: pageSeo?.ogType ?? 'website',
   });
 
   const { path } = stripMarketPrefix(canonicalPath);
@@ -118,6 +119,20 @@ export function buildMarketBreadcrumbs(
     crumbs.push({
       name: pageSeo?.breadcrumb ?? slug[1],
       url: `${base}/industries/${slug[1]}`,
+    });
+    return crumbs;
+  }
+
+  if (slug[0] === 'blog' && slug.length === 1) {
+    crumbs.push({ name: 'Blog', url: `${base}/blog` });
+    return crumbs;
+  }
+
+  if (slug[0] === 'blog' && slug.length === 2) {
+    crumbs.push({ name: 'Blog', url: `${base}/blog` });
+    crumbs.push({
+      name: pageSeo?.h1 ?? slug[1],
+      url: `${base}/blog/${slug[1]}`,
     });
     return crumbs;
   }

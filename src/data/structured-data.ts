@@ -304,6 +304,29 @@ export function getMarketServiceSchema(
   };
 }
 
+export function getMarketArticleSchema(
+  market: MarketConfig,
+  post: { title: string; description: string; author: string; date: string; slug: string }
+) {
+  const articleUrl = `${SITE_URL}${market.routePrefix}/blog/${post.slug}`;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.description,
+    author: { '@type': 'Person', name: post.author },
+    datePublished: post.date,
+    inLanguage: market.language,
+    publisher: {
+      '@type': 'Organization',
+      name: 'ZYVO',
+      logo: { '@type': 'ImageObject', url: `${SITE_URL}/favicon.svg` },
+    },
+    mainEntityOfPage: articleUrl,
+    url: articleUrl,
+  };
+}
+
 export function getMarketOfferCatalogSchema(market: MarketConfig) {
   return {
     '@context': 'https://schema.org',

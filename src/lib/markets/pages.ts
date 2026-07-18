@@ -12,6 +12,9 @@ import MarketSolutionsPage from '@/views/markets/MarketSolutionsPage';
 import MarketIndustryPage from '@/views/markets/MarketIndustryPage';
 import MarketSolutionDetailPage from '@/views/markets/MarketSolutionDetailPage';
 import MarketGettingStartedPage from '@/views/markets/MarketGettingStartedPage';
+import MarketBlogIndexPage from '@/views/markets/MarketBlogIndexPage';
+import MarketBlogPostPage from '@/views/markets/MarketBlogPostPage';
+import { getAllMarketBlogSlugs } from '@/data/markets/blog';
 
 export interface MarketPageDefinition {
   slug: string[];
@@ -28,6 +31,8 @@ const GN_PAGES: MarketPageDefinition[] = [
   { slug: ['faq'], pageKey: 'faq', component: MarketFaqPage },
   { slug: ['demo'], pageKey: 'demo', component: MarketDemoPage },
   { slug: ['getting-started'], pageKey: 'home', component: MarketGettingStartedPage },
+  { slug: ['blog'], pageKey: 'blog', component: MarketBlogIndexPage },
+  { slug: ['blog', ':post'], pageKey: 'blog', component: MarketBlogPostPage },
   { slug: ['solutions'], pageKey: 'solutions', component: MarketSolutionsPage },
   { slug: ['industries'], pageKey: 'solutions', component: MarketSolutionsPage },
   { slug: ['industries', ':industry'], pageKey: 'solutions', component: MarketIndustryPage },
@@ -89,6 +94,10 @@ export function getMarketStaticParams(marketCode: MarketCode): { slug: string[] 
     ];
     solutionSlugs.forEach((s) => {
       params.push({ slug: ['solutions', s] });
+    });
+
+    getAllMarketBlogSlugs('gn').forEach((postSlug) => {
+      params.push({ slug: ['blog', postSlug] });
     });
   }
 

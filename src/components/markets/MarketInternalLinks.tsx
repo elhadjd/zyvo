@@ -1,5 +1,5 @@
 import LocalizedLink from '@/components/markets/LocalizedLink';
-import { GN_PAGE_SEO } from '@/data/markets/gn-seo';
+import { getGnPageSeo } from '@/data/markets/gn-seo';
 
 const LINK_GROUPS = [
   {
@@ -21,10 +21,25 @@ const LINK_GROUPS = [
     ],
   },
   {
+    title: 'Blog & ressources',
+    paths: [
+      'blog',
+      'blog/choisir-logiciel-gestion-entreprise-guinee',
+      'blog/orange-money-caisse-pos-conakry',
+      'blog/syscohada-tva-dgi-digitaliser-comptabilite-guinee',
+    ],
+  },
+  {
     title: 'Découvrir ZYVO',
     paths: ['features', 'pricing', 'faq', 'demo', 'contact'],
   },
 ] as const;
+
+function getLinkLabel(path: string): string {
+  const slug = path.split('/');
+  const seo = getGnPageSeo(slug);
+  return seo.breadcrumb ?? seo.h1 ?? seo.title.split('—')[0].trim();
+}
 
 export default function MarketInternalLinks() {
   return (
@@ -33,27 +48,23 @@ export default function MarketInternalLinks() {
       aria-label="Liens utiles"
     >
       <div className="container mx-auto px-4 lg:px-8">
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {LINK_GROUPS.map((group) => (
             <div key={group.title}>
               <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 uppercase tracking-wide">
                 {group.title}
               </h3>
               <ul className="space-y-2">
-                {group.paths.map((path) => {
-                  const seo = GN_PAGE_SEO[path];
-                  if (!seo) return null;
-                  return (
-                    <li key={path}>
-                      <LocalizedLink
-                        href={`/${path}`}
-                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-brand-primary dark:hover:text-brand-accent transition-colors"
-                      >
-                        {seo.breadcrumb ?? seo.title.split('—')[0].trim()}
-                      </LocalizedLink>
-                    </li>
-                  );
-                })}
+                {group.paths.map((path) => (
+                  <li key={path}>
+                    <LocalizedLink
+                      href={`/${path}`}
+                      className="text-sm text-gray-600 dark:text-gray-400 hover:text-brand-primary dark:hover:text-brand-accent transition-colors"
+                    >
+                      {getLinkLabel(path)}
+                    </LocalizedLink>
+                  </li>
+                ))}
               </ul>
             </div>
           ))}

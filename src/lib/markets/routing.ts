@@ -50,7 +50,6 @@ export function isReservedRootSegment(segment: string): boolean {
 }
 
 const GLOBAL_PATH_PREFIXES = [
-  '/blog',
   '/privacy-policy',
   '/terms-of-service',
   '/refund-policy',
