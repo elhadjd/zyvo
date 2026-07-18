@@ -356,6 +356,125 @@ export function runMigrations(dbPath = process.env.DATABASE_PATH ?? DEFAULT_DB_P
     CREATE INDEX IF NOT EXISTS idx_programmatic_pages_country ON programmatic_pages(country, status);
     CREATE INDEX IF NOT EXISTS idx_seo_sitemap_type ON seo_sitemap_entries(type);
     CREATE INDEX IF NOT EXISTS idx_freshness_status ON content_freshness_checks(status);
+
+    CREATE TABLE IF NOT EXISTS search_console_metrics (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      country TEXT NOT NULL,
+      page_url TEXT NOT NULL,
+      keyword TEXT NOT NULL,
+      clicks INTEGER NOT NULL DEFAULT 0,
+      impressions INTEGER NOT NULL DEFAULT 0,
+      ctr REAL NOT NULL DEFAULT 0,
+      position REAL NOT NULL DEFAULT 0,
+      date TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS visitor_metrics (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      country TEXT NOT NULL,
+      page_url TEXT NOT NULL,
+      users INTEGER NOT NULL DEFAULT 0,
+      sessions INTEGER NOT NULL DEFAULT 0,
+      avg_time_on_page REAL NOT NULL DEFAULT 0,
+      bounce_rate REAL NOT NULL DEFAULT 0,
+      landing_page TEXT,
+      conversions INTEGER NOT NULL DEFAULT 0,
+      date TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS content_performance_scores (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      article_id INTEGER NOT NULL REFERENCES content_articles(id),
+      country TEXT NOT NULL,
+      seo_score INTEGER NOT NULL DEFAULT 0,
+      engagement_score INTEGER NOT NULL DEFAULT 0,
+      conversion_score INTEGER NOT NULL DEFAULT 0,
+      total_score INTEGER NOT NULL DEFAULT 0,
+      traffic INTEGER NOT NULL DEFAULT 0,
+      avg_position REAL NOT NULL DEFAULT 0,
+      internal_links_count INTEGER NOT NULL DEFAULT 0,
+      freshness_days INTEGER NOT NULL DEFAULT 0,
+      analyzed_at TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS growth_opportunities (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      country TEXT NOT NULL,
+      keyword TEXT,
+      page_url TEXT,
+      opportunity_type TEXT NOT NULL,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL,
+      current_position REAL,
+      impressions INTEGER DEFAULT 0,
+      clicks INTEGER DEFAULT 0,
+      priority TEXT NOT NULL DEFAULT 'medium',
+      suggested_action TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'open',
+      article_id INTEGER REFERENCES content_articles(id),
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS growth_recommendations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      country TEXT NOT NULL,
+      category TEXT NOT NULL,
+      recommendation TEXT NOT NULL,
+      rationale TEXT NOT NULL,
+      priority TEXT NOT NULL DEFAULT 'medium',
+      article_count INTEGER DEFAULT 0,
+      status TEXT NOT NULL DEFAULT 'pending',
+      week_plan TEXT,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS growth_reports (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      country TEXT NOT NULL,
+      report_type TEXT NOT NULL DEFAULT 'weekly',
+      period_start TEXT NOT NULL,
+      period_end TEXT NOT NULL,
+      summary TEXT NOT NULL,
+      insights TEXT NOT NULL DEFAULT '[]',
+      recommendations TEXT NOT NULL DEFAULT '[]',
+      metrics TEXT DEFAULT '{}',
+      status TEXT NOT NULL DEFAULT 'generated',
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS conversion_events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_action TEXT NOT NULL,
+      page TEXT NOT NULL,
+      country TEXT NOT NULL,
+      source TEXT NOT NULL DEFAULT 'direct',
+      metadata TEXT,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS content_refresh_tasks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      article_id INTEGER NOT NULL REFERENCES content_articles(id),
+      country TEXT NOT NULL,
+      reason TEXT NOT NULL,
+      issues TEXT DEFAULT '[]',
+      priority TEXT NOT NULL DEFAULT 'medium',
+      status TEXT NOT NULL DEFAULT 'pending',
+      assigned_at TEXT NOT NULL,
+      completed_at TEXT,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_gsc_metrics_country_date ON search_console_metrics(country, date);
+    CREATE INDEX IF NOT EXISTS idx_visitor_metrics_country ON visitor_metrics(country, date);
+    CREATE INDEX IF NOT EXISTS idx_content_scores_article ON content_performance_scores(article_id);
+    CREATE INDEX IF NOT EXISTS idx_growth_opportunities_status ON growth_opportunities(status);
+    CREATE INDEX IF NOT EXISTS idx_conversion_events_country ON conversion_events(country);
+    CREATE INDEX IF NOT EXISTS idx_refresh_tasks_status ON content_refresh_tasks(status);
   `);
 
   // Add new columns to existing tables (idempotent)

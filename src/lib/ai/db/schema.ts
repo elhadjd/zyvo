@@ -201,6 +201,122 @@ export const contentFreshnessChecks = sqliteTable('content_freshness_checks', {
   createdAt: text('created_at').notNull(),
 });
 
+export const searchConsoleMetrics = sqliteTable('search_console_metrics', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  country: text('country').notNull(),
+  pageUrl: text('page_url').notNull(),
+  keyword: text('keyword').notNull(),
+  clicks: integer('clicks').notNull().default(0),
+  impressions: integer('impressions').notNull().default(0),
+  ctr: real('ctr').notNull().default(0),
+  position: real('position').notNull().default(0),
+  date: text('date').notNull(),
+  createdAt: text('created_at').notNull(),
+});
+
+export const visitorMetrics = sqliteTable('visitor_metrics', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  country: text('country').notNull(),
+  pageUrl: text('page_url').notNull(),
+  users: integer('users').notNull().default(0),
+  sessions: integer('sessions').notNull().default(0),
+  avgTimeOnPage: real('avg_time_on_page').notNull().default(0),
+  bounceRate: real('bounce_rate').notNull().default(0),
+  landingPage: text('landing_page'),
+  conversions: integer('conversions').notNull().default(0),
+  date: text('date').notNull(),
+  createdAt: text('created_at').notNull(),
+});
+
+export const contentPerformanceScores = sqliteTable('content_performance_scores', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  articleId: integer('article_id')
+    .notNull()
+    .references(() => contentArticles.id),
+  country: text('country').notNull(),
+  seoScore: integer('seo_score').notNull().default(0),
+  engagementScore: integer('engagement_score').notNull().default(0),
+  conversionScore: integer('conversion_score').notNull().default(0),
+  totalScore: integer('total_score').notNull().default(0),
+  traffic: integer('traffic').notNull().default(0),
+  avgPosition: real('avg_position').notNull().default(0),
+  internalLinksCount: integer('internal_links_count').notNull().default(0),
+  freshnessDays: integer('freshness_days').notNull().default(0),
+  analyzedAt: text('analyzed_at').notNull(),
+  createdAt: text('created_at').notNull(),
+});
+
+export const growthOpportunities = sqliteTable('growth_opportunities', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  country: text('country').notNull(),
+  keyword: text('keyword'),
+  pageUrl: text('page_url'),
+  opportunityType: text('opportunity_type').notNull(),
+  title: text('title').notNull(),
+  description: text('description').notNull(),
+  currentPosition: real('current_position'),
+  impressions: integer('impressions').default(0),
+  clicks: integer('clicks').default(0),
+  priority: text('priority').notNull().default('medium'),
+  suggestedAction: text('suggested_action').notNull(),
+  status: text('status').notNull().default('open'),
+  articleId: integer('article_id').references(() => contentArticles.id),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const growthRecommendations = sqliteTable('growth_recommendations', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  country: text('country').notNull(),
+  category: text('category').notNull(),
+  recommendation: text('recommendation').notNull(),
+  rationale: text('rationale').notNull(),
+  priority: text('priority').notNull().default('medium'),
+  articleCount: integer('article_count').default(0),
+  status: text('status').notNull().default('pending'),
+  weekPlan: text('week_plan', { mode: 'json' }).$type<{ week: number; items: string[] }[]>(),
+  createdAt: text('created_at').notNull(),
+});
+
+export const growthReports = sqliteTable('growth_reports', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  country: text('country').notNull(),
+  reportType: text('report_type').notNull().default('weekly'),
+  periodStart: text('period_start').notNull(),
+  periodEnd: text('period_end').notNull(),
+  summary: text('summary').notNull(),
+  insights: text('insights', { mode: 'json' }).$type<string[]>().notNull().default([]),
+  recommendations: text('recommendations', { mode: 'json' }).$type<string[]>().notNull().default([]),
+  metrics: text('metrics', { mode: 'json' }).$type<Record<string, number>>().default({}),
+  status: text('status').notNull().default('generated'),
+  createdAt: text('created_at').notNull(),
+});
+
+export const conversionEvents = sqliteTable('conversion_events', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userAction: text('user_action').notNull(),
+  page: text('page').notNull(),
+  country: text('country').notNull(),
+  source: text('source').notNull().default('direct'),
+  metadata: text('metadata', { mode: 'json' }).$type<Record<string, unknown>>(),
+  createdAt: text('created_at').notNull(),
+});
+
+export const contentRefreshTasks = sqliteTable('content_refresh_tasks', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  articleId: integer('article_id')
+    .notNull()
+    .references(() => contentArticles.id),
+  country: text('country').notNull(),
+  reason: text('reason').notNull(),
+  issues: text('issues', { mode: 'json' }).$type<string[]>().default([]),
+  priority: text('priority').notNull().default('medium'),
+  status: text('status').notNull().default('pending'),
+  assignedAt: text('assigned_at').notNull(),
+  completedAt: text('completed_at'),
+  createdAt: text('created_at').notNull(),
+});
+
 export const factChecks = sqliteTable('fact_checks', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   articleId: integer('article_id')
@@ -359,3 +475,11 @@ export type InternalLinkRow = typeof internalLinks.$inferSelect;
 export type ProgrammaticPageRow = typeof programmaticPages.$inferSelect;
 export type SeoSitemapEntryRow = typeof seoSitemapEntries.$inferSelect;
 export type ContentFreshnessCheckRow = typeof contentFreshnessChecks.$inferSelect;
+export type SearchConsoleMetricRow = typeof searchConsoleMetrics.$inferSelect;
+export type VisitorMetricRow = typeof visitorMetrics.$inferSelect;
+export type ContentPerformanceScoreRow = typeof contentPerformanceScores.$inferSelect;
+export type GrowthOpportunityRow = typeof growthOpportunities.$inferSelect;
+export type GrowthRecommendationRow = typeof growthRecommendations.$inferSelect;
+export type GrowthReportRow = typeof growthReports.$inferSelect;
+export type ConversionEventRow = typeof conversionEvents.$inferSelect;
+export type ContentRefreshTaskRow = typeof contentRefreshTasks.$inferSelect;
