@@ -1,9 +1,10 @@
-// components/Pricing.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Check, HelpCircle, CreditCard } from 'lucide-react';
 
+type BillingCycle = 'monthly' | 'annual';
+
 const Pricing = () => {
-    const [billingCycle, setBillingCycle] = useState('annual');
+    const [billingCycle, setBillingCycle] = useState<BillingCycle>('annual');
 
     const plans = [
         {

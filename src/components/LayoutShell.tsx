@@ -7,8 +7,9 @@ import Footer from '@/components/Footer';
 import { useTheme } from '@/contexts/theme-context';
 
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
-  const { isDarkMode, toggleDarkMode } = useTheme();
+  const { isDarkMode, mounted, toggleDarkMode } = useTheme();
   const pathname = usePathname();
+  const showLightModeIcon = mounted && isDarkMode;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -22,10 +23,11 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
       <button
         onClick={toggleDarkMode}
         className="fixed bottom-6 right-20 w-10 h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 z-40"
-        aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+        aria-label={showLightModeIcon ? 'Switch to light mode' : 'Switch to dark mode'}
         type="button"
+        suppressHydrationWarning
       >
-        {isDarkMode ? (
+        {showLightModeIcon ? (
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
             <path
               fillRule="evenodd"

@@ -35,7 +35,7 @@ const CompanySection = () => {
         <div id="about" className="scroll-mt-20 mb-20">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-              We're on a mission to help businesses grow
+              We&apos;re on a mission to help businesses grow
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">{TRUST_MESSAGE}</p>
             <p className="text-base text-gray-500 dark:text-gray-400">{VALUE_PROPOSITION}</p>
@@ -63,7 +63,7 @@ const CompanySection = () => {
             <div>
               <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">Get in touch</h3>
               <p className="text-gray-600 dark:text-gray-400 mb-8">
-                Have questions? We're here to help. Reach out and we'll get back to you within one business day.
+                Have questions? We&apos;re here to help. Reach out and we&apos;ll get back to you within one business day.
               </p>
               <div className="space-y-6">
                 <div className="flex items-start gap-4">

@@ -41,7 +41,7 @@ const CompanySignupFlow = () => {
             } else {
                 setStep('details');
             }
-        } catch (error) {
+        } catch {
             setErrors({ form: 'Something went wrong. Please try again.' });
         } finally {
             setLoading(false);
@@ -98,8 +98,9 @@ const CompanySignupFlow = () => {
                 if (responseData.errors) {
                     // Mapear erros de validação para o formato que você quer
                     const validationErrors: Record<string, string> = {};
-                    Object.keys(responseData.errors).forEach(field => {
-                        validationErrors[field] = responseData.errors[field][0];
+                    const fieldErrors = responseData.errors;
+                    Object.keys(fieldErrors).forEach(field => {
+                        validationErrors[field] = fieldErrors[field][0];
                     });
                     setErrors(validationErrors);
 
@@ -133,14 +134,14 @@ const CompanySignupFlow = () => {
                         } else {
                             errorMessage = parsedMessage;
                         }
-                    } catch (e) {
+                    } catch {
                         // Não é JSON, usar a mensagem como está
                         errorMessage = responseData.message;
                     }
                 }
             }
             // Caso 3: Erro de rede ou outro
-            else if (error.message) {
+            else if (error instanceof Error) {
                 errorMessage = error.message;
             }
 
@@ -327,18 +328,18 @@ const CompanySignupFlow = () => {
                             </div>
 
                             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                                You're in!
+                                You&apos;re in!
                             </h2>
 
                             <p className="text-gray-600 dark:text-gray-400 mb-6">
-                                We've sent a confirmation email to{' '}
+                                We&apos;ve sent a confirmation email to{' '}
                                 <span className="font-medium text-gray-900 dark:text-white">{email}</span>
                             </p>
 
                             <div className="bg-brand-surface dark:bg-brand-primary/10 rounded-lg p-4 mb-6 text-left">
                                 <h3 className="font-medium text-brand-primary dark:text-brand-accent mb-2 flex items-center">
                                     <Shield className="w-4 h-4 mr-2" />
-                                    What's next?
+                                    What&apos;s next?
                                 </h3>
                                 <ul className="space-y-2 text-sm text-brand-primary dark:text-brand-accent">
                                     <li className="flex items-start">
@@ -366,7 +367,7 @@ const CompanySignupFlow = () => {
                             </a>
 
                             <p className="text-xs text-gray-500 mt-4">
-                                Didn't receive the email? Check your spam or{' '}
+                                Didn&apos;t receive the email? Check your spam or{' '}
                                 <button className="text-brand-primary hover:underline">resend</button>
                             </p>
                         </div>

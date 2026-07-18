@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 
 interface ThemeData {
   isDarkMode: boolean;
+  mounted: boolean;
   setIsDarkMode: (value: boolean) => void;
   toggleDarkMode: () => void;
 }
@@ -13,13 +14,6 @@ interface ThemeProps {
 }
 
 const Theme = createContext<ThemeData | undefined>(undefined);
-
-function getInitialDarkMode(): boolean {
-  if (typeof window === 'undefined') return false;
-  if (localStorage.theme === 'dark') return true;
-  if (localStorage.theme === 'light') return false;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches;
-}
 
 function applyTheme(dark: boolean) {
   document.documentElement.classList.toggle('dark', dark);
@@ -35,16 +29,24 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }: ThemeProps) => {
-  const [isDarkMode, setIsDarkMode] = useState(getInitialDarkMode);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    const dark = document.documentElement.classList.contains('dark');
+    setIsDarkMode(dark);
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     applyTheme(isDarkMode);
-  }, [isDarkMode]);
+  }, [isDarkMode, mounted]);
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
   return (
-    <Theme.Provider value={{ isDarkMode, setIsDarkMode, toggleDarkMode }}>
+    <Theme.Provider value={{ isDarkMode, mounted, setIsDarkMode, toggleDarkMode }}>
       {children}
     </Theme.Provider>
   );

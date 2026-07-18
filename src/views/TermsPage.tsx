@@ -37,7 +37,7 @@ export default function TermsPage() {
             </section>
             <section>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">5. Acceptable Use</h2>
-              <p>You agree not to use ZYVO to violate any law, infringe intellectual property rights, transmit malware, or attempt to gain unauthorized access to our systems or other users' data.</p>
+              <p>You agree not to use ZYVO to violate any law, infringe intellectual property rights, transmit malware, or attempt to gain unauthorized access to our systems or other users&apos; data.</p>
             </section>
             <section>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">6. Data Ownership</h2>
@@ -48,7 +48,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">7. Limitation of Liability</h2>
               <p>
-                To the maximum extent permitted by law, ZYVO's total liability shall not exceed the amount paid by you in the 12 months preceding the claim. We are not liable for indirect, incidental, or consequential damages.
+                To the maximum extent permitted by law, ZYVO&apos;s total liability shall not exceed the amount paid by you in the 12 months preceding the claim. We are not liable for indirect, incidental, or consequential damages.
               </p>
             </section>
             <section>

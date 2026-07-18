@@ -14,7 +14,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">1. Introduction</h2>
               <p>
-                {COMPANY.name} ("ZYVO," "we," "us," or "our") respects your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our business management platform and website at zyvoerp.com.
+                {COMPANY.name} (&quot;ZYVO,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) respects your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our business management platform and website at zyvoerp.com.
               </p>
             </section>
             <section>
