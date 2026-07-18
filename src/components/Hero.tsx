@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link'
 import { ArrowRight, Calendar, CheckCircle2 } from 'lucide-react';
 import { AUDIENCES, TRUST_MESSAGE, VALUE_PROPOSITION } from '../data/site';
 
@@ -25,14 +27,14 @@ export default function Hero() {
 
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8">
               <Link
-                to="/getting-started"
+                href="/getting-started"
                 className="inline-flex items-center justify-center px-6 py-3.5 sm:px-8 sm:py-4 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors text-base min-h-[48px]"
               >
                 Start 7-Day Free Trial
                 <ArrowRight className="ml-2 w-5 h-5" aria-hidden="true" />
               </Link>
               <Link
-                to="/demo"
+                href="/demo"
                 className="inline-flex items-center justify-center px-6 py-3.5 sm:px-8 sm:py-4 border-2 border-brand-primary text-brand-primary dark:border-brand-accent dark:text-brand-accent font-semibold rounded-lg hover:bg-brand-primary-light dark:hover:bg-gray-800 transition-colors text-base min-h-[48px]"
               >
                 <Calendar className="mr-2 w-5 h-5" aria-hidden="true" />

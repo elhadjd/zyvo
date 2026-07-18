@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link'
 import { Mail, Phone, MapPin, ArrowUp } from 'lucide-react';
 import { TRUST_MESSAGE } from '../data/site';
 import { industryLandings } from '../data/industry-landings';
@@ -57,7 +59,7 @@ const Footer = () => {
       <div className="container mx-auto px-4 lg:px-8 py-12">
         <div className="grid lg:grid-cols-2 gap-12 mb-12">
           <div>
-            <Link to="/" className="flex items-center space-x-3 mb-6">
+            <Link href="/" className="flex items-center space-x-3 mb-6">
               <div className="w-10 h-10 rounded-lg bg-brand-primary flex items-center justify-center">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -91,7 +93,7 @@ const Footer = () => {
                 <ul className="space-y-2.5">
                   {links.map((link) => (
                     <li key={link.href}>
-                      <Link to={link.href} className="text-gray-400 hover:text-white transition-colors text-sm">
+                      <Link href={link.href} className="text-gray-400 hover:text-white transition-colors text-sm">
                         {link.label}
                       </Link>
                     </li>
@@ -110,7 +112,7 @@ const Footer = () => {
           </div>
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
             {legalLinks.map((link) => (
-              <Link key={link.href} to={link.href} className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link key={link.href} href={link.href} className="text-gray-400 hover:text-white text-sm transition-colors">
                 {link.label}
               </Link>
             ))}

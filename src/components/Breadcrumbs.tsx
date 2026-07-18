@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link'
 import { ChevronRight, Home } from 'lucide-react';
 
 interface BreadcrumbItem {
@@ -16,7 +18,7 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
       <ol className="flex flex-wrap items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
         <li>
           <Link
-            to="/"
+            href="/"
             className="flex items-center hover:text-brand-primary dark:hover:text-brand-accent transition-colors"
           >
             <Home className="w-4 h-4" />
@@ -28,7 +30,7 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
             <ChevronRight className="w-4 h-4" />
             {item.href && index < items.length - 1 ? (
               <Link
-                to={item.href}
+                href={item.href}
                 className="hover:text-brand-primary dark:hover:text-brand-accent transition-colors"
               >
                 {item.label}

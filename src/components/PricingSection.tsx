@@ -1,5 +1,7 @@
+'use client';
+
+import Link from 'next/link'
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Check, HelpCircle, Users, Shield } from 'lucide-react';
 
 const PricingSection = () => {
@@ -165,7 +167,7 @@ const PricingSection = () => {
 
                                 {plan.name === 'Business' ? (
                                     <Link
-                                        to="/contact"
+                                        href="/contact"
                                         className={`block w-full text-center py-3 px-6 rounded-lg font-semibold transition-colors ${
                                             plan.popular
                                                 ? 'bg-brand-primary text-white hover:bg-brand-primary-hover'
@@ -176,7 +178,7 @@ const PricingSection = () => {
                                     </Link>
                                 ) : (
                                     <Link
-                                        to="/getting-started"
+                                        href="/getting-started"
                                         className={`block w-full text-center py-3 px-6 rounded-lg font-semibold transition-colors ${
                                             plan.popular
                                                 ? 'bg-brand-primary text-white hover:bg-brand-primary-hover'
@@ -219,7 +221,7 @@ const PricingSection = () => {
 
                 {/* FAQ Link */}
                 <div className="mt-8 text-center">
-                    <Link to="/faq" className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-brand-primary">
+                    <Link href="/faq" className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-brand-primary">
                         <HelpCircle className="w-4 h-4 mr-1" />
                         Have questions? Check our FAQ
                     </Link>

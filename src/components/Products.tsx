@@ -1,5 +1,7 @@
+'use client';
+
+import Link from 'next/link'
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle, TrendingUp, Clock, Users } from 'lucide-react';
 import { solutions } from '../data/solutions';
 
@@ -91,7 +93,7 @@ const SolutionsSection = () => {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{solution.shortTitle}</h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">{solution.description}</p>
                 <Link
-                  to={`/solutions/${solution.slug}`}
+                  href={`/solutions/${solution.slug}`}
                   className="inline-flex items-center text-sm font-medium text-brand-primary dark:text-brand-accent hover:text-brand-primary"
                 >
                   Learn more
@@ -107,7 +109,7 @@ const SolutionsSection = () => {
             <span className="text-sm text-gray-700 dark:text-gray-300">
               All solutions work together seamlessly. No integrations needed.
             </span>
-            <Link to="/solutions" className="text-brand-primary dark:text-brand-accent text-sm font-medium hover:underline">
+            <Link href="/solutions" className="text-brand-primary dark:text-brand-accent text-sm font-medium hover:underline">
               View all solutions →
             </Link>
           </div>

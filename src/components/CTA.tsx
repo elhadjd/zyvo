@@ -1,19 +1,20 @@
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
-import { ArrowRight, Shield, Mail, Lock, Check, ChevronRight, Building } from 'lucide-react';
-import { baseApiURL, Requests } from '../api';
+'use client';
+
+import Link from 'next/link';
+import { useState, type FormEvent } from 'react';
+import { ArrowRight, Shield, Mail, Check, ChevronRight, Building } from 'lucide-react';
+import { submitSignup } from '@/lib/api-client';
 
 const CompanySignupFlow = () => {
     const [step, setStep] = useState('email'); // email, details, success
     const [email, setEmail] = useState('');
-    const { routePost } = Requests()
     const [link, setLink] = useState('');
     const [companyData, setCompanyData] = useState({
         name: '',
         nif: '' // tax ID (optional)
     });
     const [loading, setLoading] = useState(false);
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     const validateEmail = () => {
         if (!email) return 'Email is required';
@@ -21,7 +22,7 @@ const CompanySignupFlow = () => {
         return '';
     };
 
-    const handleEmailSubmit = async (e) => {
+    const handleEmailSubmit = async (e?: FormEvent) => {
         e?.preventDefault();
         const emailError = validateEmail();
         if (emailError) {
@@ -47,7 +48,7 @@ const CompanySignupFlow = () => {
         }
     };
 
-    const handleDetailsSubmit = async (e) => {
+    const handleDetailsSubmit = async (e?: FormEvent) => {
         e?.preventDefault();
 
         if (!companyData.name) {
@@ -76,25 +77,27 @@ const CompanySignupFlow = () => {
                 }
             };
 
-            const response = await routePost('/app/save-company', data);
-            if (response?.data?.data?.link) {
-                let link = response?.data.data.link;
-                setLink(`${link}`)
-                window.open(`https://${link}`, '_blank');
+            const response = await submitSignup(data);
+            const signupLink = response?.data?.data?.link ?? response?.data?.link;
+            if (signupLink) {
+                setLink(`${signupLink}`)
+                window.open(`https://${signupLink}`, '_blank');
                 setStep('success');
             }
-        } catch (error) {
+        } catch (error: unknown) {
+            const apiError = error as {
+                response?: { data?: { errors?: Record<string, string[]>; message?: string } };
+            };
 
             let errorMessage = 'Registration failed. Please try again.';
 
-            // Verificar se é um erro de validação do Laravel
-            if (error?.response?.data) {
-                const responseData = error.response.data;
+            if (apiError?.response?.data) {
+                const responseData = apiError.response.data;
 
                 // Caso 1: Erro de validação padrão do Laravel
                 if (responseData.errors) {
                     // Mapear erros de validação para o formato que você quer
-                    const validationErrors = {};
+                    const validationErrors: Record<string, string> = {};
                     Object.keys(responseData.errors).forEach(field => {
                         validationErrors[field] = responseData.errors[field][0];
                     });
@@ -219,9 +222,9 @@ const CompanySignupFlow = () => {
 
                                 <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">
                                     By continuing, you agree to our{' '}
-                                    <Link to="/terms-of-service" className="text-brand-primary hover:underline">Terms</Link>
+                                    <Link href="/terms-of-service" className="text-brand-primary hover:underline">Terms</Link>
                                     {' '}and{' '}
-                                    <Link to="/privacy-policy" className="text-brand-primary hover:underline">Privacy Policy</Link>
+                                    <Link href="/privacy-policy" className="text-brand-primary hover:underline">Privacy Policy</Link>
                                 </p>
                             </form>
                         </div>

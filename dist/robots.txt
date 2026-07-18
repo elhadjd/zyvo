@@ -1,8 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://www.zyvoerp.com/sitemap.xml
-
-# Disallow admin and API paths
-Disallow: /api/
-Disallow: /auth/
