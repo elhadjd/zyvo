@@ -101,10 +101,104 @@ export const seoMetadata = sqliteTable('seo_metadata', {
   keywords: text('keywords').notNull(),
   schemaArticle: text('schema_article', { mode: 'json' }).$type<Record<string, unknown>>(),
   schemaFaq: text('schema_faq', { mode: 'json' }).$type<Record<string, unknown>>(),
-  internalLinks: text('internal_links', { mode: 'json' }).$type<{ title: string; url: string }[]>().default([]),
+  schemaOrganization: text('schema_organization', { mode: 'json' }).$type<Record<string, unknown>>(),
+  schemaSoftware: text('schema_software', { mode: 'json' }).$type<Record<string, unknown>>(),
+  openGraph: text('open_graph', { mode: 'json' }).$type<Record<string, unknown>>(),
+  twitterCard: text('twitter_card', { mode: 'json' }).$type<Record<string, unknown>>(),
+  canonicalUrl: text('canonical_url'),
+  hreflangTags: text('hreflang_tags', { mode: 'json' }).$type<Record<string, string>>(),
+  internalLinks: text('internal_links', { mode: 'json' }).$type<{ title: string; url: string; anchorText?: string }[]>().default([]),
   imageSuggestions: text('image_suggestions', { mode: 'json' }).$type<string[]>().default([]),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
+});
+
+export const seoKeywords = sqliteTable('seo_keywords', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  keyword: text('keyword').notNull(),
+  country: text('country').notNull(),
+  language: text('language').notNull(),
+  intent: text('intent').notNull().default('informational'),
+  difficulty: integer('difficulty').notNull().default(50),
+  priorityScore: integer('priority_score').notNull().default(50),
+  opportunity: text('opportunity'),
+  relatedContent: text('related_content', { mode: 'json' }).$type<number[]>().default([]),
+  articleId: integer('article_id').references(() => contentArticles.id),
+  isPrimary: integer('is_primary', { mode: 'boolean' }).notNull().default(false),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const topicClusters = sqliteTable('topic_clusters', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull(),
+  country: text('country').notNull(),
+  category: text('category').notNull(),
+  mainKeyword: text('main_keyword').notNull(),
+  relatedArticles: text('related_articles', { mode: 'json' }).$type<number[]>().default([]),
+  pillarArticleId: integer('pillar_article_id').references(() => contentArticles.id),
+  status: text('status').notNull().default('active'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const internalLinks = sqliteTable('internal_links', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  sourceArticleId: integer('source_article_id')
+    .notNull()
+    .references(() => contentArticles.id),
+  targetArticleId: integer('target_article_id').references(() => contentArticles.id),
+  targetUrl: text('target_url').notNull(),
+  anchorText: text('anchor_text').notNull(),
+  country: text('country').notNull(),
+  relevanceScore: real('relevance_score').default(0.8),
+  createdAt: text('created_at').notNull(),
+});
+
+export const programmaticPages = sqliteTable('programmatic_pages', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  slug: text('slug').notNull(),
+  country: text('country').notNull(),
+  industry: text('industry').notNull(),
+  language: text('language').notNull(),
+  title: text('title').notNull(),
+  metaTitle: text('meta_title').notNull(),
+  metaDescription: text('meta_description').notNull(),
+  headline: text('headline').notNull(),
+  content: text('content', { mode: 'json' }).$type<string[]>().notNull().default([]),
+  faq: text('faq', { mode: 'json' }).$type<{ question: string; answer: string }[]>().default([]),
+  cta: text('cta').notNull(),
+  keywords: text('keywords').notNull(),
+  schemaData: text('schema_data', { mode: 'json' }).$type<Record<string, unknown>>(),
+  status: text('status').notNull().default('draft'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+  publishedAt: text('published_at'),
+});
+
+export const seoSitemapEntries = sqliteTable('seo_sitemap_entries', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  url: text('url').notNull().unique(),
+  type: text('type').notNull(),
+  country: text('country'),
+  priority: real('priority').notNull().default(0.7),
+  changeFreq: text('change_freq').notNull().default('monthly'),
+  lastmod: text('lastmod').notNull(),
+  createdAt: text('created_at').notNull(),
+});
+
+export const contentFreshnessChecks = sqliteTable('content_freshness_checks', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  articleId: integer('article_id')
+    .notNull()
+    .references(() => contentArticles.id),
+  status: text('status').notNull().default('pending'),
+  reason: text('reason').notNull(),
+  severity: text('severity').notNull().default('medium'),
+  suggestedAction: text('suggested_action'),
+  checkedAt: text('checked_at').notNull(),
+  resolvedAt: text('resolved_at'),
+  createdAt: text('created_at').notNull(),
 });
 
 export const factChecks = sqliteTable('fact_checks', {
@@ -259,3 +353,9 @@ export type DiscoveredKeywordRow = typeof discoveredKeywords.$inferSelect;
 export type KnowledgeDocumentRow = typeof knowledgeDocuments.$inferSelect;
 export type ContentOpportunityRow = typeof contentOpportunities.$inferSelect;
 export type ResearchLogRow = typeof researchLogs.$inferSelect;
+export type SeoKeywordRow = typeof seoKeywords.$inferSelect;
+export type TopicClusterRow = typeof topicClusters.$inferSelect;
+export type InternalLinkRow = typeof internalLinks.$inferSelect;
+export type ProgrammaticPageRow = typeof programmaticPages.$inferSelect;
+export type SeoSitemapEntryRow = typeof seoSitemapEntries.$inferSelect;
+export type ContentFreshnessCheckRow = typeof contentFreshnessChecks.$inferSelect;

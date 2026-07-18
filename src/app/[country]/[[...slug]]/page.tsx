@@ -109,6 +109,8 @@ export default async function CountryPage({ params }: CountryPageProps) {
     industryId?: string;
     solutionSlug?: string;
     postSlug?: string;
+    countryCode?: string;
+    industry?: string;
     posts?: ReturnType<typeof getMergedMarketBlogPosts>;
     post?: ReturnType<typeof getMergedMarketBlogPostBySlug>;
   }>;
@@ -117,6 +119,8 @@ export default async function CountryPage({ params }: CountryPageProps) {
     industryId: resolved.params.industry,
     solutionSlug: resolved.params.solution,
     postSlug: resolved.params.post,
+    countryCode: country,
+    industry: resolved.params.industry,
   };
 
   if (slug[0] === 'blog' && slug.length === 1) {

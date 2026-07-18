@@ -122,7 +122,13 @@ export interface SeoResult {
   keywords: string;
   schemaArticle: Record<string, unknown>;
   schemaFaq: Record<string, unknown>;
-  internalLinks: { title: string; url: string }[];
+  schemaOrganization?: Record<string, unknown>;
+  schemaSoftware?: Record<string, unknown>;
+  openGraph?: Record<string, unknown>;
+  twitterCard?: Record<string, unknown>;
+  canonicalUrl?: string;
+  hreflangTags?: Record<string, string>;
+  internalLinks: { title: string; url: string; anchorText?: string }[];
   imageSuggestions: string[];
 }
 

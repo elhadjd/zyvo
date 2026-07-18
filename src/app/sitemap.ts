@@ -59,5 +59,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     });
   });
 
-  return [...usEntries, ...marketEntries];
+  const subSitemaps: MetadataRoute.Sitemap = [
+    { url: `${SITE_URL}/sitemap-articles.xml`, lastModified, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${SITE_URL}/sitemap-countries.xml`, lastModified, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${SITE_URL}/sitemap-categories.xml`, lastModified, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE_URL}/sitemap-programmatic.xml`, lastModified, changeFrequency: 'weekly', priority: 0.85 },
+  ];
+
+  return [...usEntries, ...marketEntries, ...subSitemaps];
 }

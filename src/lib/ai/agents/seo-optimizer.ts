@@ -1,12 +1,11 @@
 import { desc, eq } from 'drizzle-orm';
-import { deepseekService } from '../services/deepseek-service';
-import { getSeoPrompt } from './prompts';
 import { getCountryConfig } from '../countries';
 import { logAiEvent } from '../logger';
 import { createTask, completeTask, failTask, isAgentEnabled } from './task-helpers';
 import { getDb } from '../db';
 import { contentArticles, seoMetadata } from '../db/schema';
-import type { AgentContext, SeoResult } from '../types';
+import { seoEngine } from '../seo-engine';
+import type { AgentContext } from '../types';
 
 function now(): string {
   return new Date().toISOString();
@@ -21,44 +20,28 @@ export async function runSeoOptimizerAgent(ctx: AgentContext): Promise<number | 
   if (!config) throw new Error(`País não configurado: ${ctx.countryCode}`);
 
   const taskId = createTask('seo_optimizer', ctx.countryCode, 'optimize_seo');
-  logAiEvent('seo_optimizer', `Otimizando SEO para ${config.countryName}`, { countryCode: ctx.countryCode });
+  logAiEvent('seo_optimizer', `SEO Growth Engine para ${config.countryName}`, {
+    countryCode: ctx.countryCode,
+  });
 
   try {
     const db = getDb();
-    const article = db
-      .select()
-      .from(contentArticles)
-      .where(eq(contentArticles.countryCode, ctx.countryCode))
-      .orderBy(desc(contentArticles.createdAt))
-      .limit(1)
-      .get();
+    const article = ctx.articleId
+      ? db.select().from(contentArticles).where(eq(contentArticles.id, ctx.articleId)).get()
+      : db
+          .select()
+          .from(contentArticles)
+          .where(eq(contentArticles.countryCode, ctx.countryCode))
+          .orderBy(desc(contentArticles.createdAt))
+          .limit(1)
+          .get();
 
-    if (!article || article.status !== 'draft') {
+    if (!article || (article.status !== 'draft' && article.status !== 'pending_review')) {
       completeTask(taskId, 'seo_optimizer', { optimized: false });
       return null;
     }
 
-    const articleContent = {
-      title: article.title,
-      excerpt: article.excerpt,
-      introduction: article.introduction,
-      content: article.content,
-      faq: article.faq,
-      category: article.category,
-      language: article.language,
-    };
-
-    const promptConfig = getSeoPrompt(ctx.countryCode);
-
-    const response = await deepseekService.chat(
-      [
-        { role: 'system', content: promptConfig.systemPrompt },
-        { role: 'user', content: `Optimise SEO:\n${JSON.stringify(articleContent, null, 2)}` },
-      ],
-      { jsonMode: true, temperature: 0.2, agentCode: 'seo_optimizer', countryCode: ctx.countryCode }
-    );
-
-    const seo = deepseekService.parseJson<SeoResult>(response.content);
+    const seo = await seoEngine.runFullOptimization(article, ctx.countryCode);
     const timestamp = now();
     let seoId: number | null = null;
 
@@ -73,6 +56,12 @@ export async function runSeoOptimizerAgent(ctx: AgentContext): Promise<number | 
           keywords: seo.keywords,
           schemaArticle: seo.schemaArticle,
           schemaFaq: seo.schemaFaq,
+          schemaOrganization: seo.schemaOrganization,
+          schemaSoftware: seo.schemaSoftware,
+          openGraph: seo.openGraph,
+          twitterCard: seo.twitterCard,
+          canonicalUrl: seo.canonicalUrl,
+          hreflangTags: seo.hreflangTags,
           internalLinks: seo.internalLinks,
           imageSuggestions: seo.imageSuggestions,
           createdAt: timestamp,
@@ -85,7 +74,7 @@ export async function runSeoOptimizerAgent(ctx: AgentContext): Promise<number | 
       db.update(contentArticles)
         .set({
           slug: seo.slug,
-          status: ctx.saveAsDraft ? 'pending_review' : 'pending_review',
+          status: 'pending_review',
           updatedAt: timestamp,
         })
         .where(eq(contentArticles.id, article.id))
@@ -95,12 +84,13 @@ export async function runSeoOptimizerAgent(ctx: AgentContext): Promise<number | 
     completeTask(taskId, 'seo_optimizer', {
       seoId,
       articleId: article.id,
-      tokensUsed: response.usage.totalTokens,
+      primaryKeyword: seo.keywordAnalysis.primaryKeyword,
+      internalLinks: seo.internalLinks.length,
     });
 
-    logAiEvent('seo_optimizer', `SEO otimizado para: ${article.title}`, {
+    logAiEvent('seo_optimizer', `SEO Growth Engine concluído: ${article.title}`, {
       countryCode: ctx.countryCode,
-      metadata: { seoId },
+      metadata: { seoId, keyword: seo.keywordAnalysis.primaryKeyword },
     });
 
     return seoId;

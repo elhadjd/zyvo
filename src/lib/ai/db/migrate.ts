@@ -264,6 +264,98 @@ export function runMigrations(dbPath = process.env.DATABASE_PATH ?? DEFAULT_DB_P
     CREATE INDEX IF NOT EXISTS idx_knowledge_documents_country ON knowledge_documents(country_code);
     CREATE INDEX IF NOT EXISTS idx_content_opportunities_score ON content_opportunities(total_score);
     CREATE INDEX IF NOT EXISTS idx_research_logs_created ON research_logs(created_at);
+
+    CREATE TABLE IF NOT EXISTS seo_keywords (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      keyword TEXT NOT NULL,
+      country TEXT NOT NULL,
+      language TEXT NOT NULL,
+      intent TEXT NOT NULL DEFAULT 'informational',
+      difficulty INTEGER NOT NULL DEFAULT 50,
+      priority_score INTEGER NOT NULL DEFAULT 50,
+      opportunity TEXT,
+      related_content TEXT DEFAULT '[]',
+      article_id INTEGER REFERENCES content_articles(id),
+      is_primary INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS topic_clusters (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      country TEXT NOT NULL,
+      category TEXT NOT NULL,
+      main_keyword TEXT NOT NULL,
+      related_articles TEXT DEFAULT '[]',
+      pillar_article_id INTEGER REFERENCES content_articles(id),
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS internal_links (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      source_article_id INTEGER NOT NULL REFERENCES content_articles(id),
+      target_article_id INTEGER REFERENCES content_articles(id),
+      target_url TEXT NOT NULL,
+      anchor_text TEXT NOT NULL,
+      country TEXT NOT NULL,
+      relevance_score REAL DEFAULT 0.8,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS programmatic_pages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      slug TEXT NOT NULL,
+      country TEXT NOT NULL,
+      industry TEXT NOT NULL,
+      language TEXT NOT NULL,
+      title TEXT NOT NULL,
+      meta_title TEXT NOT NULL,
+      meta_description TEXT NOT NULL,
+      headline TEXT NOT NULL,
+      content TEXT NOT NULL DEFAULT '[]',
+      faq TEXT DEFAULT '[]',
+      cta TEXT NOT NULL,
+      keywords TEXT NOT NULL,
+      schema_data TEXT,
+      status TEXT NOT NULL DEFAULT 'draft',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      published_at TEXT,
+      UNIQUE(country, industry)
+    );
+
+    CREATE TABLE IF NOT EXISTS seo_sitemap_entries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      url TEXT NOT NULL UNIQUE,
+      type TEXT NOT NULL,
+      country TEXT,
+      priority REAL NOT NULL DEFAULT 0.7,
+      change_freq TEXT NOT NULL DEFAULT 'monthly',
+      lastmod TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS content_freshness_checks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      article_id INTEGER NOT NULL REFERENCES content_articles(id),
+      status TEXT NOT NULL DEFAULT 'pending',
+      reason TEXT NOT NULL,
+      severity TEXT NOT NULL DEFAULT 'medium',
+      suggested_action TEXT,
+      checked_at TEXT NOT NULL,
+      resolved_at TEXT,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_seo_keywords_country ON seo_keywords(country);
+    CREATE INDEX IF NOT EXISTS idx_topic_clusters_country ON topic_clusters(country);
+    CREATE INDEX IF NOT EXISTS idx_internal_links_source ON internal_links(source_article_id);
+    CREATE INDEX IF NOT EXISTS idx_programmatic_pages_country ON programmatic_pages(country, status);
+    CREATE INDEX IF NOT EXISTS idx_seo_sitemap_type ON seo_sitemap_entries(type);
+    CREATE INDEX IF NOT EXISTS idx_freshness_status ON content_freshness_checks(status);
   `);
 
   // Add new columns to existing tables (idempotent)
@@ -273,6 +365,12 @@ export function runMigrations(dbPath = process.env.DATABASE_PATH ?? DEFAULT_DB_P
     'ALTER TABLE research_sources ADD COLUMN topic TEXT',
     'ALTER TABLE country_ai_config ADD COLUMN articles_per_day INTEGER NOT NULL DEFAULT 1',
     'ALTER TABLE country_ai_config ADD COLUMN schedule_config TEXT DEFAULT "{}"',
+    'ALTER TABLE seo_metadata ADD COLUMN schema_organization TEXT',
+    'ALTER TABLE seo_metadata ADD COLUMN schema_software TEXT',
+    'ALTER TABLE seo_metadata ADD COLUMN open_graph TEXT',
+    'ALTER TABLE seo_metadata ADD COLUMN twitter_card TEXT',
+    'ALTER TABLE seo_metadata ADD COLUMN canonical_url TEXT',
+    'ALTER TABLE seo_metadata ADD COLUMN hreflang_tags TEXT',
   ];
 
   for (const sql of migrations) {

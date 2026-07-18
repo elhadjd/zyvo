@@ -14,9 +14,11 @@ import {
   ListTodo,
   ScrollText,
   FlaskConical,
+  TrendingUp,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
+  { href: '/admin/seo-engine', label: 'SEO Engine', icon: TrendingUp },
   { href: '/admin/research-engine', label: 'Research Engine', icon: Search },
   { href: '/admin/ai-engine', label: 'AI Engine', icon: LayoutDashboard },
   { href: '/admin/ai-engine/agents', label: 'Agentes', icon: Bot },

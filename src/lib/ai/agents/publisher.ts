@@ -5,6 +5,7 @@ import { logAiEvent } from '../logger';
 import { createTask, completeTask, failTask, isAgentEnabled } from './task-helpers';
 import { getDb } from '../db';
 import { contentArticles, countryAiConfig } from '../db/schema';
+import { syncAllSitemaps } from '../seo-engine/sitemap-manager';
 import type { AgentContext } from '../types';
 
 function now(): string {
@@ -75,6 +76,10 @@ export async function runPublisherAgent(ctx: AgentContext): Promise<number | nul
         revalidatePath(`/${ctx.countryCode}/blog`);
         revalidatePath(`/${ctx.countryCode}/blog/${article.slug}`);
         revalidatePath('/sitemap.xml');
+        revalidatePath('/sitemap-articles.xml');
+        revalidatePath('/sitemap-countries.xml');
+        revalidatePath('/sitemap-categories.xml');
+        syncAllSitemaps();
       } catch {
         // revalidatePath may fail outside request context
       }

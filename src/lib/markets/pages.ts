@@ -14,7 +14,9 @@ import MarketSolutionDetailPage from '@/views/markets/MarketSolutionDetailPage';
 import MarketGettingStartedPage from '@/views/markets/MarketGettingStartedPage';
 import MarketBlogIndexPage from '@/views/markets/MarketBlogIndexPage';
 import MarketBlogPostPage from '@/views/markets/MarketBlogPostPage';
+import ProgrammaticPageServer from '@/views/markets/ProgrammaticPageServer';
 import { getAllMergedMarketBlogSlugs } from '@/lib/markets/blog-server';
+import { PROGRAMMATIC_INDUSTRIES } from '@/lib/ai/seo-engine/types';
 
 export interface MarketPageDefinition {
   slug: string[];
@@ -33,6 +35,7 @@ const GN_PAGES: MarketPageDefinition[] = [
   { slug: ['getting-started'], pageKey: 'home', component: MarketGettingStartedPage },
   { slug: ['blog'], pageKey: 'blog', component: MarketBlogIndexPage },
   { slug: ['blog', ':post'], pageKey: 'blog', component: MarketBlogPostPage },
+  { slug: ['erp', ':industry'], pageKey: 'erp', component: ProgrammaticPageServer },
   { slug: ['solutions'], pageKey: 'solutions', component: MarketSolutionsPage },
   { slug: ['industries'], pageKey: 'solutions', component: MarketSolutionsPage },
   { slug: ['industries', ':industry'], pageKey: 'solutions', component: MarketIndustryPage },
@@ -98,6 +101,10 @@ export function getMarketStaticParams(marketCode: MarketCode): { slug: string[] 
 
     getAllMergedMarketBlogSlugs('gn').forEach((postSlug) => {
       params.push({ slug: ['blog', postSlug] });
+    });
+
+    PROGRAMMATIC_INDUSTRIES.forEach((ind) => {
+      params.push({ slug: ['erp', ind.slug] });
     });
   }
 
