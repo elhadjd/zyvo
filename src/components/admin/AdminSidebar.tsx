@@ -11,15 +11,22 @@ import {
   Settings,
   LogOut,
   Zap,
+  ListTodo,
+  ScrollText,
+  FlaskConical,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { href: '/admin/ai-content', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/ai-content/articles', label: 'Artigos', icon: FileText },
-  { href: '/admin/ai-content/sources', label: 'Fontes', icon: Search },
-  { href: '/admin/ai-content/knowledge', label: 'Conhecimento', icon: BookOpen },
-  { href: '/admin/ai-content/agents', label: 'Agentes', icon: Bot },
-  { href: '/admin/ai-content/settings', label: 'Configurações', icon: Settings },
+  { href: '/admin/ai-engine', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/ai-engine/agents', label: 'Agentes', icon: Bot },
+  { href: '/admin/ai-engine/tasks', label: 'Tarefas', icon: ListTodo },
+  { href: '/admin/ai-engine/research', label: 'Pesquisa', icon: Search },
+  { href: '/admin/ai-engine/knowledge', label: 'Conhecimento', icon: BookOpen },
+  { href: '/admin/ai-engine/articles', label: 'Artigos', icon: FileText },
+  { href: '/admin/ai-engine/sources', label: 'Fontes', icon: Search },
+  { href: '/admin/ai-engine/logs', label: 'Logs', icon: ScrollText },
+  { href: '/admin/ai-engine/test', label: 'Teste GN', icon: FlaskConical },
+  { href: '/admin/ai-engine/settings', label: 'Configurações', icon: Settings },
 ];
 
 export default function AdminSidebar() {
@@ -27,7 +34,7 @@ export default function AdminSidebar() {
 
   async function handleLogout() {
     await fetch('/api/admin/ai-content/auth', { method: 'DELETE' });
-    window.location.href = '/admin/ai-content/login';
+    window.location.href = '/admin/ai-engine/login';
   }
 
   return (
@@ -37,12 +44,12 @@ export default function AdminSidebar() {
           <Zap className="w-6 h-6 text-brand-accent" />
           <div>
             <h1 className="font-bold text-lg">ZYVO AI Engine</h1>
-            <p className="text-xs text-gray-400">Content Platform</p>
+            <p className="text-xs text-gray-400">DeepSeek Content Platform</p>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const active = pathname === item.href;

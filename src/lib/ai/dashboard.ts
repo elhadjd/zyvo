@@ -1,13 +1,16 @@
-import { count, desc, eq, sql } from 'drizzle-orm';
+import { count, desc, eq, sql, gte } from 'drizzle-orm';
 import { getDb } from './db';
 import {
   aiAgents,
   aiLogs,
+  aiJobs,
   contentArticles,
   countryAiConfig,
+  deepseekRequests,
   knowledgeBase,
   researchSources,
 } from './db/schema';
+import { getPendingJobCount } from './jobs/queue';
 import type { DashboardStats } from './types';
 
 export function getDashboardStats(countryCode?: string): DashboardStats {
@@ -86,6 +89,15 @@ export function getDashboardStats(countryCode?: string): DashboardStats {
   const allKeywords = db.select({ keywords: researchSources.keywords }).from(researchSources).all();
   const seoKeywords = allKeywords.reduce((acc, s) => acc + (s.keywords?.length ?? 0), 0);
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const apiRequestsToday =
+    db
+      .select({ count: count() })
+      .from(deepseekRequests)
+      .where(gte(deepseekRequests.createdAt, today.toISOString()))
+      .get()?.count ?? 0;
+
   return {
     publishedArticles,
     pendingArticles,
@@ -94,6 +106,8 @@ export function getDashboardStats(countryCode?: string): DashboardStats {
     seoKeywords,
     agentStatuses,
     deepseekTokensUsed: tokensUsed,
+    pendingJobs: getPendingJobCount(),
     recentErrors,
+    apiRequestsToday,
   };
 }

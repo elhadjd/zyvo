@@ -1,5 +1,6 @@
 import { desc, eq } from 'drizzle-orm';
-import { callDeepSeek, parseJsonResponse } from '../deepseek';
+import { deepseekService } from '../services/deepseek-service';
+import { getFactCheckerPrompt } from './prompts';
 import { getCountryConfig } from '../countries';
 import { logAiEvent } from '../logger';
 import { createTask, completeTask, failTask, isAgentEnabled } from './task-helpers';
@@ -46,37 +47,20 @@ export async function runFactCheckerAgent(ctx: AgentContext): Promise<FactCheckR
           .filter((k) => article.knowledgeIds.includes(k.id))
       : [];
 
-    const response = await callDeepSeek(
+    const promptConfig = getFactCheckerPrompt(ctx.countryCode);
+
+    const response = await deepseekService.chat(
       [
-        {
-          role: 'system',
-          content: `Tu es vérificateur de faits pour contenu business en ${config.countryName}.
-Compare l'article avec les sources de connaissance fournies.
-Vérifie: données incorrectes, dates, valeurs, institutions, lois, noms officiels.
-Si un fait n'est pas dans les sources, signale-le comme "high" severity.
-Réponds en JSON:
-{"status":"passed|failed|needs_review","issues":[{"type":"...","detail":"...","severity":"low|medium|high"}],"notes":"..."}`,
-        },
+        { role: 'system', content: promptConfig.systemPrompt },
         {
           role: 'user',
-          content: `Article à vérifier:\n${JSON.stringify({
-            title: article.title,
-            introduction: article.introduction,
-            content: article.content,
-            faq: article.faq,
-            conclusion: article.conclusion,
-          }, null, 2)}\n\nSources de référence:\n${JSON.stringify(knowledgeEntries.map(k => ({
-            title: k.title,
-            source: k.sourceTitle,
-            url: k.sourceUrl,
-            content: k.content,
-          })), null, 2)}`,
+          content: `Article:\n${JSON.stringify({ title: article.title, introduction: article.introduction, content: article.content, faq: article.faq }, null, 2)}\n\nSources:\n${JSON.stringify(knowledgeEntries.map((k) => ({ title: k.title, source: k.sourceTitle, content: k.content })), null, 2)}`,
         },
       ],
-      { jsonMode: true, temperature: 0.1 }
+      { jsonMode: true, temperature: 0.1, agentCode: 'fact_checker', countryCode: ctx.countryCode }
     );
 
-    const result = parseJsonResponse<FactCheckResult>(response.content);
+    const result = deepseekService.parseJson<FactCheckResult>(response.content);
     const timestamp = now();
 
     if (!ctx.dryRun) {
@@ -92,11 +76,11 @@ Réponds en JSON:
         .run();
 
       const newStatus =
-        result.status === 'passed'
-          ? 'approved'
-          : result.status === 'failed'
-            ? 'fact_check_failed'
-            : 'pending_review';
+        result.status === 'approved' || result.status === 'passed'
+          ? ctx.saveAsDraft
+            ? 'pending_review'
+            : 'approved'
+          : 'pending_review';
 
       db.update(contentArticles)
         .set({ status: newStatus, updatedAt: timestamp })

@@ -3,6 +3,7 @@ import { runKnowledgeOrganizerAgent } from './knowledge-organizer';
 import { runContentWriterAgent } from './content-writer';
 import { runSeoOptimizerAgent } from './seo-optimizer';
 import { runFactCheckerAgent } from './fact-checker';
+import { runEditorAgent } from './editor';
 import { runTranslationAgent } from './translation';
 import { runPublisherAgent } from './publisher';
 import { logAiEvent } from '../logger';
@@ -11,34 +12,43 @@ import type { AgentCode, AgentContext, SupportedCountry } from '../types';
 
 export interface PipelineResult {
   countryCode: SupportedCountry;
-  stages: Record<AgentCode, { success: boolean; error?: string; data?: unknown }>;
+  topic?: string;
+  stages: Partial<Record<AgentCode, { success: boolean; error?: string; data?: unknown }>>;
   completedAt: string;
+  articleId?: number;
 }
+
+const STAGE_ORDER: AgentCode[] = [
+  'research',
+  'knowledge_organizer',
+  'content_writer',
+  'seo_optimizer',
+  'fact_checker',
+  'editor',
+];
 
 export async function runFullPipeline(
   countryCode: SupportedCountry,
-  options: { dryRun?: boolean; stages?: AgentCode[] } = {}
+  options: { dryRun?: boolean; stages?: AgentCode[]; topic?: string; saveAsDraft?: boolean } = {}
 ): Promise<PipelineResult> {
   seedDatabase();
 
-  const ctx: AgentContext = { countryCode, dryRun: options.dryRun };
-  const stagesToRun = options.stages ?? [
-    'research',
-    'knowledge_organizer',
-    'content_writer',
-    'seo_optimizer',
-    'fact_checker',
-    'translation',
-    'publisher',
-  ];
+  const ctx: AgentContext = {
+    countryCode,
+    dryRun: options.dryRun,
+    topic: options.topic,
+    saveAsDraft: options.saveAsDraft ?? true,
+  };
 
+  const stagesToRun = options.stages ?? [...STAGE_ORDER, 'publisher'];
   const result: PipelineResult = {
     countryCode,
-    stages: {} as PipelineResult['stages'],
+    topic: options.topic,
+    stages: {},
     completedAt: new Date().toISOString(),
   };
 
-  logAiEvent('research', `Pipeline iniciado para ${countryCode}`, { countryCode });
+  logAiEvent('research', `Pipeline iniciado para ${countryCode}`, { countryCode, metadata: { topic: options.topic } });
 
   for (const stage of stagesToRun) {
     try {
@@ -53,6 +63,7 @@ export async function runFullPipeline(
           break;
         case 'content_writer':
           data = await runContentWriterAgent(ctx);
+          if (typeof data === 'number') result.articleId = data;
           break;
         case 'seo_optimizer':
           data = await runSeoOptimizerAgent(ctx);
@@ -60,11 +71,19 @@ export async function runFullPipeline(
         case 'fact_checker':
           data = await runFactCheckerAgent(ctx);
           break;
+        case 'editor':
+          data = await runEditorAgent(ctx);
+          if (typeof data === 'number') result.articleId = data;
+          break;
         case 'translation':
           data = await runTranslationAgent(ctx);
           break;
         case 'publisher':
-          data = await runPublisherAgent(ctx);
+          if (options.saveAsDraft) {
+            data = { skipped: true, reason: 'saveAsDraft enabled' };
+          } else {
+            data = await runPublisherAgent(ctx);
+          }
           break;
       }
 
@@ -72,25 +91,36 @@ export async function runFullPipeline(
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Erro desconhecido';
       result.stages[stage] = { success: false, error: message };
-      logAiEvent(stage, `Pipeline parado em ${stage}: ${message}`, {
-        countryCode,
-        level: 'error',
-      });
+      logAiEvent(stage, `Pipeline parado em ${stage}: ${message}`, { countryCode, level: 'error' });
       break;
     }
   }
 
-  logAiEvent('publisher', `Pipeline concluído para ${countryCode}`, { countryCode });
   return result;
+}
+
+/** Teste real: Guiné — "Como abrir uma pequena empresa na Guiné" → rascunho */
+export async function runGuineaTestPipeline(): Promise<PipelineResult> {
+  return runFullPipeline('gn', {
+    topic: 'Comment ouvrir une petite entreprise en Guinée',
+    saveAsDraft: true,
+    stages: STAGE_ORDER,
+  });
 }
 
 export async function runSingleAgent(
   agentCode: AgentCode,
   countryCode: SupportedCountry,
-  dryRun = false
+  options: { dryRun?: boolean; topic?: string; articleId?: number; saveAsDraft?: boolean } = {}
 ): Promise<unknown> {
   seedDatabase();
-  const ctx: AgentContext = { countryCode, dryRun };
+  const ctx: AgentContext = {
+    countryCode,
+    dryRun: options.dryRun,
+    topic: options.topic,
+    articleId: options.articleId,
+    saveAsDraft: options.saveAsDraft,
+  };
 
   switch (agentCode) {
     case 'research':
@@ -103,6 +133,8 @@ export async function runSingleAgent(
       return runSeoOptimizerAgent(ctx);
     case 'fact_checker':
       return runFactCheckerAgent(ctx);
+    case 'editor':
+      return runEditorAgent(ctx);
     case 'translation':
       return runTranslationAgent(ctx);
     case 'publisher':

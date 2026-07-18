@@ -1,5 +1,6 @@
 import { desc, eq } from 'drizzle-orm';
-import { callDeepSeek, parseJsonResponse } from '../deepseek';
+import { deepseekService } from '../services/deepseek-service';
+import { getWriterPrompt } from './prompts';
 import { getCountryConfig } from '../countries';
 import { logAiEvent } from '../logger';
 import { createTask, completeTask, failTask, isAgentEnabled } from './task-helpers';
@@ -29,8 +30,8 @@ export async function runContentWriterAgent(ctx: AgentContext): Promise<number |
   const config = getCountryConfig(ctx.countryCode);
   if (!config) throw new Error(`País não configurado: ${ctx.countryCode}`);
 
-  const taskId = createTask('content_writer', ctx.countryCode, 'write_article');
-  logAiEvent('content_writer', `Criando artigo para ${config.countryName}`, { countryCode: ctx.countryCode });
+  const taskId = createTask('content_writer', ctx.countryCode, 'generate_article');
+  logAiEvent('content_writer', `Criando artigo: ${ctx.topic ?? config.countryName}`, { countryCode: ctx.countryCode });
 
   try {
     const db = getDb();
@@ -57,36 +58,23 @@ export async function runContentWriterAgent(ctx: AgentContext): Promise<number |
       keywords: e.keywords,
     }));
 
-    const langInstruction =
-      config.language === 'fr'
-        ? 'Écris en français professionnel adapté aux entrepreneurs guinéens.'
-        : config.language === 'pt'
-          ? 'Escreve em português profissional adaptado a empresários locais.'
-          : 'Write in professional English for local business owners.';
+    const promptConfig = getWriterPrompt(ctx.countryCode, ctx.topic);
 
-    const response = await callDeepSeek(
+    const response = await deepseekService.chat(
       [
-        {
-          role: 'system',
-          content: `Tu es rédacteur expert pour ZYVO ERP, plateforme de gestion d'entreprise.
-${langInstruction}
-Règles STRICTES:
-- Utilise UNIQUEMENT les informations de la base de connaissance fournie
-- Ne jamais inventer de chiffres, lois ou institutions
-- Cite les sources dans le contenu quand pertinent
-- Structure: introduction, contenu principal (paragraphes), exemples pratiques, FAQ (3-5 questions), conclusion, CTA ZYVO
-Réponds en JSON:
-{"title":"...","excerpt":"...","introduction":"...","content":["paragraphe1","..."],"faq":[{"question":"...","answer":"..."}],"conclusion":"...","cta":"...","category":"...","readTime":"X min"}`,
-        },
+        { role: 'system', content: promptConfig.systemPrompt },
         {
           role: 'user',
-          content: `Crée un article professionnel basé sur ces entrées de connaissance:\n${JSON.stringify(knowledgeData, null, 2)}`,
+          content: `Crée un article${ctx.topic ? ` sur "${ctx.topic}"` : ''} basé sur:\n${JSON.stringify(knowledgeData, null, 2)}`,
         },
       ],
-      { jsonMode: true, temperature: 0.4, maxTokens: 6000 }
+      { jsonMode: true, temperature: 0.4, maxTokens: 6000, agentCode: 'content_writer', countryCode: ctx.countryCode }
     );
 
-    const article = parseJsonResponse<WrittenArticle>(response.content);
+    const article = deepseekService.parseJson<WrittenArticle>(response.content);
+    const contentParagraphs = article.sections
+      ? article.sections.flatMap((s) => [`## ${s.heading}`, s.content])
+      : article.content;
     const timestamp = now();
     const slug = slugify(article.title);
     const knowledgeIds = entries.map((e) => e.id);
@@ -103,7 +91,7 @@ Réponds en JSON:
           slug,
           excerpt: article.excerpt,
           introduction: article.introduction,
-          content: article.content,
+          content: contentParagraphs,
           faq: article.faq,
           conclusion: article.conclusion,
           cta: article.cta,
@@ -111,7 +99,7 @@ Réponds en JSON:
           author: `Équipe ZYVO ${config.countryName}`,
           language: config.language,
           readTime: article.readTime,
-          status: 'draft',
+          status: ctx.saveAsDraft ? 'pending_review' : 'draft',
           taskId,
           createdAt: timestamp,
           updatedAt: timestamp,

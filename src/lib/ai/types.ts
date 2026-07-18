@@ -4,6 +4,7 @@ export type AgentCode =
   | 'content_writer'
   | 'seo_optimizer'
   | 'fact_checker'
+  | 'editor'
   | 'translation'
   | 'publisher';
 
@@ -17,7 +18,7 @@ export type ArticleStatus =
   | 'published'
   | 'fact_check_failed';
 
-export type FactCheckStatus = 'pending' | 'passed' | 'failed' | 'needs_review';
+export type FactCheckStatus = 'pending' | 'approved' | 'passed' | 'failed' | 'needs_review';
 
 export type SupportedCountry = 'gn' | 'sn' | 'ao' | 'mz';
 
@@ -25,52 +26,19 @@ export interface AgentDefinition {
   code: AgentCode;
   name: string;
   description: string;
+  objective: string;
   schedule: string;
 }
 
 export const AGENT_DEFINITIONS: AgentDefinition[] = [
-  {
-    code: 'research',
-    name: 'Research Agent',
-    description: 'Pesquisa diária de tendências, FAQs e palavras-chave SEO em fontes oficiais.',
-    schedule: '0 6 * * *',
-  },
-  {
-    code: 'knowledge_organizer',
-    name: 'Knowledge Organizer',
-    description: 'Organiza pesquisas validadas na base de conhecimento estruturada.',
-    schedule: '0 8 * * *',
-  },
-  {
-    code: 'content_writer',
-    name: 'Content Writer',
-    description: 'Transforma conhecimento validado em artigos profissionais via DeepSeek.',
-    schedule: '0 10 * * *',
-  },
-  {
-    code: 'seo_optimizer',
-    name: 'SEO Optimizer',
-    description: 'Gera meta tags, schema.org, URLs amigáveis e links internos.',
-    schedule: '0 12 * * *',
-  },
-  {
-    code: 'fact_checker',
-    name: 'Fact Checker',
-    description: 'Verifica dados, datas, instituições e leis antes da publicação.',
-    schedule: '0 14 * * *',
-  },
-  {
-    code: 'translation',
-    name: 'Translation Agent',
-    description: 'Prepara traduções PT/FR/EN para expansão multi-país.',
-    schedule: '0 15 * * *',
-  },
-  {
-    code: 'publisher',
-    name: 'Publisher Agent',
-    description: 'Publica artigos aprovados no blog, sitemap e RSS.',
-    schedule: '0 16 * * *',
-  },
+  { code: 'research', name: 'Research Agent', description: 'Pesquisa tendências, FAQs e keywords SEO.', objective: 'Identificar temas populares e oportunidades SEO por país.', schedule: '0 6 * * *' },
+  { code: 'knowledge_organizer', name: 'Knowledge Agent', description: 'Organiza pesquisas na base de conhecimento.', objective: 'Transformar pesquisas em memória empresarial.', schedule: '0 8 * * *' },
+  { code: 'content_writer', name: 'Writer Agent', description: 'Cria artigos via DeepSeek com fontes validadas.', objective: 'Produzir artigos completos sem inventar informações.', schedule: '0 10 * * *' },
+  { code: 'seo_optimizer', name: 'SEO Agent', description: 'Gera meta tags, schema.org e links internos.', objective: 'Otimizar artigos para motores de busca.', schedule: '0 12 * * *' },
+  { code: 'fact_checker', name: 'Fact Checker', description: 'Verifica dados, datas, leis e instituições.', objective: 'Garantir precisão factual antes da publicação.', schedule: '0 14 * * *' },
+  { code: 'editor', name: 'Editor Agent', description: 'Melhora clareza, gramática e estrutura.', objective: 'Polir artigos aprovados sem alterar fatos.', schedule: '0 15 * * *' },
+  { code: 'translation', name: 'Translation Agent', description: 'Prepara traduções PT/FR/EN.', objective: 'Preparar versões multilíngues.', schedule: '0 15 * * *' },
+  { code: 'publisher', name: 'Publisher Agent', description: 'Publica no blog, sitemap e RSS.', objective: 'Publicar conteúdo aprovado.', schedule: '0 16 * * *' },
 ];
 
 export const PIPELINE_STAGES: AgentCode[] = [
@@ -79,9 +47,20 @@ export const PIPELINE_STAGES: AgentCode[] = [
   'content_writer',
   'seo_optimizer',
   'fact_checker',
-  'translation',
+  'editor',
   'publisher',
 ];
+
+export type JobType =
+  | 'research_content'
+  | 'organize_knowledge'
+  | 'generate_article'
+  | 'optimize_seo'
+  | 'fact_check'
+  | 'edit_article'
+  | 'publish_article';
+
+export type JobStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'retrying';
 
 export interface CountryAiSettings {
   countryCode: SupportedCountry;
@@ -103,6 +82,9 @@ export interface AgentContext {
   countryCode: SupportedCountry;
   taskId?: number;
   dryRun?: boolean;
+  topic?: string;
+  articleId?: number;
+  saveAsDraft?: boolean;
 }
 
 export interface ResearchResult {
@@ -124,6 +106,7 @@ export interface WrittenArticle {
   title: string;
   excerpt: string;
   introduction: string;
+  sections?: { heading: string; content: string }[];
   content: string[];
   faq: { question: string; answer: string }[];
   conclusion: string;
@@ -157,5 +140,7 @@ export interface DashboardStats {
   seoKeywords: number;
   agentStatuses: { code: AgentCode; name: string; status: string; enabled: boolean; lastRunAt: string | null }[];
   deepseekTokensUsed: number;
+  pendingJobs: number;
   recentErrors: { id: number; agentCode: string; message: string; createdAt: string }[];
+  apiRequestsToday: number;
 }

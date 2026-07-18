@@ -1,5 +1,6 @@
 import { desc, eq } from 'drizzle-orm';
-import { callDeepSeek, parseJsonResponse } from '../deepseek';
+import { deepseekService } from '../services/deepseek-service';
+import { getKnowledgePrompt } from './prompts';
 import { getCountryConfig } from '../countries';
 import { logAiEvent } from '../logger';
 import { createTask, completeTask, failTask, isAgentEnabled } from './task-helpers';
@@ -60,26 +61,17 @@ export async function runKnowledgeOrganizerAgent(ctx: AgentContext): Promise<num
       snippet: s.snippet,
     }));
 
-    const response = await callDeepSeek(
+    const promptConfig = getKnowledgePrompt(ctx.countryCode);
+
+    const response = await deepseekService.chat(
       [
-        {
-          role: 'system',
-          content: `Tu organises des informations de recherche en base de connaissance structurée pour ${config.countryName}.
-Règles strictes:
-- Ne jamais inventer de données
-- Chaque entrée doit référencer une source réelle fournie
-- Catégories autorisées: ${config.categories.join(', ')}
-Réponds en JSON: {"entries": [{"title":"...","sourceUrl":"...","sourceTitle":"...","category":"...","keywords":["..."],"summary":"...","content":"...","referenceDate":"YYYY-MM-DD"}]}`,
-        },
-        {
-          role: 'user',
-          content: `Organise ces sources en entrées de base de connaissance:\n${JSON.stringify(sourceData, null, 2)}`,
-        },
+        { role: 'system', content: promptConfig.systemPrompt },
+        { role: 'user', content: `Organise:\n${JSON.stringify(sourceData, null, 2)}` },
       ],
-      { jsonMode: true, temperature: 0.1 }
+      { jsonMode: true, temperature: 0.1, agentCode: 'knowledge_organizer', countryCode: ctx.countryCode }
     );
 
-    const organized = parseJsonResponse<OrganizedKnowledge>(response.content);
+    const organized = deepseekService.parseJson<OrganizedKnowledge>(response.content);
     let created = 0;
     const timestamp = now();
 

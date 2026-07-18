@@ -1,5 +1,6 @@
 import { desc, eq } from 'drizzle-orm';
-import { callDeepSeek, parseJsonResponse } from '../deepseek';
+import { deepseekService } from '../services/deepseek-service';
+import { getSeoPrompt } from './prompts';
 import { getCountryConfig } from '../countries';
 import { logAiEvent } from '../logger';
 import { createTask, completeTask, failTask, isAgentEnabled } from './task-helpers';
@@ -47,33 +48,17 @@ export async function runSeoOptimizerAgent(ctx: AgentContext): Promise<number | 
       language: article.language,
     };
 
-    const response = await callDeepSeek(
+    const promptConfig = getSeoPrompt(ctx.countryCode);
+
+    const response = await deepseekService.chat(
       [
-        {
-          role: 'system',
-          content: `Tu es expert SEO pour ZYVO ERP en ${config.countryName}.
-Génère des métadonnées SEO optimisées. Langue: ${config.language}.
-Réponds en JSON:
-{
-  "metaTitle": "max 60 chars | Blog ZYVO",
-  "metaDescription": "max 155 chars",
-  "slug": "url-amigavel",
-  "keywords": "mot1, mot2, mot3",
-  "schemaArticle": {"@context":"https://schema.org","@type":"Article","headline":"...","description":"..."},
-  "schemaFaq": {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"...","acceptedAnswer":{"@type":"Answer","text":"..."}}]},
-  "internalLinks": [{"title":"...","url":"/gn/features"}],
-  "imageSuggestions": ["description image 1"]
-}`,
-        },
-        {
-          role: 'user',
-          content: `Optimise le SEO de cet article:\n${JSON.stringify(articleContent, null, 2)}`,
-        },
+        { role: 'system', content: promptConfig.systemPrompt },
+        { role: 'user', content: `Optimise SEO:\n${JSON.stringify(articleContent, null, 2)}` },
       ],
-      { jsonMode: true, temperature: 0.2 }
+      { jsonMode: true, temperature: 0.2, agentCode: 'seo_optimizer', countryCode: ctx.countryCode }
     );
 
-    const seo = parseJsonResponse<SeoResult>(response.content);
+    const seo = deepseekService.parseJson<SeoResult>(response.content);
     const timestamp = now();
     let seoId: number | null = null;
 
@@ -98,7 +83,11 @@ Réponds en JSON:
       seoId = Number(result.lastInsertRowid);
 
       db.update(contentArticles)
-        .set({ slug: seo.slug, status: 'pending_review', updatedAt: timestamp })
+        .set({
+          slug: seo.slug,
+          status: ctx.saveAsDraft ? 'pending_review' : 'pending_review',
+          updatedAt: timestamp,
+        })
         .where(eq(contentArticles.id, article.id))
         .run();
     }

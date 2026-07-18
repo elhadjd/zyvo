@@ -158,7 +158,54 @@ export function runMigrations(dbPath = process.env.DATABASE_PATH ?? DEFAULT_DB_P
     CREATE INDEX IF NOT EXISTS idx_content_articles_slug ON content_articles(country_code, slug);
     CREATE INDEX IF NOT EXISTS idx_ai_tasks_country ON ai_tasks(country_code, status);
     CREATE INDEX IF NOT EXISTS idx_ai_logs_created ON ai_logs(created_at);
+
+    CREATE TABLE IF NOT EXISTS ai_jobs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      type TEXT NOT NULL,
+      country_code TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      payload TEXT,
+      result TEXT,
+      error TEXT,
+      attempts INTEGER NOT NULL DEFAULT 0,
+      max_attempts INTEGER NOT NULL DEFAULT 3,
+      scheduled_at TEXT,
+      started_at TEXT,
+      completed_at TEXT,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS deepseek_requests (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      agent_code TEXT,
+      country_code TEXT,
+      model TEXT NOT NULL,
+      prompt_tokens INTEGER NOT NULL DEFAULT 0,
+      completion_tokens INTEGER NOT NULL DEFAULT 0,
+      total_tokens INTEGER NOT NULL DEFAULT 0,
+      latency_ms INTEGER NOT NULL DEFAULT 0,
+      status TEXT NOT NULL DEFAULT 'pending',
+      messages_count INTEGER NOT NULL DEFAULT 0,
+      error TEXT,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_ai_jobs_status ON ai_jobs(status);
+    CREATE INDEX IF NOT EXISTS idx_deepseek_requests_created ON deepseek_requests(created_at);
   `);
+
+  // Add new columns to existing tables (idempotent)
+  const migrations = [
+    'ALTER TABLE ai_agents ADD COLUMN objective TEXT',
+    'ALTER TABLE ai_agents ADD COLUMN system_prompt TEXT',
+    'ALTER TABLE research_sources ADD COLUMN topic TEXT',
+    'ALTER TABLE country_ai_config ADD COLUMN articles_per_day INTEGER NOT NULL DEFAULT 1',
+    'ALTER TABLE country_ai_config ADD COLUMN schedule_config TEXT DEFAULT "{}"',
+  ];
+
+  for (const sql of migrations) {
+    try { db.exec(sql); } catch { /* column already exists */ }
+  }
 
   db.close();
 }

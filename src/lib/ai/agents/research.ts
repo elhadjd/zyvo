@@ -1,10 +1,11 @@
-import { callDeepSeek, parseJsonResponse } from '../deepseek';
 import { getCountryConfig } from '../countries';
-import { logAiEvent } from '../logger';
+import { deepseekService } from '../services/deepseek-service';
 import { createTask, completeTask, failTask, isAgentEnabled } from './task-helpers';
+import { getResearchPrompt } from './prompts';
 import { getDb } from '../db';
 import { researchSources } from '../db/schema';
-import type { AgentContext, ResearchResult, SupportedCountry } from '../types';
+import { logAiEvent } from '../logger';
+import type { AgentContext, ResearchResult } from '../types';
 
 function now(): string {
   return new Date().toISOString();
@@ -26,44 +27,32 @@ export async function runResearchAgent(ctx: AgentContext): Promise<ResearchResul
   const config = getCountryConfig(ctx.countryCode);
   if (!config) throw new Error(`País não configurado: ${ctx.countryCode}`);
 
-  const taskId = createTask('research', ctx.countryCode, 'daily_research');
-  logAiEvent('research', `Iniciando pesquisa para ${config.countryName}`, { countryCode: ctx.countryCode });
+  const taskId = createTask('research', ctx.countryCode, 'research_content');
+  const promptConfig = getResearchPrompt(ctx.countryCode, ctx.topic);
+
+  logAiEvent('research', `Pesquisando: ${ctx.topic ?? config.countryName}`, {
+    countryCode: ctx.countryCode,
+    metadata: { topic: ctx.topic },
+  });
 
   try {
-    const sourceList = config.sources.map((s) => `- ${s.name} (${s.url}) [${s.type}]`).join('\n');
-    const topicList = config.topics.join(', ');
+    const topicList = ctx.topic ?? config.topics.join(', ');
 
-    const response = await callDeepSeek(
+    const response = await deepseekService.chat(
       [
-        {
-          role: 'system',
-          content: `Tu es un agent de recherche spécialisé en affaires et entrepreneuriat en ${config.countryName}.
-Tu dois UNIQUEMENT proposer des sujets et sources basés sur des institutions réelles.
-NE JAMAIS inventer de lois, chiffres ou URLs.
-Réponds en JSON avec cette structure exacte:
-{
-  "sources": [{"title": "...", "url": "...", "category": "...", "keywords": ["..."], "snippet": "...", "relevanceScore": 0.8}],
-  "trends": ["..."],
-  "faqQuestions": ["..."],
-  "seoKeywords": ["..."]
-}`,
-        },
+        { role: 'system', content: promptConfig.systemPrompt },
         {
           role: 'user',
-          content: `Recherche les sujets les plus pertinents aujourd'hui pour entrepreneurs en ${config.countryName}.
-Catégories: ${config.categories.join(', ')}
+          content: `Recherche les sujets les plus pertinents pour entrepreneurs en ${config.countryName}.
+${ctx.topic ? `FOCUS: "${ctx.topic}"` : ''}
 Sujets prioritaires: ${topicList}
-Sources officielles à considérer:
-${sourceList}
-
-Trouve 5-8 sujets tendance, 5 questions FAQ fréquentes et 10 mots-clés SEO.
-Pour chaque source, utilise uniquement des domaines des institutions listées ou des URLs plausibles sur ces domaines.`,
+Trouve 5-8 sources, 5 questions FAQ et 10 mots-clés SEO.`,
         },
       ],
-      { jsonMode: true, temperature: 0.2 }
+      { jsonMode: true, temperature: 0.2, agentCode: 'research', countryCode: ctx.countryCode }
     );
 
-    const result = parseJsonResponse<ResearchResult>(response.content);
+    const result = deepseekService.parseJson<ResearchResult & { sources: ResearchResult['sources'] & { topic?: string }[] }>(response.content);
 
     if (!ctx.dryRun) {
       const db = getDb();
@@ -74,6 +63,7 @@ Pour chaque source, utilise uniquement des domaines des institutions listées ou
           .values({
             countryCode: ctx.countryCode,
             title: source.title,
+            topic: (source as { topic?: string }).topic ?? ctx.topic ?? source.title,
             url: source.url,
             domain: extractDomain(source.url),
             category: source.category,
@@ -90,14 +80,8 @@ Pour chaque source, utilise uniquement des domaines des institutions listées ou
 
     completeTask(taskId, 'research', {
       sourcesFound: result.sources.length,
-      trends: result.trends.length,
-      keywords: result.seoKeywords.length,
+      topic: ctx.topic,
       tokensUsed: response.usage.totalTokens,
-    });
-
-    logAiEvent('research', `Pesquisa concluída: ${result.sources.length} fontes`, {
-      countryCode: ctx.countryCode,
-      metadata: { trends: result.trends.length },
     });
 
     return result;

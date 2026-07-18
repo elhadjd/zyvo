@@ -1,5 +1,5 @@
 import { desc, eq } from 'drizzle-orm';
-import { callDeepSeek, parseJsonResponse } from '../deepseek';
+import { deepseekService } from '../services/deepseek-service';
 import { getCountryConfig } from '../countries';
 import { logAiEvent } from '../logger';
 import { createTask, completeTask, failTask, isAgentEnabled } from './task-helpers';
@@ -57,7 +57,7 @@ export async function runTranslationAgent(ctx: AgentContext): Promise<Translatio
       en: 'English',
     };
 
-    const response = await callDeepSeek(
+    const response = await deepseekService.chat(
       [
         {
           role: 'system',
@@ -79,10 +79,10 @@ Réponds en JSON:
           }, null, 2)}`,
         },
       ],
-      { jsonMode: true, temperature: 0.3 }
+      { jsonMode: true, temperature: 0.3, agentCode: 'translation', countryCode: ctx.countryCode }
     );
 
-    const translation = parseJsonResponse<TranslationResult>(response.content);
+    const translation = deepseekService.parseJson<TranslationResult>(response.content);
 
     completeTask(taskId, 'translation', {
       articleId: article.id,

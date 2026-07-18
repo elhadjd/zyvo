@@ -5,6 +5,8 @@ export const aiAgents = sqliteTable('ai_agents', {
   code: text('code').notNull().unique(),
   name: text('name').notNull(),
   description: text('description'),
+  objective: text('objective'),
+  systemPrompt: text('system_prompt'),
   countryCode: text('country_code'),
   enabled: integer('enabled', { mode: 'boolean' }).notNull().default(true),
   schedule: text('schedule'),
@@ -35,6 +37,7 @@ export const researchSources = sqliteTable('research_sources', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   countryCode: text('country_code').notNull(),
   title: text('title').notNull(),
+  topic: text('topic'),
   url: text('url').notNull(),
   domain: text('domain').notNull(),
   category: text('category').notNull(),
@@ -132,13 +135,46 @@ export const countryAiConfig = sqliteTable('country_ai_config', {
   language: text('language').notNull(),
   enabled: integer('enabled', { mode: 'boolean' }).notNull().default(true),
   publishFrequency: text('publish_frequency').notNull().default('daily'),
+  articlesPerDay: integer('articles_per_day').notNull().default(1),
   autoPublish: integer('auto_publish', { mode: 'boolean' }).notNull().default(false),
   requireApproval: integer('require_approval', { mode: 'boolean' }).notNull().default(true),
   categories: text('categories', { mode: 'json' }).$type<string[]>().notNull().default([]),
   sources: text('sources', { mode: 'json' }).$type<{ name: string; url: string; type: string }[]>().notNull().default([]),
+  scheduleConfig: text('schedule_config', { mode: 'json' }).$type<Record<string, string>>().default({}),
   deepseekTokensUsed: integer('deepseek_tokens_used').notNull().default(0),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
+});
+
+export const aiJobs = sqliteTable('ai_jobs', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  type: text('type').notNull(),
+  countryCode: text('country_code').notNull(),
+  status: text('status').notNull().default('pending'),
+  payload: text('payload', { mode: 'json' }).$type<Record<string, unknown>>(),
+  result: text('result', { mode: 'json' }).$type<Record<string, unknown>>(),
+  error: text('error'),
+  attempts: integer('attempts').notNull().default(0),
+  maxAttempts: integer('max_attempts').notNull().default(3),
+  scheduledAt: text('scheduled_at'),
+  startedAt: text('started_at'),
+  completedAt: text('completed_at'),
+  createdAt: text('created_at').notNull(),
+});
+
+export const deepseekRequests = sqliteTable('deepseek_requests', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  agentCode: text('agent_code'),
+  countryCode: text('country_code'),
+  model: text('model').notNull(),
+  promptTokens: integer('prompt_tokens').notNull().default(0),
+  completionTokens: integer('completion_tokens').notNull().default(0),
+  totalTokens: integer('total_tokens').notNull().default(0),
+  latencyMs: integer('latency_ms').notNull().default(0),
+  status: text('status').notNull().default('pending'),
+  messagesCount: integer('messages_count').notNull().default(0),
+  error: text('error'),
+  createdAt: text('created_at').notNull(),
 });
 
 export type AiAgent = typeof aiAgents.$inferSelect;
@@ -150,3 +186,5 @@ export type SeoMeta = typeof seoMetadata.$inferSelect;
 export type FactCheck = typeof factChecks.$inferSelect;
 export type AiLog = typeof aiLogs.$inferSelect;
 export type CountryAiConfig = typeof countryAiConfig.$inferSelect;
+export type AiJob = typeof aiJobs.$inferSelect;
+export type DeepseekRequest = typeof deepseekRequests.$inferSelect;
