@@ -7,15 +7,18 @@ import { getMarketBlogConfig, getMarketBlogPostBySlug } from '@/data/markets/blo
 import MarketBreadcrumbs, { useMarketPageSeo } from '@/components/markets/MarketBreadcrumbs';
 import LocalizedLink from '@/components/markets/LocalizedLink';
 
+import type { MarketBlogPost } from '@/data/markets/blog/types';
+
 interface MarketBlogPostPageProps {
   postSlug?: string;
+  post?: MarketBlogPost;
 }
 
-export default function MarketBlogPostPage({ postSlug }: MarketBlogPostPageProps) {
+export default function MarketBlogPostPage({ postSlug, post: serverPost }: MarketBlogPostPageProps) {
   const { marketCode } = useMarket();
   const pageSeo = useMarketPageSeo();
   const config = getMarketBlogConfig(marketCode);
-  const post = postSlug ? getMarketBlogPostBySlug(marketCode, postSlug) : undefined;
+  const post = serverPost ?? (postSlug ? getMarketBlogPostBySlug(marketCode, postSlug) : undefined);
 
   if (!post || !config) {
     notFound();

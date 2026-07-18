@@ -14,7 +14,7 @@ import MarketSolutionDetailPage from '@/views/markets/MarketSolutionDetailPage';
 import MarketGettingStartedPage from '@/views/markets/MarketGettingStartedPage';
 import MarketBlogIndexPage from '@/views/markets/MarketBlogIndexPage';
 import MarketBlogPostPage from '@/views/markets/MarketBlogPostPage';
-import { getAllMarketBlogSlugs } from '@/data/markets/blog';
+import { getAllMergedMarketBlogSlugs } from '@/lib/markets/blog-server';
 
 export interface MarketPageDefinition {
   slug: string[];
@@ -96,7 +96,7 @@ export function getMarketStaticParams(marketCode: MarketCode): { slug: string[] 
       params.push({ slug: ['solutions', s] });
     });
 
-    getAllMarketBlogSlugs('gn').forEach((postSlug) => {
+    getAllMergedMarketBlogSlugs('gn').forEach((postSlug) => {
       params.push({ slug: ['blog', postSlug] });
     });
   }

@@ -6,7 +6,10 @@ import { isValidMarketCode, getMarket } from '@/lib/markets/registry';
 import { resolveMarketPage, getAllMarketStaticParams } from '@/lib/markets/pages';
 import { buildMarketMetadata, buildMarketBreadcrumbs } from '@/lib/markets/metadata';
 import { getMarketPageSeo } from '@/lib/markets/seo';
-import { getMarketBlogPostBySlug } from '@/data/markets/blog';
+import {
+  getMergedMarketBlogPosts,
+  getMergedMarketBlogPostBySlug,
+} from '@/lib/markets/blog-server';
 import JsonLd from '@/components/JsonLd';
 import {
   getMarketOrganizationSchema,
@@ -60,7 +63,7 @@ function buildPageSchemas(marketCode: MarketCode, slug: string[], market: Return
   } else if (slug[0] === 'faq') {
     schemas.push(getFAQSchema(market.faqs));
   } else if (slug[0] === 'blog' && slug.length === 2) {
-    const post = getMarketBlogPostBySlug(marketCode, slug[1]);
+    const post = getMergedMarketBlogPostBySlug(marketCode, slug[1]);
     if (post) {
       schemas.push(
         getMarketArticleSchema(market, {
@@ -106,12 +109,21 @@ export default async function CountryPage({ params }: CountryPageProps) {
     industryId?: string;
     solutionSlug?: string;
     postSlug?: string;
+    posts?: ReturnType<typeof getMergedMarketBlogPosts>;
+    post?: ReturnType<typeof getMergedMarketBlogPostBySlug>;
   }>;
-  const pageProps = {
+
+  const pageProps: Record<string, unknown> = {
     industryId: resolved.params.industry,
     solutionSlug: resolved.params.solution,
     postSlug: resolved.params.post,
   };
+
+  if (slug[0] === 'blog' && slug.length === 1) {
+    pageProps.posts = getMergedMarketBlogPosts(country as MarketCode);
+  } else if (slug[0] === 'blog' && slug.length === 2 && resolved.params.post) {
+    pageProps.post = getMergedMarketBlogPostBySlug(country as MarketCode, resolved.params.post);
+  }
 
   const schemas = buildPageSchemas(country as MarketCode, slug, market);
 

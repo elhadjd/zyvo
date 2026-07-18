@@ -6,11 +6,17 @@ import { getMarketBlogConfig, getMarketBlogPosts } from '@/data/markets/blog';
 import MarketBreadcrumbs, { useMarketPageSeo } from '@/components/markets/MarketBreadcrumbs';
 import LocalizedLink from '@/components/markets/LocalizedLink';
 
-export default function MarketBlogIndexPage() {
+import type { MarketBlogPost } from '@/data/markets/blog/types';
+
+interface MarketBlogIndexPageProps {
+  posts?: MarketBlogPost[];
+}
+
+export default function MarketBlogIndexPage({ posts: serverPosts }: MarketBlogIndexPageProps = {}) {
   const { marketCode } = useMarket();
   const pageSeo = useMarketPageSeo();
   const config = getMarketBlogConfig(marketCode);
-  const posts = getMarketBlogPosts(marketCode);
+  const posts = serverPosts ?? getMarketBlogPosts(marketCode);
 
   if (!config) return null;
 

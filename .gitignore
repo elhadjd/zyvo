@@ -34,3 +34,9 @@ pnpm-debug.log*
 
 # TypeScript
 next-env.d.ts
+
+# AI Content Engine database
+data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm

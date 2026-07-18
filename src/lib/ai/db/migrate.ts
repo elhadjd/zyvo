@@ -1,0 +1,164 @@
+import Database from 'better-sqlite3';
+import fs from 'fs';
+import path from 'path';
+
+const DEFAULT_DB_PATH = path.join(process.cwd(), 'data', 'ai-content.sqlite');
+
+export function runMigrations(dbPath = process.env.DATABASE_PATH ?? DEFAULT_DB_PATH): void {
+  const dir = path.dirname(dbPath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+
+  const db = new Database(dbPath);
+  db.pragma('journal_mode = WAL');
+  db.pragma('foreign_keys = ON');
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS ai_agents (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      code TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      description TEXT,
+      country_code TEXT,
+      enabled INTEGER NOT NULL DEFAULT 1,
+      schedule TEXT,
+      config TEXT,
+      status TEXT NOT NULL DEFAULT 'idle',
+      last_run_at TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS ai_tasks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      agent_id INTEGER REFERENCES ai_agents(id),
+      agent_code TEXT NOT NULL,
+      country_code TEXT NOT NULL,
+      type TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      payload TEXT,
+      result TEXT,
+      error TEXT,
+      scheduled_at TEXT,
+      started_at TEXT,
+      completed_at TEXT,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS research_sources (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      country_code TEXT NOT NULL,
+      title TEXT NOT NULL,
+      url TEXT NOT NULL,
+      domain TEXT NOT NULL,
+      category TEXT NOT NULL,
+      keywords TEXT NOT NULL DEFAULT '[]',
+      snippet TEXT,
+      relevance_score REAL DEFAULT 0,
+      task_id INTEGER REFERENCES ai_tasks(id),
+      fetched_at TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS knowledge_base (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      country_code TEXT NOT NULL,
+      title TEXT NOT NULL,
+      source_id INTEGER REFERENCES research_sources(id),
+      source_url TEXT NOT NULL,
+      source_title TEXT NOT NULL,
+      category TEXT NOT NULL,
+      keywords TEXT NOT NULL DEFAULT '[]',
+      summary TEXT NOT NULL,
+      content TEXT NOT NULL,
+      reference_date TEXT,
+      verified INTEGER NOT NULL DEFAULT 0,
+      task_id INTEGER REFERENCES ai_tasks(id),
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS content_articles (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      country_code TEXT NOT NULL,
+      knowledge_ids TEXT NOT NULL DEFAULT '[]',
+      title TEXT NOT NULL,
+      slug TEXT NOT NULL,
+      excerpt TEXT NOT NULL,
+      introduction TEXT NOT NULL,
+      content TEXT NOT NULL DEFAULT '[]',
+      faq TEXT NOT NULL DEFAULT '[]',
+      conclusion TEXT NOT NULL,
+      cta TEXT NOT NULL,
+      category TEXT NOT NULL,
+      author TEXT NOT NULL DEFAULT 'Équipe ZYVO',
+      language TEXT NOT NULL DEFAULT 'fr',
+      read_time TEXT NOT NULL DEFAULT '5 min',
+      status TEXT NOT NULL DEFAULT 'draft',
+      task_id INTEGER REFERENCES ai_tasks(id),
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      published_at TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS seo_metadata (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      article_id INTEGER NOT NULL REFERENCES content_articles(id),
+      meta_title TEXT NOT NULL,
+      meta_description TEXT NOT NULL,
+      slug TEXT NOT NULL,
+      keywords TEXT NOT NULL,
+      schema_article TEXT,
+      schema_faq TEXT,
+      internal_links TEXT DEFAULT '[]',
+      image_suggestions TEXT DEFAULT '[]',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS fact_checks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      article_id INTEGER NOT NULL REFERENCES content_articles(id),
+      status TEXT NOT NULL DEFAULT 'pending',
+      issues TEXT DEFAULT '[]',
+      checker_notes TEXT,
+      checked_at TEXT,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS ai_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      agent_code TEXT NOT NULL,
+      country_code TEXT,
+      level TEXT NOT NULL DEFAULT 'info',
+      message TEXT NOT NULL,
+      metadata TEXT,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS country_ai_config (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      country_code TEXT NOT NULL UNIQUE,
+      language TEXT NOT NULL,
+      enabled INTEGER NOT NULL DEFAULT 1,
+      publish_frequency TEXT NOT NULL DEFAULT 'daily',
+      auto_publish INTEGER NOT NULL DEFAULT 0,
+      require_approval INTEGER NOT NULL DEFAULT 1,
+      categories TEXT NOT NULL DEFAULT '[]',
+      sources TEXT NOT NULL DEFAULT '[]',
+      deepseek_tokens_used INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_research_sources_country ON research_sources(country_code);
+    CREATE INDEX IF NOT EXISTS idx_knowledge_base_country ON knowledge_base(country_code);
+    CREATE INDEX IF NOT EXISTS idx_content_articles_country_status ON content_articles(country_code, status);
+    CREATE INDEX IF NOT EXISTS idx_content_articles_slug ON content_articles(country_code, slug);
+    CREATE INDEX IF NOT EXISTS idx_ai_tasks_country ON ai_tasks(country_code, status);
+    CREATE INDEX IF NOT EXISTS idx_ai_logs_created ON ai_logs(created_at);
+  `);
+
+  db.close();
+}
