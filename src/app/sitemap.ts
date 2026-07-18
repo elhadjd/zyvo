@@ -5,6 +5,8 @@ import { developmentServices } from '@/data/development-services';
 import { industries } from '@/data/industries';
 import { industryLandings } from '@/data/industry-landings';
 import { solutions } from '@/data/solutions';
+import { getMarketStaticParams } from '@/lib/markets/pages';
+import { getMarket } from '@/lib/markets/registry';
 
 const staticPaths = [
   '/',
@@ -36,10 +38,26 @@ const staticPaths = [
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
 
-  return staticPaths.map((path) => ({
+  const usEntries = staticPaths.map((path) => ({
     url: `${SITE_URL}${path === '/' ? '' : path}`,
     lastModified,
-    changeFrequency: path === '/' ? 'weekly' : 'monthly',
+    changeFrequency: path === '/' ? ('weekly' as const) : ('monthly' as const),
     priority: path === '/' ? 1 : path.startsWith('/solutions') || path.startsWith('/development') ? 0.9 : 0.7,
   }));
+
+  const marketEntries: MetadataRoute.Sitemap = [];
+  const gnParams = getMarketStaticParams('gn');
+  const gnMarket = getMarket('gn');
+
+  gnParams.forEach(({ slug }) => {
+    const path = slug.length > 0 ? `${gnMarket.routePrefix}/${slug.join('/')}` : gnMarket.routePrefix;
+    marketEntries.push({
+      url: `${SITE_URL}${path}`,
+      lastModified,
+      changeFrequency: slug.length === 0 ? 'weekly' : 'monthly',
+      priority: slug.length === 0 ? 0.95 : 0.8,
+    });
+  });
+
+  return [...usEntries, ...marketEntries];
 }

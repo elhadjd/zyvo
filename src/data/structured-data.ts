@@ -1,3 +1,6 @@
+import type { MarketConfig } from '@/lib/markets/types';
+import { SITE_URL } from '@/data/site';
+
 export function getOrganizationSchema() {
   return {
     '@context': 'https://schema.org',
@@ -156,5 +159,53 @@ export function getArticleSchema(post: {
       logo: { '@type': 'ImageObject', url: 'https://www.zyvoerp.com/favicon.svg' },
     },
     mainEntityOfPage: `https://www.zyvoerp.com/blog/${post.slug}`,
+  };
+}
+
+export function getMarketOrganizationSchema(market: MarketConfig) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'ZYVO',
+    url: `${SITE_URL}${market.routePrefix ?? ''}`,
+    logo: `${SITE_URL}/favicon.svg`,
+    description: market.description,
+    email: market.contact.email,
+    telephone: market.contact.phone,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: market.contact.address.street,
+      addressLocality: market.contact.address.city,
+      addressCountry: market.contact.address.country,
+    },
+    areaServed: {
+      '@type': 'Country',
+      name: market.countryName,
+    },
+  };
+}
+
+export function getMarketSoftwareSchema(market: MarketConfig) {
+  const starterPlan = market.pricing.plans[0];
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: `ZYVO ${market.countryNameLocal}`,
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Web, Android',
+    description: market.description,
+    inLanguage: market.language,
+    offers: starterPlan
+      ? {
+          '@type': 'Offer',
+          price: String(starterPlan.annualPrice),
+          priceCurrency: market.currency,
+          description: 'Essai gratuit de 7 jours.',
+        }
+      : undefined,
+    areaServed: {
+      '@type': 'Country',
+      name: market.countryName,
+    },
   };
 }
