@@ -17,10 +17,10 @@ import {
 } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { href: '/admin/ai-engine', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/research-engine', label: 'Research Engine', icon: Search },
+  { href: '/admin/ai-engine', label: 'AI Engine', icon: LayoutDashboard },
   { href: '/admin/ai-engine/agents', label: 'Agentes', icon: Bot },
   { href: '/admin/ai-engine/tasks', label: 'Tarefas', icon: ListTodo },
-  { href: '/admin/ai-engine/research', label: 'Pesquisa', icon: Search },
   { href: '/admin/ai-engine/knowledge', label: 'Conhecimento', icon: BookOpen },
   { href: '/admin/ai-engine/articles', label: 'Artigos', icon: FileText },
   { href: '/admin/ai-engine/sources', label: 'Fontes', icon: Search },

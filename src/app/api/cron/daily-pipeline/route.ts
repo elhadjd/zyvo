@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { runFullPipeline } from '@/lib/ai/agents/orchestrator';
+import { runDailyResearchJob } from '@/lib/ai/research-engine/jobs/daily-research-job';
 import type { AgentCode, SupportedCountry } from '@/lib/ai/types';
 
 export const dynamic = 'force-dynamic';
@@ -18,8 +19,14 @@ export async function GET(request: Request) {
 
   const country = (searchParams.get('country') ?? 'gn') as SupportedCountry;
   const stage = searchParams.get('stage');
+  const mode = searchParams.get('mode');
 
   try {
+    if (mode === 'research') {
+      const result = await runDailyResearchJob(country);
+      return NextResponse.json(result);
+    }
+
     if (stage) {
       const result = await runFullPipeline(country, {
         stages: [stage as AgentCode],

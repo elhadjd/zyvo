@@ -1,6 +1,7 @@
 import { desc, eq } from 'drizzle-orm';
 import { deepseekService } from '../services/deepseek-service';
 import { getWriterPrompt } from './prompts';
+import { searchKnowledge } from '../research-engine/knowledge-storage';
 import { getCountryConfig } from '../countries';
 import { logAiEvent } from '../logger';
 import { createTask, completeTask, failTask, isAgentEnabled } from './task-helpers';
@@ -35,13 +36,46 @@ export async function runContentWriterAgent(ctx: AgentContext): Promise<number |
 
   try {
     const db = getDb();
-    const entries = db
+    let entries = db
       .select()
       .from(knowledgeBase)
       .where(eq(knowledgeBase.countryCode, ctx.countryCode))
       .orderBy(desc(knowledgeBase.createdAt))
       .limit(5)
       .all();
+
+    if (ctx.topic) {
+      const searchResults = searchKnowledge(ctx.countryCode, ctx.topic, 5);
+      if (searchResults.knowledgeEntries.length > 0) {
+        const searchIds = new Set(entries.map((e) => e.id));
+        for (const entry of searchResults.knowledgeEntries) {
+          if (!searchIds.has(entry.id)) {
+            const full = db.select().from(knowledgeBase).where(eq(knowledgeBase.id, entry.id)).get();
+            if (full) entries.unshift(full);
+          }
+        }
+        entries = entries.slice(0, 8);
+      }
+      for (const doc of searchResults.documents) {
+        entries.unshift({
+          id: doc.id,
+          countryCode: ctx.countryCode,
+          title: doc.title,
+          sourceId: doc.sourceId,
+          sourceUrl: doc.sourceUrl,
+          sourceTitle: doc.sourceName,
+          category: doc.category,
+          keywords: [],
+          summary: doc.content.slice(0, 300),
+          content: doc.content.slice(0, 2000),
+          referenceDate: doc.extractedAt.split('T')[0],
+          verified: true,
+          taskId: null,
+          createdAt: doc.createdAt,
+          updatedAt: doc.createdAt,
+        });
+      }
+    }
 
     if (entries.length === 0) {
       completeTask(taskId, 'content_writer', { articleCreated: false });

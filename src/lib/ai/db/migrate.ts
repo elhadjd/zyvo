@@ -192,6 +192,78 @@ export function runMigrations(dbPath = process.env.DATABASE_PATH ?? DEFAULT_DB_P
 
     CREATE INDEX IF NOT EXISTS idx_ai_jobs_status ON ai_jobs(status);
     CREATE INDEX IF NOT EXISTS idx_deepseek_requests_created ON deepseek_requests(created_at);
+
+    CREATE TABLE IF NOT EXISTS managed_sources (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      country_code TEXT NOT NULL,
+      name TEXT NOT NULL,
+      url TEXT NOT NULL UNIQUE,
+      type TEXT NOT NULL,
+      category TEXT NOT NULL DEFAULT 'Geral',
+      trust_level INTEGER NOT NULL DEFAULT 70,
+      status TEXT NOT NULL DEFAULT 'active',
+      last_checked TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS discovered_keywords (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      country_code TEXT NOT NULL,
+      keyword TEXT NOT NULL,
+      search_intent TEXT NOT NULL DEFAULT 'informational',
+      category TEXT NOT NULL,
+      priority TEXT NOT NULL DEFAULT 'medium',
+      seo_score INTEGER NOT NULL DEFAULT 50,
+      status TEXT NOT NULL DEFAULT 'discovered',
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS knowledge_documents (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      country_code TEXT NOT NULL,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      source_id INTEGER REFERENCES managed_sources(id),
+      source_url TEXT NOT NULL,
+      source_name TEXT NOT NULL,
+      category TEXT NOT NULL,
+      validation_status TEXT NOT NULL DEFAULT 'pending',
+      extracted_at TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS content_opportunities (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      country_code TEXT NOT NULL,
+      topic TEXT NOT NULL,
+      category TEXT NOT NULL,
+      seo_score INTEGER NOT NULL DEFAULT 50,
+      business_relevance INTEGER NOT NULL DEFAULT 50,
+      competition INTEGER NOT NULL DEFAULT 50,
+      zyvo_relevance INTEGER NOT NULL DEFAULT 50,
+      total_score INTEGER NOT NULL DEFAULT 0,
+      status TEXT NOT NULL DEFAULT 'pending',
+      keyword_ids TEXT DEFAULT '[]',
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS research_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      country_code TEXT NOT NULL,
+      module TEXT NOT NULL,
+      action TEXT NOT NULL,
+      message TEXT NOT NULL,
+      level TEXT NOT NULL DEFAULT 'info',
+      metadata TEXT,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_managed_sources_country ON managed_sources(country_code);
+    CREATE INDEX IF NOT EXISTS idx_discovered_keywords_country ON discovered_keywords(country_code);
+    CREATE INDEX IF NOT EXISTS idx_knowledge_documents_country ON knowledge_documents(country_code);
+    CREATE INDEX IF NOT EXISTS idx_content_opportunities_score ON content_opportunities(total_score);
+    CREATE INDEX IF NOT EXISTS idx_research_logs_created ON research_logs(created_at);
   `);
 
   // Add new columns to existing tables (idempotent)

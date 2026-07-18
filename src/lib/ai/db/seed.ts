@@ -5,6 +5,7 @@ import { runMigrations } from './migrate';
 import { COUNTRY_AI_CONFIGS } from '../countries';
 import { AGENT_DEFINITIONS } from '../types';
 import { AGENT_PROMPTS } from '../agents/prompts';
+import { seedManagedSources } from '../research-engine/source-manager';
 import type { SupportedCountry } from '../types';
 
 function now(): string {
@@ -13,6 +14,7 @@ function now(): string {
 
 export function seedDatabase(): void {
   runMigrations();
+  seedManagedSources();
   const db = getDb();
   const timestamp = now();
 

@@ -177,6 +177,72 @@ export const deepseekRequests = sqliteTable('deepseek_requests', {
   createdAt: text('created_at').notNull(),
 });
 
+export const managedSources = sqliteTable('managed_sources', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  countryCode: text('country_code').notNull(),
+  name: text('name').notNull(),
+  url: text('url').notNull().unique(),
+  type: text('type').notNull(),
+  category: text('category').notNull().default('Geral'),
+  trustLevel: integer('trust_level').notNull().default(70),
+  status: text('status').notNull().default('active'),
+  lastChecked: text('last_checked'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const discoveredKeywords = sqliteTable('discovered_keywords', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  countryCode: text('country_code').notNull(),
+  keyword: text('keyword').notNull(),
+  searchIntent: text('search_intent').notNull().default('informational'),
+  category: text('category').notNull(),
+  priority: text('priority').notNull().default('medium'),
+  seoScore: integer('seo_score').notNull().default(50),
+  status: text('status').notNull().default('discovered'),
+  createdAt: text('created_at').notNull(),
+});
+
+export const knowledgeDocuments = sqliteTable('knowledge_documents', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  countryCode: text('country_code').notNull(),
+  title: text('title').notNull(),
+  content: text('content').notNull(),
+  sourceId: integer('source_id').references(() => managedSources.id),
+  sourceUrl: text('source_url').notNull(),
+  sourceName: text('source_name').notNull(),
+  category: text('category').notNull(),
+  validationStatus: text('validation_status').notNull().default('pending'),
+  extractedAt: text('extracted_at').notNull(),
+  createdAt: text('created_at').notNull(),
+});
+
+export const contentOpportunities = sqliteTable('content_opportunities', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  countryCode: text('country_code').notNull(),
+  topic: text('topic').notNull(),
+  category: text('category').notNull(),
+  seoScore: integer('seo_score').notNull().default(50),
+  businessRelevance: integer('business_relevance').notNull().default(50),
+  competition: integer('competition').notNull().default(50),
+  zyvoRelevance: integer('zyvo_relevance').notNull().default(50),
+  totalScore: integer('total_score').notNull().default(0),
+  status: text('status').notNull().default('pending'),
+  keywordIds: text('keyword_ids', { mode: 'json' }).$type<number[]>().default([]),
+  createdAt: text('created_at').notNull(),
+});
+
+export const researchLogs = sqliteTable('research_logs', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  countryCode: text('country_code').notNull(),
+  module: text('module').notNull(),
+  action: text('action').notNull(),
+  message: text('message').notNull(),
+  level: text('level').notNull().default('info'),
+  metadata: text('metadata', { mode: 'json' }).$type<Record<string, unknown>>(),
+  createdAt: text('created_at').notNull(),
+});
+
 export type AiAgent = typeof aiAgents.$inferSelect;
 export type AiTask = typeof aiTasks.$inferSelect;
 export type ResearchSource = typeof researchSources.$inferSelect;
@@ -188,3 +254,8 @@ export type AiLog = typeof aiLogs.$inferSelect;
 export type CountryAiConfig = typeof countryAiConfig.$inferSelect;
 export type AiJob = typeof aiJobs.$inferSelect;
 export type DeepseekRequest = typeof deepseekRequests.$inferSelect;
+export type ManagedSourceRow = typeof managedSources.$inferSelect;
+export type DiscoveredKeywordRow = typeof discoveredKeywords.$inferSelect;
+export type KnowledgeDocumentRow = typeof knowledgeDocuments.$inferSelect;
+export type ContentOpportunityRow = typeof contentOpportunities.$inferSelect;
+export type ResearchLogRow = typeof researchLogs.$inferSelect;
