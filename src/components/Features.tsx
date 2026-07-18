@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link'
 import {
     Brain,
     Lock,
@@ -116,14 +118,14 @@ const Features = () => {
                             </p>
                             <div className="flex flex-col sm:flex-row gap-3">
                                 <Link
-                                    to="/demo"
+                                    href="/demo"
                                     className="inline-flex items-center justify-center px-6 py-3 bg-white text-brand-primary font-semibold rounded-lg hover:bg-gray-100 transition-colors min-h-[48px]"
                                 >
                                     Book a Demo
                                     <ArrowRight className="ml-2 w-4 h-4" />
                                 </Link>
                                 <Link
-                                    to="/getting-started"
+                                    href="/getting-started"
                                     className="inline-flex items-center justify-center px-6 py-3 border-2 border-white/40 text-white font-semibold rounded-lg hover:bg-white/10 transition-colors min-h-[48px]"
                                 >
                                     Start Free Trial

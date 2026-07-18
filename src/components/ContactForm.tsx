@@ -1,5 +1,7 @@
-import { useEffect, useState, type FormEvent } from 'react';
-import { useSearchParams } from 'react-router-dom';
+'use client';
+
+import { Suspense, useEffect, useState, type FormEvent } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   ArrowRight,
   CheckCircle2,
@@ -10,7 +12,7 @@ import {
   Sparkles,
   Wrench,
 } from 'lucide-react';
-import { apiKey, Requests } from '../api';
+import { submitContact } from '@/lib/api-client';
 import {
   budgetRanges,
   businessTypes,
@@ -36,7 +38,15 @@ interface ContactFormProps {
   className?: string;
 }
 
-export default function ContactForm({
+export default function ContactForm(props: ContactFormProps) {
+  return (
+    <Suspense fallback={<div className="animate-pulse h-96 rounded-xl bg-brand-surface dark:bg-gray-800" />}>
+      <ContactFormInner {...props} />
+    </Suspense>
+  );
+}
+
+function ContactFormInner({
   defaultService,
   variant = 'full',
   className = '',
@@ -60,7 +70,6 @@ export default function ContactForm({
     message: '',
   });
 
-  const { routePost } = Requests();
   const selectedOption = contactServiceOptions.find((s) => s.id === selectedService);
   const isDevService = selectedService !== 'zyvo-software' && selectedService !== 'not-sure';
 
@@ -88,15 +97,14 @@ export default function ContactForm({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setProcessing(true);
-    routePost('site/contacts/submit', {
+    submitContact({
       name: form.name,
       email: form.email,
       phone: form.phone,
       message: buildMessage(),
-      key: apiKey,
     })
       .then((res) => {
-        if (res.data?.success) {
+        if (res?.success) {
           setSubmitted(true);
           setForm({
             name: '',

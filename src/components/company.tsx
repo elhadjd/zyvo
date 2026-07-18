@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link'
 import { Target, Users, Shield, Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
 import ContactForm from './ContactForm';
 import { COMPANY, TRUST_MESSAGE, VALUE_PROPOSITION } from '../data/site';
@@ -100,7 +102,7 @@ const CompanySection = () => {
                   </div>
                 </div>
               </div>
-              <Link to="/demo" className="inline-flex items-center mt-8 text-brand-primary dark:text-brand-accent font-medium hover:underline">
+              <Link href="/demo" className="inline-flex items-center mt-8 text-brand-primary dark:text-brand-accent font-medium hover:underline">
                 Or book a free demo <ArrowRight className="ml-1 w-4 h-4" />
               </Link>
             </div>
@@ -112,7 +114,7 @@ const CompanySection = () => {
               </p>
               <ContactForm variant="compact" />
               <Link
-                to="/contact"
+                href="/contact"
                 className="inline-flex items-center mt-4 text-sm text-brand-primary dark:text-brand-accent font-medium hover:underline"
               >
                 Open full contact page <ArrowRight className="ml-1 w-4 h-4" />

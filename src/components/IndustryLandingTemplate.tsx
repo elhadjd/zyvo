@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link'
 import { ArrowRight, CheckCircle } from 'lucide-react';
-import SEO from '../components/SEO';
 import Breadcrumbs from '../components/Breadcrumbs';
 import FAQSection from '../components/FAQSection';
 import type { IndustryLanding } from '../data/industry-landings';
@@ -16,19 +17,6 @@ export default function IndustryLandingTemplate({ landing }: Props) {
 
   return (
     <>
-      <SEO
-        title={landing.metaTitle}
-        description={landing.metaDescription}
-        keywords={landing.keywords}
-        canonical={landing.path}
-        structuredData={[
-          getBreadcrumbSchema([
-            { name: 'Home', url: SITE_URL },
-            { name: landing.industryName, url: `${SITE_URL}${landing.path}` },
-          ]),
-          getFAQSchema(allFaqs),
-        ]}
-      />
       <Breadcrumbs items={[{ label: landing.industryName }]} />
 
       <section className="py-12 lg:py-20 bg-brand-surface dark:bg-gray-900">
@@ -44,14 +32,14 @@ export default function IndustryLandingTemplate({ landing }: Props) {
               <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">{landing.subheadline}</p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
-                  to="/getting-started"
+                  href="/getting-started"
                   className="inline-flex items-center justify-center px-6 py-3.5 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors min-h-[48px]"
                 >
                   Start Free Trial
                   <ArrowRight className="ml-2 w-5 h-5" aria-hidden="true" />
                 </Link>
                 <Link
-                  to="/demo"
+                  href="/demo"
                   className="inline-flex items-center justify-center px-6 py-3.5 border-2 border-brand-primary text-brand-primary dark:border-brand-accent dark:text-brand-accent font-semibold rounded-lg hover:bg-brand-primary-light dark:hover:bg-gray-800 transition-colors min-h-[48px]"
                 >
                   Book a Demo
@@ -118,13 +106,13 @@ export default function IndustryLandingTemplate({ landing }: Props) {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
-              to="/getting-started"
+              href="/getting-started"
               className="inline-flex items-center justify-center px-8 py-3.5 bg-white text-brand-primary font-semibold rounded-lg hover:bg-gray-100 transition-colors min-h-[48px]"
             >
               Start Free Trial
             </Link>
             <Link
-              to="/"
+              href="/"
               className="inline-flex items-center justify-center px-8 py-3.5 border-2 border-white/40 text-white font-semibold rounded-lg hover:bg-white/10 transition-colors min-h-[48px]"
             >
               Back to Homepage

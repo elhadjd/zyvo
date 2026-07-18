@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link'
 import { ArrowRight, Check, Code2, Globe, Search, Wrench } from 'lucide-react';
 import PortfolioShowcase from './PortfolioShowcase';
 import { developmentServices, servicePricingTiers } from '../data/development-services';
@@ -40,14 +42,14 @@ export default function DevelopmentServicesSection() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
-                to="/development-services"
+                href="/development-services"
                 className="inline-flex items-center justify-center px-6 py-3.5 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors"
               >
                 Explore all services
                 <ArrowRight className="ml-2 w-5 h-5" aria-hidden="true" />
               </Link>
               <Link
-                to="/contact?service=not-sure"
+                href="/contact?service=not-sure"
                 className="inline-flex items-center justify-center px-6 py-3.5 border-2 border-brand-primary text-brand-primary dark:border-brand-accent dark:text-brand-accent font-semibold rounded-lg hover:bg-brand-primary-light dark:hover:bg-gray-800 transition-colors"
               >
                 Get a free quote
@@ -61,7 +63,7 @@ export default function DevelopmentServicesSection() {
               return (
                 <Link
                   key={service.slug}
-                  to={service.path}
+                  href={service.path}
                   className="group flex items-start gap-4 p-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-brand-surface dark:bg-gray-800/50 hover:border-brand-primary/40 dark:hover:border-brand-accent/40 hover:shadow-md transition-all"
                 >
                   <div className="w-12 h-12 rounded-lg bg-brand-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
@@ -124,7 +126,7 @@ export default function DevelopmentServicesSection() {
                   ))}
                 </ul>
                 <Link
-                  to={`/contact?service=${tier.service}`}
+                  href={`/contact?service=${tier.service}`}
                   className={`block w-full text-center py-2.5 px-4 rounded-lg text-sm font-semibold transition-colors ${
                     tier.popular
                       ? 'bg-brand-primary text-white hover:bg-brand-primary-hover'

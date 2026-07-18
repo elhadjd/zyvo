@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
-  <rect width="48" height="48" rx="10" fill="#06C167"/>
-  <path d="M16 30l2.5-7.5H14c3-6 10.5-8.5 16.5-5.5S34 27 28 30s-10.5 1.5-14-2.5l2 2.5z" fill="white"/>
-  <text x="24" y="36" text-anchor="middle" fill="white" font-size="7" font-family="Arial,sans-serif" font-weight="700">Uber</text>
-</svg>

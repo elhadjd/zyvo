@@ -1,7 +1,9 @@
+'use client';
+
+import Link from 'next/link'
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { Menu, X, ChevronDown } from 'lucide-react';
-import { baseApiURL } from '../api';
+import { baseApiURL } from '@/lib/app-url';
 import { solutions } from '../data/solutions';
 import { industryLandings } from '../data/industry-landings';
 
@@ -72,7 +74,7 @@ const Header = () => {
     >
       <nav className="container mx-auto px-4 lg:px-8" aria-label="Main navigation">
         <div className="flex items-center justify-between h-16 sm:h-20">
-          <Link to="/" className="flex items-center space-x-3" aria-label="ZYVO Home">
+          <Link href="/" className="flex items-center space-x-3" aria-label="ZYVO Home">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-brand-primary flex items-center justify-center">
               <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -85,7 +87,7 @@ const Header = () => {
             {navigation.map((item) => (
               <div key={item.name} className="relative group">
                 <Link
-                  to={item.href}
+                  href={item.href}
                   className="flex items-center space-x-1 text-gray-700 dark:text-gray-300 hover:text-brand-primary dark:hover:text-brand-accent transition-colors font-medium text-sm"
                 >
                   <span>{item.name}</span>
@@ -97,7 +99,7 @@ const Header = () => {
                       {item.submenu.map((subItem) => (
                         <Link
                           key={subItem.href}
-                          to={subItem.href}
+                          href={subItem.href}
                           className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-brand-primary-light dark:hover:bg-gray-700 hover:text-brand-primary dark:hover:text-brand-accent transition-colors"
                         >
                           {subItem.name}
@@ -112,7 +114,7 @@ const Header = () => {
 
           <div className="hidden lg:flex items-center space-x-3">
             <Link
-              to="/demo"
+              href="/demo"
               className="px-4 py-2 text-brand-primary dark:text-brand-accent text-sm font-medium hover:underline transition-colors"
             >
               Book a Demo
@@ -126,7 +128,7 @@ const Header = () => {
               Sign in
             </a>
             <Link
-              to="/getting-started"
+              href="/getting-started"
               className="px-5 py-2.5 bg-brand-primary text-white text-sm font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors min-h-[40px] flex items-center"
             >
               Start Free Trial
@@ -149,7 +151,7 @@ const Header = () => {
               {navigation.map((item) => (
                 <div key={item.name} className="border-b border-gray-100 dark:border-gray-700 last:border-b-0">
                   <Link
-                    to={item.href}
+                    href={item.href}
                     className="block px-6 py-3 text-gray-700 dark:text-gray-300 hover:text-brand-primary font-medium min-h-[44px]"
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -160,7 +162,7 @@ const Header = () => {
                       {item.submenu.map((subItem) => (
                         <Link
                           key={subItem.href}
-                          to={subItem.href}
+                          href={subItem.href}
                           className="block py-2.5 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-primary min-h-[44px]"
                           onClick={() => setIsMenuOpen(false)}
                         >
@@ -173,14 +175,14 @@ const Header = () => {
               ))}
               <div className="px-6 pt-4 space-y-3">
                 <Link
-                  to="/demo"
+                  href="/demo"
                   className="block text-center py-3 border-2 border-brand-primary text-brand-primary font-semibold rounded-lg min-h-[48px] flex items-center justify-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Book a Demo
                 </Link>
                 <Link
-                  to="/getting-started"
+                  href="/getting-started"
                   className="block text-center py-3 bg-brand-primary text-white font-semibold rounded-lg min-h-[48px] flex items-center justify-center"
                   onClick={() => setIsMenuOpen(false)}
                 >

@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link'
 import { ArrowRight, CheckCircle, Clock } from 'lucide-react';
 import { metaIntegrations, deliveryIntegrations } from '../data/integrations';
 
@@ -19,7 +21,7 @@ export default function IntegrationsSection() {
               platform connections with Uber Eats, DoorDash, and Grubhub currently in development.
             </p>
             <Link
-              to="/integrations"
+              href="/integrations"
               className="inline-flex items-center text-brand-primary dark:text-brand-accent font-semibold hover:underline"
             >
               View all integrations

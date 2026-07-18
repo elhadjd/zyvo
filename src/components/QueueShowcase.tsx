@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link'
 import { ArrowRight, MessageSquare, Users } from 'lucide-react';
 
 export default function QueueShowcase() {
@@ -41,7 +43,7 @@ export default function QueueShowcase() {
               ))}
             </ul>
             <Link
-              to="/solutions/customer-queue-management"
+              href="/solutions/customer-queue-management"
               className="inline-flex items-center px-8 py-4 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors"
             >
               Explore Queue Management
