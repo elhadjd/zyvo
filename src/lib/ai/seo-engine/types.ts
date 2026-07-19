@@ -45,6 +45,7 @@ export interface SeoOptimizationResult {
   twitterCard: TwitterCardMeta;
   internalLinks: { title: string; url: string; anchorText: string }[];
   imageSuggestions: string[];
+  heroImage?: { url: string; alt: string; credit?: string };
   keywordAnalysis: SeoKeywordAnalysis;
 }
 

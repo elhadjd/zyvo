@@ -76,6 +76,9 @@ export async function runSeoOptimizerAgent(ctx: AgentContext): Promise<number | 
           slug: seo.slug,
           status: 'pending_review',
           updatedAt: timestamp,
+          heroImageUrl: seo.heroImage?.url,
+          heroImageAlt: seo.heroImage?.alt,
+          heroImageCredit: seo.heroImage?.credit,
         })
         .where(eq(contentArticles.id, article.id))
         .run();

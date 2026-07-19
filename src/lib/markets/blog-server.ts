@@ -10,6 +10,7 @@ import {
   getPublishedDbArticleBySlug,
   getAllPublishedDbSlugs,
 } from '@/lib/ai/blog-repository';
+import { withResolvedHeroImage } from '@/lib/markets/blog-images';
 
 function mergePosts(staticPosts: MarketBlogPost[], dbPosts: MarketBlogPost[]): MarketBlogPost[] {
   const slugSet = new Set<string>();
@@ -18,14 +19,14 @@ function mergePosts(staticPosts: MarketBlogPost[], dbPosts: MarketBlogPost[]): M
   for (const post of dbPosts) {
     if (!slugSet.has(post.slug)) {
       slugSet.add(post.slug);
-      merged.push(post);
+      merged.push(withResolvedHeroImage(post));
     }
   }
 
   for (const post of staticPosts) {
     if (!slugSet.has(post.slug)) {
       slugSet.add(post.slug);
-      merged.push(post);
+      merged.push(withResolvedHeroImage(post));
     }
   }
 
@@ -43,8 +44,9 @@ export function getMergedMarketBlogPostBySlug(
   slug: string
 ): MarketBlogPost | undefined {
   const dbPost = getPublishedDbArticleBySlug(marketCode, slug);
-  if (dbPost) return dbPost;
-  return getMarketBlogPostBySlug(marketCode, slug);
+  if (dbPost) return withResolvedHeroImage(dbPost);
+  const staticPost = getMarketBlogPostBySlug(marketCode, slug);
+  return staticPost ? withResolvedHeroImage(staticPost) : undefined;
 }
 
 export function getAllMergedMarketBlogSlugs(marketCode: MarketCode): string[] {

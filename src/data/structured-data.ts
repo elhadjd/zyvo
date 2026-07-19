@@ -316,6 +316,7 @@ export function getMarketArticleSchema(
     slug: string;
     category?: string;
     keywords?: string;
+    imageUrl?: string;
   }
 ) {
   const articleUrl = `${SITE_URL}${market.routePrefix}/blog/${post.slug}`;
@@ -334,7 +335,7 @@ export function getMarketArticleSchema(
     keywords: post.keywords,
     image: {
       '@type': 'ImageObject',
-      url: `${SITE_URL}/og-image.png`,
+      url: post.imageUrl ?? `${SITE_URL}/og-image.png`,
       width: 1200,
       height: 630,
     },

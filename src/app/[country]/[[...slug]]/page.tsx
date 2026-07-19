@@ -11,10 +11,8 @@ import { isPartnershipSlug } from '@/lib/partnerships/seo';
 import { getPartnershipProgram } from '@/data/partnerships/content';
 import { isPartnershipProgramSlug } from '@/data/partnerships/programs';
 import { buildLocalErpPage } from '@/data/markets/local-erp-pages';
-import {
-  getMergedMarketBlogPosts,
-  getMergedMarketBlogPostBySlug,
-} from '@/lib/markets/blog-server';
+import { getMergedMarketBlogPosts, getMergedMarketBlogPostBySlug } from '@/lib/markets/blog-server';
+import { resolvePostHeroImage } from '@/lib/ai/services/stock-image-service';
 import JsonLd from '@/components/JsonLd';
 import {
   getMarketOrganizationSchema,
@@ -86,6 +84,7 @@ function buildPageSchemas(
     schemas.push(getFAQSchema(market.faqs));
   } else if (slug[0] === 'blog' && slug.length === 2) {
     if (blogPost) {
+      const hero = resolvePostHeroImage(blogPost);
       schemas.push(
         getMarketArticleSchema(market, {
           title: blogPost.title,
@@ -97,6 +96,7 @@ function buildPageSchemas(
           slug: blogPost.slug,
           category: blogPost.category,
           keywords: blogPost.keywords,
+          imageUrl: hero.url,
         })
       );
       if (blogPost.faq?.length) {

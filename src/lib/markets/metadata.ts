@@ -9,6 +9,7 @@ import { SN_GEO_TARGETS } from '@/data/markets/sn-seo';
 import { CI_GEO_TARGETS } from '@/data/markets/ci-seo';
 import { SITE_NAME, SITE_URL } from '@/data/site';
 import type { MarketBlogPost } from '@/data/markets/blog/types';
+import { resolvePostHeroImage } from '@/lib/ai/services/stock-image-service';
 
 function getMarketGeoTargets(marketCode: MarketCode): readonly string[] {
   if (marketCode === 'sn') return SN_GEO_TARGETS;
@@ -43,6 +44,8 @@ export function buildMarketBlogPostMetadata(
     ogType: 'article',
   });
 
+  const hero = resolvePostHeroImage(post);
+
   return {
     ...base,
     title: { absolute: absoluteTitle },
@@ -68,10 +71,10 @@ export function buildMarketBlogPostMetadata(
       siteName: `${SITE_NAME} ${market.countryNameLocal}`,
       images: [
         {
-          url: `${SITE_URL}/og-image.png`,
+          url: hero.url,
           width: 1200,
           height: 630,
-          alt: post.title,
+          alt: hero.alt,
         },
       ],
     },
@@ -79,6 +82,7 @@ export function buildMarketBlogPostMetadata(
       ...base.twitter,
       title: post.metaTitle,
       description: post.metaDescription,
+      images: [hero.url],
     },
     other: {
       'geo.region': getGeoRegion(market),

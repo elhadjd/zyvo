@@ -13,6 +13,9 @@ export interface MarketBlogPost {
   faq?: { question: string; answer: string }[];
   internalLinks?: { title: string; url: string; anchorText?: string }[];
   updatedAt?: string;
+  heroImage?: string;
+  heroImageAlt?: string;
+  heroImageCredit?: string;
 }
 
 export interface MarketBlogConfig {

@@ -490,6 +490,9 @@ export function runMigrations(dbPath = process.env.DATABASE_PATH ?? DEFAULT_DB_P
     'ALTER TABLE seo_metadata ADD COLUMN twitter_card TEXT',
     'ALTER TABLE seo_metadata ADD COLUMN canonical_url TEXT',
     'ALTER TABLE seo_metadata ADD COLUMN hreflang_tags TEXT',
+    'ALTER TABLE content_articles ADD COLUMN hero_image_url TEXT',
+    'ALTER TABLE content_articles ADD COLUMN hero_image_alt TEXT',
+    'ALTER TABLE content_articles ADD COLUMN hero_image_credit TEXT',
   ];
 
   for (const sql of migrations) {

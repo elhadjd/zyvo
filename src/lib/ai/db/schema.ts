@@ -88,6 +88,9 @@ export const contentArticles = sqliteTable('content_articles', {
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
   publishedAt: text('published_at'),
+  heroImageUrl: text('hero_image_url'),
+  heroImageAlt: text('hero_image_alt'),
+  heroImageCredit: text('hero_image_credit'),
 });
 
 export const seoMetadata = sqliteTable('seo_metadata', {

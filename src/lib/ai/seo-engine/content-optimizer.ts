@@ -12,6 +12,7 @@ import {
 import { suggestInternalLinks, saveInternalLinks } from './internal-link-builder';
 import { findOrCreateClusterForArticle } from './topic-cluster-manager';
 import { syncArticleSitemap } from './sitemap-manager';
+import { fetchHeroImageForArticle } from '../services/stock-image-service';
 
 export async function optimizeArticleContent(
   article: ContentArticle,
@@ -59,6 +60,16 @@ export async function optimizeArticleContent(
 
   syncArticleSitemap(countryCode);
 
+  const heroImage = await fetchHeroImageForArticle(
+    article,
+    countryCode,
+    keywordAnalysis.primaryKeyword,
+    meta.slug
+  );
+
+  const openGraph = { ...meta.openGraph, image: heroImage.url };
+  const twitterCard = { ...meta.twitterCard, image: heroImage.url };
+
   return {
     metaTitle: meta.metaTitle,
     metaDescription: meta.metaDescription,
@@ -70,10 +81,11 @@ export async function optimizeArticleContent(
     schemaFaq,
     schemaOrganization,
     schemaSoftware,
-    openGraph: meta.openGraph,
-    twitterCard: meta.twitterCard,
+    openGraph,
+    twitterCard,
     internalLinks,
-    imageSuggestions: [`/${countryCode}/blog/${meta.slug}/hero.jpg`],
+    imageSuggestions: [heroImage.url],
+    heroImage,
     keywordAnalysis,
   };
 }

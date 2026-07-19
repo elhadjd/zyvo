@@ -10,6 +10,7 @@ import BlogShareButtons from '@/components/markets/blog/BlogShareButtons';
 import BlogFaqSection from '@/components/markets/blog/BlogFaqSection';
 import BlogRelatedPosts from '@/components/markets/blog/BlogRelatedPosts';
 import { formatBlogDate, getBlogCategoryStyle } from '@/components/markets/blog/blog-utils';
+import { resolvePostHeroImage } from '@/lib/ai/services/stock-image-service';
 import { SITE_URL } from '@/data/site';
 import type { MarketBlogPost } from '@/data/markets/blog/types';
 
@@ -35,6 +36,7 @@ export default function MarketBlogPostPage({
   const style = getBlogCategoryStyle(post.category);
   const canonicalUrl = `${SITE_URL}${market.routePrefix}/blog/${post.slug}`;
   const displayTitle = post.title;
+  const hero = resolvePostHeroImage(post);
 
   return (
     <>
@@ -73,6 +75,24 @@ export default function MarketBlogPostPage({
             </div>
 
             <BlogShareButtons url={canonicalUrl} title={post.title} shareLabel={config.shareLabel} />
+
+            <figure className="mt-8 -mx-0 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={hero.url}
+                alt={hero.alt}
+                width={1200}
+                height={630}
+                className="w-full aspect-[16/9] object-cover"
+                loading="eager"
+                fetchPriority="high"
+              />
+              {post.heroImageCredit && (
+                <figcaption className="text-xs text-gray-500 dark:text-gray-400 px-4 py-2 bg-gray-50 dark:bg-gray-800/50">
+                  {post.heroImageCredit}
+                </figcaption>
+              )}
+            </figure>
 
             {post.keywords && (
               <ul className="flex flex-wrap gap-2 mt-6" aria-label="Mots-clés">

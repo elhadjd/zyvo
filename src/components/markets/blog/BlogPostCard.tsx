@@ -2,6 +2,7 @@ import { ArrowRight, Clock, Sparkles } from 'lucide-react';
 import LocalizedLink from '@/components/markets/LocalizedLink';
 import type { MarketBlogPost } from '@/data/markets/blog/types';
 import { formatBlogDate, getBlogCategoryStyle } from './blog-utils';
+import { resolvePostHeroImage } from '@/lib/ai/services/stock-image-service';
 
 interface BlogPostCardProps {
   post: MarketBlogPost;
@@ -12,19 +13,28 @@ interface BlogPostCardProps {
 
 export default function BlogPostCard({ post, locale, readMoreLabel, featured }: BlogPostCardProps) {
   const style = getBlogCategoryStyle(post.category);
+  const hero = resolvePostHeroImage(post);
 
   if (featured) {
     return (
       <article className="group relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm hover:shadow-xl transition-all duration-300">
         <div className={`absolute inset-0 bg-gradient-to-br ${style.gradient} opacity-[0.03] group-hover:opacity-[0.06] transition-opacity`} />
         <div className="relative grid lg:grid-cols-2 gap-0">
-          <div className={`h-48 lg:h-auto bg-gradient-to-br ${style.gradient} flex items-end p-8`}>
-            <div>
+          <div className="relative h-48 lg:h-auto min-h-[12rem] overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={hero.url}
+              alt={hero.alt}
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
+            />
+            <div className={`absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent`} />
+            <div className="absolute bottom-0 left-0 p-8">
               <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-white/90 bg-white/20 backdrop-blur px-3 py-1 rounded-full mb-4">
                 <Sparkles className="w-3.5 h-3.5" />
                 Article vedette
               </span>
-              <span className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full bg-white/20 text-white`}>
+              <span className="inline-block text-xs font-medium px-2.5 py-1 rounded-full bg-white/20 text-white">
                 {post.category}
               </span>
             </div>
@@ -57,12 +67,21 @@ export default function BlogPostCard({ post, locale, readMoreLabel, featured }: 
 
   return (
     <article className="group flex flex-col h-full bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden hover:border-brand-primary/30 dark:hover:border-brand-accent/30 hover:shadow-lg transition-all duration-300">
-      <div className={`h-2 bg-gradient-to-r ${style.gradient}`} />
+      <div className="relative h-40 overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={hero.url}
+          alt={hero.alt}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+        />
+        <div className={`absolute inset-0 bg-gradient-to-t from-black/30 to-transparent`} />
+        <span className={`absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full bg-white/90 dark:bg-gray-900/90 ${style.text}`}>
+          {post.category}
+        </span>
+      </div>
       <div className="p-6 flex flex-col flex-1">
-        <div className="flex items-center justify-between mb-4">
-          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${style.bg} ${style.text}`}>
-            {post.category}
-          </span>
+        <div className="flex items-center justify-end mb-4">
           <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
             <Clock className="w-3 h-3" />
             {post.readTime}

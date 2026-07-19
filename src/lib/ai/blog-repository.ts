@@ -24,6 +24,9 @@ export function dbArticleToMarketPost(
     faq: article.faq?.length ? article.faq : undefined,
     internalLinks: seo?.internalLinks?.length ? seo.internalLinks : undefined,
     updatedAt: article.updatedAt,
+    heroImage: article.heroImageUrl ?? undefined,
+    heroImageAlt: article.heroImageAlt ?? undefined,
+    heroImageCredit: article.heroImageCredit ?? undefined,
   };
 }
 
