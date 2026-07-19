@@ -4,10 +4,15 @@ export const gnBlogConfig: MarketBlogConfig = {
   indexTitle: 'Blog ZYVO Guinée — Conseils gestion, caisse POS & digitalisation PME',
   indexDescription:
     'Articles pratiques pour entrepreneurs guinéens : choisir un ERP, gérer son stock, Orange Money à la caisse, SYSCOHADA et TVA DGI. Par ZYVO Conakry.',
+  indexKeywords:
+    'blog ERP Guinée, conseils gestion Conakry, digitalisation PME Guinée, articles caisse POS Guinée, fiscalité DGI Guinée',
   indexH1: 'Conseils pour entreprises guinéennes',
   indexSubtitle:
     'Guides pratiques, bonnes pratiques et actualités sur la digitalisation des PME à Conakry et en province.',
-  readMoreLabel: 'Lire la suite',
+  readMoreLabel: 'Lire l\'article',
+  relatedLabel: 'Articles liés',
+  shareLabel: 'Partager',
+  faqTitle: 'Questions fréquentes',
   ctaTitle: 'Prêt à digitaliser votre entreprise ?',
   ctaDescription: 'Essayez ZYVO gratuitement pendant 7 jours — caisse POS, stock et comptabilité en GNF.',
   ctaButton: 'Essai gratuit 7 jours',

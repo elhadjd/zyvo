@@ -15,7 +15,11 @@ export function useMarketPageSeo() {
   return getMarketPageSeo(marketCode, slug);
 }
 
-export default function MarketBreadcrumbs() {
+interface MarketBreadcrumbsProps {
+  lastLabel?: string;
+}
+
+export default function MarketBreadcrumbs({ lastLabel }: MarketBreadcrumbsProps = {}) {
   const pathname = usePathname();
   const { marketCode, isDefaultMarket } = useMarket();
 
@@ -43,7 +47,7 @@ export default function MarketBreadcrumbs() {
   } else if (slug[0] === 'blog') {
     segments.push({ label: 'Blog', href: '/blog' });
     if (slug.length > 1) {
-      segments.push({ label: pageSeo?.h1 ?? slug[1], href: `/blog/${slug[1]}` });
+      segments.push({ label: lastLabel ?? pageSeo?.h1 ?? slug[1], href: `/blog/${slug[1]}` });
     }
   } else if (pageSeo?.breadcrumb) {
     segments.push({ label: pageSeo.breadcrumb, href: path });

@@ -4,7 +4,7 @@ import type { ComponentType } from 'react';
 import type { MarketCode } from '@/lib/markets/types';
 import { isValidMarketCode, getMarket } from '@/lib/markets/registry';
 import { resolveMarketPage, getAllMarketStaticParams } from '@/lib/markets/pages';
-import { buildMarketMetadata, buildMarketBreadcrumbs } from '@/lib/markets/metadata';
+import { buildMarketMetadata, buildMarketBreadcrumbs, buildMarketBlogPostMetadata } from '@/lib/markets/metadata';
 import { getMarketPageSeo } from '@/lib/markets/seo';
 import {
   getMergedMarketBlogPosts,
@@ -39,6 +39,13 @@ export async function generateMetadata({ params }: CountryPageProps): Promise<Me
     return {};
   }
 
+  if (slug[0] === 'blog' && slug.length === 2) {
+    const post = getMergedMarketBlogPostBySlug(country as MarketCode, slug[1]);
+    if (post) {
+      return buildMarketBlogPostMetadata(country as MarketCode, post);
+    }
+  }
+
   const resolved = resolveMarketPage(country as MarketCode, slug);
   if (!resolved) return {};
 
@@ -47,7 +54,13 @@ export async function generateMetadata({ params }: CountryPageProps): Promise<Me
 
 function buildPageSchemas(marketCode: MarketCode, slug: string[], market: ReturnType<typeof getMarket>) {
   const pageSeo = getMarketPageSeo(marketCode, slug);
-  const breadcrumbs = buildMarketBreadcrumbs(marketCode, slug);
+  const blogPost =
+    slug[0] === 'blog' && slug.length === 2
+      ? getMergedMarketBlogPostBySlug(marketCode, slug[1])
+      : undefined;
+  const breadcrumbs = buildMarketBreadcrumbs(marketCode, slug, {
+    blogPostTitle: blogPost?.title,
+  });
   const schemas: object[] = [];
 
   if (slug.length === 0) {
@@ -63,18 +76,35 @@ function buildPageSchemas(marketCode: MarketCode, slug: string[], market: Return
   } else if (slug[0] === 'faq') {
     schemas.push(getFAQSchema(market.faqs));
   } else if (slug[0] === 'blog' && slug.length === 2) {
-    const post = getMergedMarketBlogPostBySlug(marketCode, slug[1]);
-    if (post) {
+    if (blogPost) {
       schemas.push(
         getMarketArticleSchema(market, {
-          title: post.title,
-          description: post.metaDescription,
-          author: post.author,
-          date: post.date,
-          slug: post.slug,
+          title: blogPost.title,
+          description: blogPost.metaDescription,
+          author: blogPost.author,
+          date: blogPost.date,
+          slug: blogPost.slug,
         })
       );
+      if (blogPost.faq?.length) {
+        schemas.push(getFAQSchema(blogPost.faq));
+      }
     }
+  } else if (slug[0] === 'blog' && slug.length === 1) {
+    const posts = getMergedMarketBlogPosts(marketCode);
+    schemas.push({
+      '@context': 'https://schema.org',
+      '@type': 'Blog',
+      name: `Blog ZYVO ${market.countryNameLocal}`,
+      url: `${SITE_URL}${market.routePrefix}/blog`,
+      description: 'Conseils gestion, caisse POS et digitalisation PME',
+      blogPost: posts.slice(0, 10).map((p) => ({
+        '@type': 'BlogPosting',
+        headline: p.title,
+        url: `${SITE_URL}${market.routePrefix}/blog/${p.slug}`,
+        datePublished: p.date,
+      })),
+    });
   } else if (pageSeo && (slug[0] === 'solutions' || slug[0] === 'industries')) {
     schemas.push(
       getMarketServiceSchema(market, {
@@ -127,6 +157,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
     pageProps.posts = getMergedMarketBlogPosts(country as MarketCode);
   } else if (slug[0] === 'blog' && slug.length === 2 && resolved.params.post) {
     pageProps.post = getMergedMarketBlogPostBySlug(country as MarketCode, resolved.params.post);
+    pageProps.allPosts = getMergedMarketBlogPosts(country as MarketCode);
   }
 
   const schemas = buildPageSchemas(country as MarketCode, slug, market);

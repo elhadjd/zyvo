@@ -21,6 +21,9 @@ export function dbArticleToMarketPost(
     readTime: article.readTime,
     category: article.category,
     content: allContent,
+    faq: article.faq?.length ? article.faq : undefined,
+    internalLinks: seo?.internalLinks?.length ? seo.internalLinks : undefined,
+    updatedAt: article.updatedAt,
   };
 }
 

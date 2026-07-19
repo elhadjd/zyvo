@@ -6,6 +6,75 @@ import { stripMarketPrefix } from '@/lib/markets/routing';
 import { getMarketPageSeo } from '@/lib/markets/seo';
 import { GN_GEO_TARGETS } from '@/data/markets/gn-seo';
 import { SITE_NAME, SITE_URL } from '@/data/site';
+import type { MarketBlogPost } from '@/data/markets/blog/types';
+
+export function buildMarketBlogPostMetadata(
+  marketCode: MarketCode,
+  post: MarketBlogPost
+): Metadata {
+  const market = getMarket(marketCode);
+  const canonicalPath = `${market.routePrefix}/blog/${post.slug}`;
+  const canonicalUrl = `${SITE_URL}${canonicalPath}`;
+  const absoluteTitle = post.metaTitle.includes(SITE_NAME)
+    ? post.metaTitle
+    : buildPageTitle(post.metaTitle);
+
+  const base = buildMetadata({
+    title: post.metaTitle,
+    description: post.metaDescription,
+    keywords: post.keywords,
+    canonical: canonicalPath,
+    locale: market.locale,
+    ogType: 'article',
+  });
+
+  const { path } = stripMarketPrefix(canonicalPath);
+
+  return {
+    ...base,
+    title: { absolute: absoluteTitle },
+    alternates: {
+      canonical: canonicalUrl,
+      languages: getMarketAlternates(path),
+    },
+    openGraph: {
+      ...base.openGraph,
+      title: post.metaTitle,
+      description: post.metaDescription,
+      url: canonicalUrl,
+      locale: market.locale,
+      type: 'article',
+      publishedTime: post.date,
+      modifiedTime: post.updatedAt ?? post.date,
+      authors: [post.author],
+      section: post.category,
+      tags: post.keywords.split(',').map((k) => k.trim()).filter(Boolean),
+      siteName: `${SITE_NAME} ${market.countryNameLocal}`,
+      images: [
+        {
+          url: `${SITE_URL}/og-image.png`,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      ...base.twitter,
+      title: post.metaTitle,
+      description: post.metaDescription,
+    },
+    other: {
+      'geo.region': `GN-${market.contact.address.country}`,
+      'geo.placename': market.contact.address.city,
+      'content-language': market.language,
+      target: GN_GEO_TARGETS.join(', '),
+      'article:author': post.author,
+      'article:section': post.category,
+    },
+    category: 'business software',
+  };
+}
 
 export function buildMarketMetadata(
   marketCode: MarketCode,
@@ -83,7 +152,8 @@ export function buildMarketMetadata(
 
 export function buildMarketBreadcrumbs(
   marketCode: MarketCode,
-  slug: string[]
+  slug: string[],
+  options?: { blogPostTitle?: string }
 ): { name: string; url: string }[] {
   const market = getMarket(marketCode);
   const base = `${SITE_URL}${market.routePrefix}`;
@@ -131,7 +201,7 @@ export function buildMarketBreadcrumbs(
   if (slug[0] === 'blog' && slug.length === 2) {
     crumbs.push({ name: 'Blog', url: `${base}/blog` });
     crumbs.push({
-      name: pageSeo?.h1 ?? slug[1],
+      name: options?.blogPostTitle ?? pageSeo?.h1 ?? slug[1],
       url: `${base}/blog/${slug[1]}`,
     });
     return crumbs;
