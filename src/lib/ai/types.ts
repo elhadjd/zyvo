@@ -20,7 +20,7 @@ export type ArticleStatus =
 
 export type FactCheckStatus = 'pending' | 'approved' | 'passed' | 'failed' | 'needs_review';
 
-export type SupportedCountry = 'gn' | 'sn' | 'ao' | 'mz';
+export type SupportedCountry = 'gn' | 'sn' | 'ci' | 'ao' | 'mz';
 
 export interface AgentDefinition {
   code: AgentCode;

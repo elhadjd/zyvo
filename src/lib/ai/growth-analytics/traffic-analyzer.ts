@@ -51,7 +51,7 @@ export function analyzeTraffic(country?: SupportedCountry) {
 }
 
 export function getCountryTrafficBreakdown() {
-  const countries: SupportedCountry[] = ['gn', 'sn', 'ao', 'mz'];
+  const countries: SupportedCountry[] = ['gn', 'sn', 'ci', 'ao', 'mz'];
   return countries.map((c) => ({
     country: c,
     ...getTrafficSummary(c),

@@ -1,4 +1,4 @@
-export type MarketCode = 'us' | 'gn' | 'sn' | 'ao';
+export type MarketCode = 'us' | 'gn' | 'sn' | 'ci' | 'ao';
 
 export interface MarketContact {
   email: string;

@@ -102,7 +102,7 @@ export function syncProgrammaticSitemap(countryCode: SupportedCountry): number {
 }
 
 export function syncCountrySitemap(): number {
-  const countries: SupportedCountry[] = ['gn', 'sn', 'ao', 'mz'];
+  const countries: SupportedCountry[] = ['gn', 'sn', 'ci', 'ao', 'mz'];
   const paths = ['', '/blog', '/pricing', '/features', '/contact', '/faq'];
 
   let count = 0;
@@ -117,7 +117,7 @@ export function syncCountrySitemap(): number {
 }
 
 export function syncAllSitemaps(): { articles: number; programmatic: number; countries: number } {
-  const countries: SupportedCountry[] = ['gn', 'sn', 'ao', 'mz'];
+  const countries: SupportedCountry[] = ['gn', 'sn', 'ci', 'ao', 'mz'];
   let articles = 0;
   let programmatic = 0;
 

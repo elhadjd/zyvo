@@ -46,6 +46,7 @@ const GN_PAGES: MarketPageDefinition[] = [
 const MARKET_PAGE_REGISTRY: Partial<Record<MarketCode, MarketPageDefinition[]>> = {
   gn: GN_PAGES,
   sn: GN_PAGES,
+  ci: GN_PAGES,
 };
 
 function slugMatches(pattern: string[], actual: string[]): boolean {
@@ -102,7 +103,7 @@ export function getMarketStaticParams(marketCode: MarketCode): { slug: string[] 
   const staticPages = pages.filter((p) => !p.slug.some((s) => s.startsWith(':')));
   const params: { slug: string[] }[] = staticPages.map((p) => ({ slug: p.slug }));
 
-  if (marketCode === 'gn' || marketCode === 'sn') {
+  if (marketCode === 'gn' || marketCode === 'sn' || marketCode === 'ci') {
     appendDynamicMarketParams(marketCode, params);
   }
 
@@ -112,7 +113,7 @@ export function getMarketStaticParams(marketCode: MarketCode): { slug: string[] 
 export function getAllMarketStaticParams(): { country: string; slug?: string[] }[] {
   const result: { country: string; slug?: string[] }[] = [];
 
-  for (const code of ['gn', 'sn'] as MarketCode[]) {
+  for (const code of ['gn', 'sn', 'ci'] as MarketCode[]) {
     const params = getMarketStaticParams(code);
     params.forEach((p) => {
       result.push({

@@ -1,14 +1,16 @@
 import type { MarketCode, MarketConfig } from '@/lib/markets/types';
 import { gnMarket } from '@/data/markets/gn';
 import { snMarket } from '@/data/markets/sn';
+import { ciMarket } from '@/data/markets/ci';
 import { usMarket } from '@/data/markets/us';
 
-export const MARKET_CODES: MarketCode[] = ['us', 'gn', 'sn', 'ao'];
+export const MARKET_CODES: MarketCode[] = ['us', 'gn', 'sn', 'ci', 'ao'];
 
 const markets: Record<MarketCode, MarketConfig> = {
   us: usMarket,
   gn: gnMarket,
   sn: snMarket,
+  ci: ciMarket,
   ao: {
     ...gnMarket,
     code: 'ao',

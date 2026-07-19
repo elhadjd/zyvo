@@ -102,6 +102,7 @@ export const PROGRAMMATIC_INDUSTRIES = [
 export const COUNTRY_HREFLANG: Record<SupportedCountry, string> = {
   gn: 'fr-GN',
   sn: 'fr-SN',
+  ci: 'fr-CI',
   ao: 'pt-AO',
   mz: 'pt-MZ',
 };

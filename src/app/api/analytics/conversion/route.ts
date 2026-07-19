@@ -15,7 +15,7 @@ const VALID_ACTIONS: ConversionAction[] = [
   'pricing_view',
 ];
 
-const VALID_COUNTRIES: SupportedCountry[] = ['gn', 'sn', 'ao', 'mz'];
+const VALID_COUNTRIES: SupportedCountry[] = ['gn', 'sn', 'ci', 'ao', 'mz'];
 
 export async function POST(request: Request) {
   try {

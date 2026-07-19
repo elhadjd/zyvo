@@ -33,7 +33,7 @@ import { PROGRAMMATIC_INDUSTRIES } from '../src/lib/ai/seo-engine/types';
 import { MARKET_SOLUTION_SLUGS } from '../src/data/markets/market-modules';
 import type { MarketCode } from '../src/lib/markets/types';
 
-const ACTIVE_MARKETS: MarketCode[] = ['gn', 'sn'];
+const ACTIVE_MARKETS: MarketCode[] = ['gn', 'sn', 'ci'];
 
 const BASE_URL = process.argv.find((a) => a.startsWith('--base-url='))?.split('=')[1] ?? 'http://localhost:3000';
 
@@ -187,6 +187,7 @@ async function runHttpTests() {
   assert('GET /sitemap.xml → 200', sitemap.status === 200);
   assert('Sitemap referencia GN', sitemap.body.includes('/gn'));
   assert('Sitemap referencia SN', sitemap.body.includes('/sn'));
+  assert('Sitemap referencia CI', sitemap.body.includes('/ci'));
 
   const sitemapCountries = await fetchStatus('/sitemap-countries.xml');
   assert('GET /sitemap-countries.xml → 200', sitemapCountries.status === 200);
@@ -195,6 +196,7 @@ async function runHttpTests() {
   assert('GET /sitemap-articles.xml → 200', sitemapArticles.status === 200);
   assert('Sitemap articles inclui post GN', sitemapArticles.body.includes('/gn/blog/'));
   assert('Sitemap articles inclui post SN', sitemapArticles.body.includes('/sn/blog/'));
+  assert('Sitemap articles inclui post CI', sitemapArticles.body.includes('/ci/blog/'));
 
   // robots.txt
   const robots = await fetchStatus('/robots.txt');
@@ -334,7 +336,7 @@ async function waitForServer(maxAttempts = 30): Promise<boolean> {
 }
 
 async function main() {
-  console.log('🌍 Teste completo E2E — GN + SN (11 módulos)\n');
+  console.log('🌍 Teste completo E2E — GN + SN + CI (11 módulos)\n');
   console.log('='.repeat(50));
 
   runStructuralTests();
@@ -367,7 +369,7 @@ function printSummary() {
     process.exit(1);
   }
 
-  console.log('\n✅ Todos os fluxos GN + SN estão funcionando!\n');
+  console.log('\n✅ Todos os fluxos GN + SN + CI estão funcionando!\n');
 }
 
 main().catch((err) => {

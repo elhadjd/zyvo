@@ -6,17 +6,20 @@ import { stripMarketPrefix } from '@/lib/markets/routing';
 import { getMarketPageSeo } from '@/lib/markets/seo';
 import { GN_GEO_TARGETS } from '@/data/markets/gn-seo';
 import { SN_GEO_TARGETS } from '@/data/markets/sn-seo';
+import { CI_GEO_TARGETS } from '@/data/markets/ci-seo';
 import { SITE_NAME, SITE_URL } from '@/data/site';
 import type { MarketBlogPost } from '@/data/markets/blog/types';
 
 function getMarketGeoTargets(marketCode: MarketCode): readonly string[] {
   if (marketCode === 'sn') return SN_GEO_TARGETS;
+  if (marketCode === 'ci') return CI_GEO_TARGETS;
   return GN_GEO_TARGETS;
 }
 
 function getGeoRegion(market: ReturnType<typeof getMarket>): string {
   const country = market.contact.address.country;
   if (market.code === 'sn') return `SN-${country}`;
+  if (market.code === 'ci') return `CI-${country}`;
   return `GN-${country === 'GN' ? 'C' : country}`;
 }
 
@@ -120,7 +123,11 @@ export function buildMarketMetadata(
   const geoPlacename = market.contact.address.city;
   const geoRegion = getGeoRegion(market);
   const geoPosition =
-    market.code === 'sn' ? '14.6937;-17.4441' : '9.6412;-13.5784';
+    market.code === 'sn'
+      ? '14.6937;-17.4441'
+      : market.code === 'ci'
+        ? '5.3600;-4.0083'
+        : '9.6412;-13.5784';
 
   return {
     ...base,

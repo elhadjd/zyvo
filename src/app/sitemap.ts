@@ -49,6 +49,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const gnMarket = getMarket('gn');
   const snParams = getMarketStaticParams('sn');
   const snMarket = getMarket('sn');
+  const ciParams = getMarketStaticParams('ci');
+  const ciMarket = getMarket('ci');
 
   const marketEntries: MetadataRoute.Sitemap = [];
 
@@ -64,6 +66,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   for (const { slug } of snParams) {
     const path = slug.length > 0 ? `${snMarket.routePrefix}/${slug.join('/')}` : snMarket.routePrefix;
+    marketEntries.push({
+      url: `${SITE_URL}${path}`,
+      lastModified,
+      changeFrequency: slug.length === 0 ? 'weekly' : 'monthly',
+      priority: slug.length === 0 ? 0.95 : 0.8,
+    });
+  }
+
+  for (const { slug } of ciParams) {
+    const path = slug.length > 0 ? `${ciMarket.routePrefix}/${slug.join('/')}` : ciMarket.routePrefix;
     marketEntries.push({
       url: `${SITE_URL}${path}`,
       lastModified,
