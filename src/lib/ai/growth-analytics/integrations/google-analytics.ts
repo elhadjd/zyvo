@@ -3,6 +3,7 @@ import { getDb } from '../../db';
 import { visitorMetrics } from '../../db/schema';
 import type { SupportedCountry } from '../../types';
 import type { VisitorMetricRow } from '../types';
+import { GA4_SCOPE, getGoogleAccessToken } from './google-auth';
 
 function now(): string {
   return new Date().toISOString();
@@ -13,10 +14,22 @@ function today(): string {
 }
 
 const GA4_PROPERTY_ID = process.env.GA4_PROPERTY_ID;
-const GA4_CREDENTIALS = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
 
 export function isGoogleAnalyticsConfigured(): boolean {
-  return Boolean(GA4_PROPERTY_ID && GA4_CREDENTIALS);
+  return Boolean(GA4_PROPERTY_ID && process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+}
+
+export function clearVisitorMetrics(countryCode?: SupportedCountry): number {
+  const db = getDb();
+  const rows = countryCode
+    ? db.select().from(visitorMetrics).all().filter((r) => r.country === countryCode)
+    : db.select().from(visitorMetrics).all();
+
+  for (const row of rows) {
+    db.delete(visitorMetrics).where(eq(visitorMetrics.id, row.id)).run();
+  }
+
+  return rows.length;
 }
 
 export function saveVisitorMetrics(rows: VisitorMetricRow[]): number {
@@ -49,135 +62,62 @@ export async function fetchGoogleAnalyticsData(
   countryCode: SupportedCountry
 ): Promise<VisitorMetricRow[]> {
   if (!isGoogleAnalyticsConfigured()) {
-    return generateEstimatedVisitorMetrics(countryCode);
+    throw new Error(
+      'GA4 não configurado. Defina GA4_PROPERTY_ID e GOOGLE_SERVICE_ACCOUNT_JSON no .env'
+    );
   }
 
-  // Prepared for GA4 Data API integration
-  // API: analyticsdata.googleapis.com/v1beta/properties/{propertyId}:runReport
-  try {
-    const response = await fetch(
-      `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY_ID}:runReport`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          dateRanges: [{ startDate: '28daysAgo', endDate: 'today' }],
-          dimensions: [{ name: 'pagePath' }, { name: 'country' }],
-          metrics: [
-            { name: 'activeUsers' },
-            { name: 'sessions' },
-            { name: 'averageSessionDuration' },
-            { name: 'bounceRate' },
-            { name: 'conversions' },
-          ],
-          dimensionFilter: {
-            filter: {
-              fieldName: 'pagePath',
-              stringFilter: { matchType: 'CONTAINS', value: `/${countryCode}/` },
-            },
+  const token = await getGoogleAccessToken([GA4_SCOPE]);
+  const response = await fetch(
+    `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY_ID}:runReport`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        dateRanges: [{ startDate: '28daysAgo', endDate: 'today' }],
+        dimensions: [{ name: 'pagePath' }],
+        metrics: [
+          { name: 'activeUsers' },
+          { name: 'sessions' },
+          { name: 'averageSessionDuration' },
+          { name: 'bounceRate' },
+          { name: 'conversions' },
+        ],
+        dimensionFilter: {
+          filter: {
+            fieldName: 'pagePath',
+            stringFilter: { matchType: 'BEGINS_WITH', value: `/${countryCode}/` },
           },
-        }),
-      }
-    );
+        },
+        limit: 250,
+      }),
+      signal: AbortSignal.timeout(30_000),
+    }
+  );
 
-    if (!response.ok) throw new Error('GA4 API error');
-
-    const data = await response.json();
-    const date = today();
-    return (data.rows ?? []).map(
-      (row: { dimensionValues: { value: string }[]; metricValues: { value: string }[] }) => ({
-        country: countryCode,
-        pageUrl: row.dimensionValues[0].value,
-        users: parseInt(row.metricValues[0].value, 10),
-        sessions: parseInt(row.metricValues[1].value, 10),
-        avgTimeOnPage: parseFloat(row.metricValues[2].value),
-        bounceRate: parseFloat(row.metricValues[3].value),
-        conversions: parseInt(row.metricValues[4].value, 10),
-        date,
-      })
-    );
-  } catch {
-    return generateEstimatedVisitorMetrics(countryCode);
+  const body = await response.text();
+  if (!response.ok) {
+    throw new Error(`GA4 API erro ${response.status}: ${body.slice(0, 400)}`);
   }
-}
 
-function generateEstimatedVisitorMetrics(countryCode: SupportedCountry): VisitorMetricRow[] {
-  const db = getDb();
+  const data = JSON.parse(body) as {
+    rows?: { dimensionValues: { value: string }[]; metricValues: { value: string }[] }[];
+  };
+
   const date = today();
-  const timestamp = now();
-
-  const existing = db
-    .select()
-    .from(visitorMetrics)
-    .where(eq(visitorMetrics.country, countryCode))
-    .all()
-    .filter((r) => r.date === date);
-
-  if (existing.length > 0) return [];
-
-  const estimated: VisitorMetricRow[] = [
-    {
-      country: countryCode,
-      pageUrl: `/${countryCode}`,
-      users: 850,
-      sessions: 1200,
-      avgTimeOnPage: 145,
-      bounceRate: 0.42,
-      landingPage: `/${countryCode}`,
-      conversions: 12,
-      date,
-    },
-    {
-      country: countryCode,
-      pageUrl: `/${countryCode}/blog`,
-      users: 420,
-      sessions: 580,
-      avgTimeOnPage: 210,
-      bounceRate: 0.35,
-      landingPage: `/${countryCode}/blog`,
-      conversions: 5,
-      date,
-    },
-    {
-      country: countryCode,
-      pageUrl: `/${countryCode}/pricing`,
-      users: 180,
-      sessions: 220,
-      avgTimeOnPage: 95,
-      bounceRate: 0.28,
-      conversions: 8,
-      date,
-    },
-    {
-      country: countryCode,
-      pageUrl: `/${countryCode}/demo`,
-      users: 95,
-      sessions: 110,
-      avgTimeOnPage: 180,
-      bounceRate: 0.15,
-      conversions: 15,
-      date,
-    },
-  ];
-
-  for (const row of estimated) {
-    db.insert(visitorMetrics)
-      .values({
-        country: row.country,
-        pageUrl: row.pageUrl,
-        users: row.users,
-        sessions: row.sessions,
-        avgTimeOnPage: row.avgTimeOnPage,
-        bounceRate: row.bounceRate,
-        landingPage: row.landingPage ?? null,
-        conversions: row.conversions,
-        date: row.date,
-        createdAt: timestamp,
-      })
-      .run();
-  }
-
-  return estimated;
+  return (data.rows ?? []).map((row) => ({
+    country: countryCode,
+    pageUrl: row.dimensionValues[0]?.value ?? '/',
+    users: parseInt(row.metricValues[0]?.value ?? '0', 10),
+    sessions: parseInt(row.metricValues[1]?.value ?? '0', 10),
+    avgTimeOnPage: parseFloat(row.metricValues[2]?.value ?? '0'),
+    bounceRate: parseFloat(row.metricValues[3]?.value ?? '0'),
+    conversions: parseInt(row.metricValues[4]?.value ?? '0', 10),
+    date,
+  }));
 }
 
 export function getVisitorMetrics(country?: SupportedCountry, days = 30) {
@@ -207,7 +147,7 @@ export function getTrafficSummary(country?: SupportedCountry) {
     byCountry.set(m.country, (byCountry.get(m.country) ?? 0) + m.users);
   }
 
-  const topCountry = [...byCountry.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'gn';
+  const topCountry = [...byCountry.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
 
   return { ...totals, topCountry };
 }

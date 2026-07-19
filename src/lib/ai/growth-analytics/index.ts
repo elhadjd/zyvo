@@ -22,12 +22,17 @@ import {
   getSearchConsoleMetrics,
   getTopKeywords,
   isSearchConsoleConfigured,
+  saveSearchConsoleMetrics,
+  clearSearchConsoleMetrics,
 } from './integrations/google-search-console';
 import {
   fetchGoogleAnalyticsData,
   getVisitorMetrics,
   isGoogleAnalyticsConfigured,
+  saveVisitorMetrics,
+  clearVisitorMetrics,
 } from './integrations/google-analytics';
+import { testGoogleConnection, type GoogleConnectionStatus } from './integrations/google-auth';
 import { runContentPerformanceAgent } from './agents/content-performance-agent';
 import { runSeoOpportunityAgent } from './agents/seo-opportunity-agent';
 import { runContentStrategistAgent } from './agents/content-strategist-agent';
@@ -61,6 +66,11 @@ export {
   getVisitorMetrics,
   isSearchConsoleConfigured,
   isGoogleAnalyticsConfigured,
+  saveSearchConsoleMetrics,
+  saveVisitorMetrics,
+  clearSearchConsoleMetrics,
+  clearVisitorMetrics,
+  testGoogleConnection,
   runContentPerformanceAgent,
   runSeoOpportunityAgent,
   runContentStrategistAgent,
@@ -68,11 +78,54 @@ export {
   getRefreshTasks,
 };
 
+export type { GoogleConnectionStatus };
+
+export function purgeDemoGoogleMetrics(): { visitorRows: number; gscRows: number } {
+  return {
+    visitorRows: clearVisitorMetrics(),
+    gscRows: clearSearchConsoleMetrics(),
+  };
+}
+
 export class GrowthAnalyticsEngine {
   async syncExternalData(countryCode: SupportedCountry) {
-    const gsc = await fetchSearchConsoleData(countryCode);
-    const ga = await fetchGoogleAnalyticsData(countryCode);
-    return { gscRows: gsc.length, gaRows: ga.length };
+    const errors: string[] = [];
+    let gscRows: Awaited<ReturnType<typeof fetchSearchConsoleData>> = [];
+    let gaRows: Awaited<ReturnType<typeof fetchGoogleAnalyticsData>> = [];
+
+    try {
+      gscRows = await fetchSearchConsoleData(countryCode);
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : 'Erro GSC');
+    }
+
+    try {
+      gaRows = await fetchGoogleAnalyticsData(countryCode);
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : 'Erro GA4');
+    }
+
+    if (errors.length === 2) {
+      throw new Error(errors.join(' | '));
+    }
+
+    clearSearchConsoleMetrics(countryCode);
+    clearVisitorMetrics(countryCode);
+
+    const savedGsc = saveSearchConsoleMetrics(gscRows);
+    const savedGa = saveVisitorMetrics(gaRows);
+
+    return {
+      source: 'google',
+      gscRows: savedGsc,
+      gaRows: savedGa,
+      errors,
+      syncedAt: new Date().toISOString(),
+    };
+  }
+
+  async testGoogleConnection(): Promise<GoogleConnectionStatus> {
+    return testGoogleConnection();
   }
 
   async runFullAnalysis(countryCode: SupportedCountry) {

@@ -6,6 +6,7 @@ import {
   getConversionSummary,
   getRefreshTasks,
   analyzeTraffic,
+  purgeDemoGoogleMetrics,
 } from '@/lib/ai/growth-analytics';
 import type { SupportedCountry } from '@/lib/ai/types';
 
@@ -40,6 +41,10 @@ export async function POST(request: Request) {
         return NextResponse.json(await growthAnalyticsEngine.runFullAnalysis(countryCode));
       case 'sync_data':
         return NextResponse.json(await growthAnalyticsEngine.syncExternalData(countryCode));
+      case 'test_google':
+        return NextResponse.json(await growthAnalyticsEngine.testGoogleConnection());
+      case 'purge_demo':
+        return NextResponse.json({ ok: true, removed: purgeDemoGoogleMetrics() });
       case 'weekly_report':
         return NextResponse.json(await growthAnalyticsEngine.generateReport(countryCode));
       case 'weekly_job':
