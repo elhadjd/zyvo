@@ -21,8 +21,8 @@ export default function MarketContactPage() {
                 {pageSeo?.h1 ?? 'Contactez-nous'}
               </h1>
               <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-                Demandez un devis pour votre logiciel de gestion, caisse POS ou ERP en Guinée.
-                Support WhatsApp en français, réponse sous 24h à Conakry.
+                {pageSeo?.description ??
+                  `Demandez un devis pour votre logiciel de gestion, caisse POS ou ERP au ${market.countryNameLocal}. Support WhatsApp en français, réponse sous 24h à ${market.contact.address.city}.`}
               </p>
 
               <div className="space-y-5">

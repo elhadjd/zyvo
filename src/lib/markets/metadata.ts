@@ -5,8 +5,20 @@ import { getMarket, getMarketAlternates } from '@/lib/markets/registry';
 import { stripMarketPrefix } from '@/lib/markets/routing';
 import { getMarketPageSeo } from '@/lib/markets/seo';
 import { GN_GEO_TARGETS } from '@/data/markets/gn-seo';
+import { SN_GEO_TARGETS } from '@/data/markets/sn-seo';
 import { SITE_NAME, SITE_URL } from '@/data/site';
 import type { MarketBlogPost } from '@/data/markets/blog/types';
+
+function getMarketGeoTargets(marketCode: MarketCode): readonly string[] {
+  if (marketCode === 'sn') return SN_GEO_TARGETS;
+  return GN_GEO_TARGETS;
+}
+
+function getGeoRegion(market: ReturnType<typeof getMarket>): string {
+  const country = market.contact.address.country;
+  if (market.code === 'sn') return `SN-${country}`;
+  return `GN-${country === 'GN' ? 'C' : country}`;
+}
 
 export function buildMarketBlogPostMetadata(
   marketCode: MarketCode,
@@ -65,10 +77,10 @@ export function buildMarketBlogPostMetadata(
       description: post.metaDescription,
     },
     other: {
-      'geo.region': `GN-${market.contact.address.country}`,
+      'geo.region': getGeoRegion(market),
       'geo.placename': market.contact.address.city,
       'content-language': market.language,
-      target: GN_GEO_TARGETS.join(', '),
+      target: getMarketGeoTargets(marketCode).join(', '),
       'article:author': post.author,
       'article:section': post.category,
     },
@@ -106,7 +118,9 @@ export function buildMarketMetadata(
   const canonicalUrl = `${SITE_URL}${canonicalPath}`;
 
   const geoPlacename = market.contact.address.city;
-  const geoRegion = `GN-${market.contact.address.country === 'GN' ? 'C' : market.contact.address.country}`;
+  const geoRegion = getGeoRegion(market);
+  const geoPosition =
+    market.code === 'sn' ? '14.6937;-17.4441' : '9.6412;-13.5784';
 
   return {
     ...base,
@@ -141,10 +155,10 @@ export function buildMarketMetadata(
     other: {
       'geo.region': geoRegion,
       'geo.placename': geoPlacename,
-      'geo.position': '9.6412;-13.5784',
-      ICBM: '9.6412, -13.5784',
+      'geo.position': geoPosition,
+      ICBM: geoPosition.replace(';', ', '),
       'content-language': market.language,
-      target: GN_GEO_TARGETS.join(', '),
+      target: getMarketGeoTargets(marketCode).join(', '),
     },
     category: 'business software',
   };

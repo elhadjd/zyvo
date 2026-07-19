@@ -17,8 +17,8 @@ export default function MarketPricingPage() {
             {pageSeo?.h1 ?? 'Tarifs'}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            Plans ERP transparents en francs guinéens (GNF) — essai gratuit 7 jours, paiement
-            Orange Money ou virement local.
+            {pageSeo?.description ??
+              'Plans ERP transparents — essai gratuit 7 jours, paiement mobile ou virement local.'}
           </p>
         </div>
       </section>

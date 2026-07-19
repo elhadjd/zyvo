@@ -1,13 +1,16 @@
 import type { MarketCode } from '@/lib/markets/types';
 import type { MarketBlogConfig, MarketBlogPost } from './types';
 import { gnBlogConfig, gnBlogPosts } from './gn';
+import { snBlogConfig, snBlogPosts } from './sn';
 
 const blogPostsByMarket: Partial<Record<MarketCode, MarketBlogPost[]>> = {
   gn: gnBlogPosts,
+  sn: snBlogPosts,
 };
 
 const blogConfigByMarket: Partial<Record<MarketCode, MarketBlogConfig>> = {
   gn: gnBlogConfig,
+  sn: snBlogConfig,
 };
 
 export function getMarketBlogPosts(marketCode: MarketCode): MarketBlogPost[] {

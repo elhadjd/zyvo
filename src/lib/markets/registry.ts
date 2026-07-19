@@ -1,5 +1,6 @@
 import type { MarketCode, MarketConfig } from '@/lib/markets/types';
 import { gnMarket } from '@/data/markets/gn';
+import { snMarket } from '@/data/markets/sn';
 import { usMarket } from '@/data/markets/us';
 
 export const MARKET_CODES: MarketCode[] = ['us', 'gn', 'sn', 'ao'];
@@ -7,30 +8,7 @@ export const MARKET_CODES: MarketCode[] = ['us', 'gn', 'sn', 'ao'];
 const markets: Record<MarketCode, MarketConfig> = {
   us: usMarket,
   gn: gnMarket,
-  sn: {
-    ...gnMarket,
-    code: 'sn',
-    countryName: 'Senegal',
-    countryNameLocal: 'Sénégal',
-    flag: '🇸🇳',
-    locale: 'fr_SN',
-    hreflang: 'fr-SN',
-    routePrefix: '/sn',
-    active: false,
-    comingSoon: true,
-    contact: {
-      ...gnMarket.contact,
-      phone: '+221 77 000 00 00',
-      address: { street: 'Plateau', city: 'Dakar', country: 'SN' },
-    },
-    signup: {
-      language: 'fr',
-      country: { id: 195, name: 'Senegal', code: 'sn' },
-      currency: { code: 'XOF', currency: 'West African CFA Franc', digits: 0, number: 952 },
-    },
-    pages: {},
-    navigation: [],
-  },
+  sn: snMarket,
   ao: {
     ...gnMarket,
     code: 'ao',

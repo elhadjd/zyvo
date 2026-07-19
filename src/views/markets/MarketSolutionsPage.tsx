@@ -1,10 +1,13 @@
+'use client';
+
 import { MarketIndustriesSection } from '@/components/markets/MarketPricingSection';
 import MarketCTA from '@/components/markets/MarketCTA';
 import LocalizedLink from '@/components/markets/LocalizedLink';
+import MarketBreadcrumbs, { useMarketPageSeo } from '@/components/markets/MarketBreadcrumbs';
 import { solutions } from '@/data/solutions';
 import { ArrowRight } from 'lucide-react';
 
-const gnSolutionLabels: Record<string, { title: string; description: string }> = {
+const solutionLabels: Record<string, { title: string; description: string }> = {
   'point-of-sale': {
     title: 'Caisse (POS)',
     description: 'Encaissement rapide, tickets, remises et suivi des ventes journalières.',
@@ -32,17 +35,20 @@ const gnSolutionLabels: Record<string, { title: string; description: string }> =
 };
 
 export default function MarketSolutionsPage() {
-  const featured = solutions.filter((s) => gnSolutionLabels[s.slug]);
+  const pageSeo = useMarketPageSeo();
+  const featured = solutions.filter((s) => solutionLabels[s.slug]);
 
   return (
     <>
-      <section className="pt-28 pb-12 lg:pt-36 bg-brand-surface dark:bg-gray-900">
+      <MarketBreadcrumbs />
+      <section className="pt-8 pb-12 lg:pt-12 bg-brand-surface dark:bg-gray-900">
         <div className="container mx-auto px-4 lg:px-8 text-center max-w-3xl">
           <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            Solutions
+            {pageSeo?.h1 ?? 'Solutions'}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            Des outils modulaires pour chaque aspect de votre entreprise en Guinée.
+            {pageSeo?.description ??
+              'Des outils modulaires pour chaque aspect de votre entreprise.'}
           </p>
         </div>
       </section>
@@ -51,22 +57,20 @@ export default function MarketSolutionsPage() {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {featured.map((solution) => {
-              const localized = gnSolutionLabels[solution.slug];
+              const localized = solutionLabels[solution.slug];
               return (
                 <LocalizedLink
                   key={solution.slug}
                   href={`/solutions/${solution.slug}`}
-                  className="group p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-brand-primary dark:hover:border-brand-accent hover:shadow-lg transition-all"
+                  className="group p-6 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-brand-primary/30 dark:hover:border-brand-accent/30 hover:shadow-lg transition-all"
                 >
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-brand-primary dark:group-hover:text-brand-accent transition-colors">
-                    {localized?.title ?? solution.shortTitle}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    {localized?.description ?? solution.metaDescription}
-                  </p>
-                  <span className="inline-flex items-center text-sm font-medium text-brand-primary dark:text-brand-accent">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-brand-primary dark:group-hover:text-brand-accent transition-colors">
+                    {localized.title}
+                  </h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{localized.description}</p>
+                  <span className="inline-flex items-center gap-1 text-sm font-medium text-brand-primary dark:text-brand-accent">
                     En savoir plus
-                    <ArrowRight className="ml-1 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </span>
                 </LocalizedLink>
               );

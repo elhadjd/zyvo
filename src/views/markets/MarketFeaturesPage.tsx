@@ -19,8 +19,8 @@ export default function MarketFeaturesPage() {
             {pageSeo?.h1 ?? 'Fonctionnalités'}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            Caisse POS, inventaire, comptabilité SYSCOHADA et rapports — tout ce dont votre PME
-            guinéenne a besoin pour vendre, gérer et grandir à Conakry et en province.
+            {pageSeo?.description ??
+              'Caisse POS, inventaire, comptabilité SYSCOHADA et rapports — tout ce dont votre PME a besoin pour vendre, gérer et grandir.'}
           </p>
         </div>
       </section>

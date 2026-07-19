@@ -109,5 +109,4 @@ export function seedGuineaProgrammaticPages(): number {
 
 export function seedGuineaSitemaps(): void {
   seedGuineaProgrammaticPages();
-  syncAllSitemaps();
 }

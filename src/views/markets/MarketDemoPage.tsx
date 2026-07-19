@@ -1,17 +1,26 @@
+'use client';
+
+import { useMarket } from '@/contexts/market-context';
 import LocalizedLink from '@/components/markets/LocalizedLink';
+import MarketBreadcrumbs, { useMarketPageSeo } from '@/components/markets/MarketBreadcrumbs';
 import { Calendar, ArrowRight } from 'lucide-react';
 
 export default function MarketDemoPage() {
+  const { market } = useMarket();
+  const pageSeo = useMarketPageSeo();
+  const currencyLabel = market.currency === 'XOF' ? 'FCFA' : market.currency;
+
   return (
     <>
-      <section className="pt-28 pb-16 lg:pt-36 lg:pb-24 bg-brand-surface dark:bg-gray-900">
+      <MarketBreadcrumbs />
+      <section className="pt-8 pb-16 lg:pt-12 lg:pb-24 bg-brand-surface dark:bg-gray-900">
         <div className="container mx-auto px-4 lg:px-8 max-w-2xl text-center">
           <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            Réserver une démo
+            {pageSeo?.h1 ?? 'Réserver une démo'}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-            Découvrez ZYVO en 30 minutes avec notre équipe. Présentation personnalisée en français,
-            adaptée à votre secteur et à votre ville.
+            {pageSeo?.description ??
+              `Découvrez ZYVO en 30 minutes avec notre équipe. Présentation personnalisée en français, adaptée à votre secteur à ${market.contact.address.city}.`}
           </p>
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-8 text-left space-y-4 mb-8">
@@ -20,7 +29,7 @@ export default function MarketDemoPage() {
               <li>• Caisse (POS) et encaissement mobile money</li>
               <li>• Gestion de stock et inventaire</li>
               <li>• Rapports et tableaux de bord</li>
-              <li>• Tarifs en GNF et options de paiement local</li>
+              <li>• Tarifs en {currencyLabel} et options de paiement local</li>
             </ul>
           </div>
 

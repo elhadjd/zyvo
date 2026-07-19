@@ -44,6 +44,7 @@ const GN_PAGES: MarketPageDefinition[] = [
 
 const MARKET_PAGE_REGISTRY: Partial<Record<MarketCode, MarketPageDefinition[]>> = {
   gn: GN_PAGES,
+  sn: GN_PAGES,
 };
 
 function slugMatches(pattern: string[], actual: string[]): boolean {
@@ -76,36 +77,40 @@ export function resolveMarketPage(
   return null;
 }
 
+function appendDynamicMarketParams(marketCode: MarketCode, params: { slug: string[] }[]) {
+  const industries = getMarket(marketCode).industries;
+  industries.forEach((ind) => {
+    params.push({ slug: ['industries', ind.id] });
+  });
+
+  const solutionSlugs = [
+    'point-of-sale',
+    'inventory-management',
+    'employee-management',
+    'customer-queue-management',
+    'invoicing',
+    'financial-management',
+  ];
+  solutionSlugs.forEach((s) => {
+    params.push({ slug: ['solutions', s] });
+  });
+
+  getAllMergedMarketBlogSlugs(marketCode).forEach((postSlug) => {
+    params.push({ slug: ['blog', postSlug] });
+  });
+
+  PROGRAMMATIC_INDUSTRIES.forEach((ind) => {
+    params.push({ slug: ['erp', ind.slug] });
+  });
+}
+
 export function getMarketStaticParams(marketCode: MarketCode): { slug: string[] }[] {
   const pages = MARKET_PAGE_REGISTRY[marketCode] ?? [];
   const staticPages = pages.filter((p) => !p.slug.some((s) => s.startsWith(':')));
   const params: { slug: string[] }[] = staticPages.map((p) => ({ slug: p.slug }));
 
-  if (marketCode === 'gn') {
-    const industries = getMarket('gn').industries;
-    industries.forEach((ind) => {
-      params.push({ slug: ['industries', ind.id] });
-    });
-
-    const solutionSlugs = [
-      'point-of-sale',
-      'inventory-management',
-      'employee-management',
-      'customer-queue-management',
-      'invoicing',
-      'financial-management',
-    ];
-    solutionSlugs.forEach((s) => {
-      params.push({ slug: ['solutions', s] });
-    });
-
-    getAllMergedMarketBlogSlugs('gn').forEach((postSlug) => {
-      params.push({ slug: ['blog', postSlug] });
-    });
-
-    PROGRAMMATIC_INDUSTRIES.forEach((ind) => {
-      params.push({ slug: ['erp', ind.slug] });
-    });
+  if (marketCode === 'gn' || marketCode === 'sn') {
+    appendDynamicMarketParams(marketCode, params);
   }
 
   return params;
@@ -114,7 +119,7 @@ export function getMarketStaticParams(marketCode: MarketCode): { slug: string[] 
 export function getAllMarketStaticParams(): { country: string; slug?: string[] }[] {
   const result: { country: string; slug?: string[] }[] = [];
 
-  for (const code of ['gn'] as MarketCode[]) {
+  for (const code of ['gn', 'sn'] as MarketCode[]) {
     const params = getMarketStaticParams(code);
     params.forEach((p) => {
       result.push({

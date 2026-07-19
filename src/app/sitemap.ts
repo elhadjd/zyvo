@@ -45,11 +45,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: path === '/' ? 1 : path.startsWith('/solutions') || path.startsWith('/development') ? 0.9 : 0.7,
   }));
 
-  const marketEntries: MetadataRoute.Sitemap = [];
   const gnParams = getMarketStaticParams('gn');
   const gnMarket = getMarket('gn');
+  const snParams = getMarketStaticParams('sn');
+  const snMarket = getMarket('sn');
 
-  gnParams.forEach(({ slug }) => {
+  const marketEntries: MetadataRoute.Sitemap = [];
+
+  for (const { slug } of gnParams) {
     const path = slug.length > 0 ? `${gnMarket.routePrefix}/${slug.join('/')}` : gnMarket.routePrefix;
     marketEntries.push({
       url: `${SITE_URL}${path}`,
@@ -57,7 +60,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: slug.length === 0 ? 'weekly' : 'monthly',
       priority: slug.length === 0 ? 0.95 : 0.8,
     });
-  });
+  }
+
+  for (const { slug } of snParams) {
+    const path = slug.length > 0 ? `${snMarket.routePrefix}/${slug.join('/')}` : snMarket.routePrefix;
+    marketEntries.push({
+      url: `${SITE_URL}${path}`,
+      lastModified,
+      changeFrequency: slug.length === 0 ? 'weekly' : 'monthly',
+      priority: slug.length === 0 ? 0.95 : 0.8,
+    });
+  }
 
   const subSitemaps: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/sitemap-articles.xml`, lastModified, changeFrequency: 'daily', priority: 0.9 },

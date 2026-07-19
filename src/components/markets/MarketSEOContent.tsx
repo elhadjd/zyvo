@@ -1,7 +1,14 @@
-import { GN_HOME_SEO_CONTENT } from '@/data/markets/gn-seo';
+'use client';
+
+import { useMarket } from '@/contexts/market-context';
+import { getMarketHomeSeoContent, getMarketPricingLinkLabel } from '@/lib/markets/seo';
 import LocalizedLink from '@/components/markets/LocalizedLink';
 
 export default function MarketSEOContent() {
+  const { marketCode } = useMarket();
+  const content = getMarketHomeSeoContent(marketCode);
+  const pricingLabel = getMarketPricingLinkLabel(marketCode);
+
   return (
     <section
       className="py-16 lg:py-20 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800"
@@ -12,11 +19,11 @@ export default function MarketSEOContent() {
           id="seo-content-heading"
           className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-8"
         >
-          {GN_HOME_SEO_CONTENT.title}
+          {content.title}
         </h2>
 
         <div className="space-y-8">
-          {GN_HOME_SEO_CONTENT.sections.map((section) => (
+          {content.sections.map((section) => (
             <article key={section.heading}>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
                 {section.heading}
@@ -33,7 +40,7 @@ export default function MarketSEOContent() {
             href="/pricing"
             className="text-sm font-medium text-brand-primary dark:text-brand-accent hover:underline"
           >
-            Voir les tarifs en GNF →
+            {pricingLabel}
           </LocalizedLink>
           <LocalizedLink
             href="/solutions/point-of-sale"
