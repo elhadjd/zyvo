@@ -43,18 +43,22 @@ interface Stats {
 
 interface GoogleStatus {
   credentialsConfigured: boolean;
+  serviceAccountEmail: string | null;
   ready: boolean;
   ga4: {
     configured: boolean;
     propertyId: string | null;
     connected: boolean;
     check: { ok: boolean; error?: string; detail?: string };
+    setupHint?: string;
   };
   gsc: {
     configured: boolean;
     siteUrl: string;
     connected: boolean;
     check: { ok: boolean; error?: string; detail?: string };
+    availableSites?: string[];
+    setupHint?: string;
   };
 }
 
@@ -201,22 +205,53 @@ export default function GrowthDashboard() {
         </div>
 
         {googleStatus ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className={`p-4 rounded-lg border ${googleStatus.ga4.connected ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-              <p className="font-medium">GA4 {googleStatus.ga4.connected ? '✓' : '✗'}</p>
-              <p className="text-gray-600 mt-1">Property: {googleStatus.ga4.propertyId ?? '—'}</p>
-              {!googleStatus.ga4.connected && (
-                <p className="text-red-700 mt-2 text-xs">{googleStatus.ga4.check.error ?? googleStatus.ga4.check.detail}</p>
-              )}
+          <>
+            {googleStatus.serviceAccountEmail && (
+              <p className="text-sm mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <strong>Service account:</strong>{' '}
+                <code className="text-xs break-all">{googleStatus.serviceAccountEmail}</code>
+              </p>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div className={`p-4 rounded-lg border ${googleStatus.ga4.connected ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                <p className="font-medium">GA4 {googleStatus.ga4.connected ? '✓' : '✗'}</p>
+                <p className="text-gray-600 mt-1">Property ID: {googleStatus.ga4.propertyId ?? '—'}</p>
+                {!googleStatus.ga4.connected && (
+                  <>
+                    <p className="text-red-700 mt-2 text-xs">{googleStatus.ga4.check.error}</p>
+                    {googleStatus.ga4.setupHint && (
+                      <p className="text-gray-700 mt-2 text-xs leading-relaxed">{googleStatus.ga4.setupHint}</p>
+                    )}
+                  </>
+                )}
+              </div>
+              <div className={`p-4 rounded-lg border ${googleStatus.gsc.connected ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                <p className="font-medium">Search Console {googleStatus.gsc.connected ? '✓' : '✗'}</p>
+                <p className="text-gray-600 mt-1">GSC_SITE_URL: {googleStatus.gsc.siteUrl}</p>
+                {!googleStatus.gsc.connected && (
+                  <>
+                    <p className="text-red-700 mt-2 text-xs">{googleStatus.gsc.check.error}</p>
+                    {googleStatus.gsc.setupHint && (
+                      <p className="text-gray-700 mt-2 text-xs leading-relaxed">{googleStatus.gsc.setupHint}</p>
+                    )}
+                  </>
+                )}
+                {googleStatus.gsc.availableSites && googleStatus.gsc.availableSites.length > 0 && (
+                  <div className="mt-3 text-xs">
+                    <p className="font-medium text-gray-700">Sites GSC acessíveis:</p>
+                    <ul className="list-disc list-inside mt-1 text-gray-600">
+                      {googleStatus.gsc.availableSites.map((site) => (
+                        <li key={site}>
+                          <code>{site}</code>
+                          {site === googleStatus.gsc.siteUrl ? ' (actual)' : ''}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className={`p-4 rounded-lg border ${googleStatus.gsc.connected ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-              <p className="font-medium">Search Console {googleStatus.gsc.connected ? '✓' : '✗'}</p>
-              <p className="text-gray-600 mt-1">Site: {googleStatus.gsc.siteUrl}</p>
-              {!googleStatus.gsc.connected && (
-                <p className="text-red-700 mt-2 text-xs">{googleStatus.gsc.check.error ?? googleStatus.gsc.check.detail}</p>
-              )}
-            </div>
-          </div>
+          </>
         ) : (
           <p className="text-sm text-gray-500">A carregar estado da ligação…</p>
         )}

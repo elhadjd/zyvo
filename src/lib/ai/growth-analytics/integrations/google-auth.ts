@@ -96,32 +96,76 @@ export interface GoogleServiceCheck {
 
 export interface GoogleConnectionStatus {
   credentialsConfigured: boolean;
+  serviceAccountEmail: string | null;
   ga4: {
     configured: boolean;
     propertyId: string | null;
     connected: boolean;
     check: GoogleServiceCheck;
+    setupHint?: string;
   };
   gsc: {
     configured: boolean;
     siteUrl: string;
     connected: boolean;
     check: GoogleServiceCheck;
+    availableSites?: string[];
+    setupHint?: string;
   };
   ready: boolean;
+}
+
+function permissionHint(
+  service: 'ga4' | 'gsc',
+  email: string | null,
+  extra?: string
+): string {
+  const account = email ?? 'sua-service-account@projeto.iam.gserviceaccount.com';
+  if (service === 'ga4') {
+    return [
+      `Adicione ${account} em GA4 → Admin → Gestão de acesso à propriedade → Viewer (ou Analyst).`,
+      `Confirme GA4_PROPERTY_ID (número da propriedade, não Measurement ID G-XXXX).`,
+      extra,
+    ]
+      .filter(Boolean)
+      .join(' ');
+  }
+  return [
+    `Adicione ${account} em Google Search Console → Definições → Utilizadores e permissões → Proprietário ou Utilizador completo.`,
+    `GSC_SITE_URL deve coincidir exactamente com a propriedade (ex: https://www.zyvoerp.com ou sc-domain:zyvoerp.com).`,
+    extra,
+  ]
+    .filter(Boolean)
+    .join(' ');
+}
+
+async function listGscSites(token: string): Promise<string[]> {
+  const response = await fetch('https://www.googleapis.com/webmasters/v3/sites', {
+    headers: { Authorization: `Bearer ${token}` },
+    signal: AbortSignal.timeout(20_000),
+  });
+
+  if (!response.ok) return [];
+
+  const data = (await response.json()) as { siteEntry?: { siteUrl: string }[] };
+  return (data.siteEntry ?? []).map((entry) => entry.siteUrl);
 }
 
 export async function testGoogleConnection(): Promise<GoogleConnectionStatus> {
   const propertyId = process.env.GA4_PROPERTY_ID ?? null;
   const siteUrl = process.env.GSC_SITE_URL ?? 'https://www.zyvoerp.com';
   let credentialsConfigured = false;
+  let serviceAccountEmail: string | null = null;
 
   try {
-    credentialsConfigured = Boolean(parseGoogleCredentials());
+    const credentials = parseGoogleCredentials();
+    credentialsConfigured = Boolean(credentials);
+    serviceAccountEmail = credentials?.client_email ?? null;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Credenciais inválidas';
     return {
       credentialsConfigured: false,
+      serviceAccountEmail: null,
       ga4: {
         configured: Boolean(propertyId),
         propertyId,
@@ -138,30 +182,41 @@ export async function testGoogleConnection(): Promise<GoogleConnectionStatus> {
     };
   }
 
-  const ga4Check = await testGa4Connection(propertyId);
-  const gscCheck = await testGscConnection(siteUrl);
+  const ga4Check = await testGa4Connection(propertyId, serviceAccountEmail);
+  const gscCheck = await testGscConnection(siteUrl, serviceAccountEmail);
 
   return {
     credentialsConfigured,
+    serviceAccountEmail,
     ga4: {
       configured: Boolean(propertyId && credentialsConfigured),
       propertyId,
       connected: ga4Check.ok,
-      check: ga4Check,
+      check: ga4Check.check,
+      setupHint: ga4Check.setupHint,
     },
     gsc: {
       configured: credentialsConfigured,
       siteUrl,
       connected: gscCheck.ok,
-      check: gscCheck,
+      check: gscCheck.check,
+      availableSites: gscCheck.availableSites,
+      setupHint: gscCheck.setupHint,
     },
     ready: ga4Check.ok && gscCheck.ok,
   };
 }
 
-async function testGa4Connection(propertyId: string | null): Promise<GoogleServiceCheck> {
+async function testGa4Connection(
+  propertyId: string | null,
+  serviceAccountEmail: string | null
+): Promise<{ ok: boolean; check: GoogleServiceCheck; setupHint?: string }> {
   if (!propertyId) {
-    return { ok: false, error: 'GA4_PROPERTY_ID não definido' };
+    return {
+      ok: false,
+      check: { ok: false, error: 'GA4_PROPERTY_ID não definido' },
+      setupHint: permissionHint('ga4', serviceAccountEmail),
+    };
   }
 
   try {
@@ -185,26 +240,43 @@ async function testGa4Connection(propertyId: string | null): Promise<GoogleServi
 
     const body = await response.text();
     if (!response.ok) {
+      const is403 = response.status === 403;
       return {
         ok: false,
-        statusCode: response.status,
-        error: `GA4 API erro ${response.status}`,
-        detail: body.slice(0, 400),
+        check: {
+          ok: false,
+          statusCode: response.status,
+          error: is403
+            ? 'GA4: service account sem permissão nesta propriedade'
+            : `GA4 API erro ${response.status}`,
+          detail: body.slice(0, 400),
+        },
+        setupHint: is403 ? permissionHint('ga4', serviceAccountEmail) : undefined,
       };
     }
 
-    return { ok: true, statusCode: response.status, detail: 'Ligação GA4 OK' };
+    return {
+      ok: true,
+      check: { ok: true, statusCode: response.status, detail: 'Ligação GA4 OK' },
+    };
   } catch (error) {
     return {
       ok: false,
-      error: error instanceof Error ? error.message : 'Erro GA4',
+      check: {
+        ok: false,
+        error: error instanceof Error ? error.message : 'Erro GA4',
+      },
     };
   }
 }
 
-async function testGscConnection(siteUrl: string): Promise<GoogleServiceCheck> {
+async function testGscConnection(
+  siteUrl: string,
+  serviceAccountEmail: string | null
+): Promise<{ ok: boolean; check: GoogleServiceCheck; availableSites?: string[]; setupHint?: string }> {
   try {
     const token = await getGoogleAccessToken([GSC_SCOPE]);
+    const availableSites = await listGscSites(token);
     const encodedSite = encodeURIComponent(siteUrl);
 
     const response = await fetch(
@@ -227,19 +299,39 @@ async function testGscConnection(siteUrl: string): Promise<GoogleServiceCheck> {
 
     const body = await response.text();
     if (!response.ok) {
+      const is403 = response.status === 403;
+      const sitesHint =
+        availableSites.length > 0
+          ? `Sites acessíveis por esta conta: ${availableSites.join(', ')}`
+          : 'Nenhum site GSC acessível — adicione a service account em search.google.com/search-console';
+
       return {
         ok: false,
-        statusCode: response.status,
-        error: `GSC API erro ${response.status}`,
-        detail: body.slice(0, 400),
+        check: {
+          ok: false,
+          statusCode: response.status,
+          error: is403
+            ? `GSC: sem permissão para ${siteUrl}`
+            : `GSC API erro ${response.status}`,
+          detail: body.slice(0, 400),
+        },
+        availableSites,
+        setupHint: permissionHint('gsc', serviceAccountEmail, sitesHint),
       };
     }
 
-    return { ok: true, statusCode: response.status, detail: 'Ligação GSC OK' };
+    return {
+      ok: true,
+      check: { ok: true, statusCode: response.status, detail: 'Ligação GSC OK' },
+      availableSites,
+    };
   } catch (error) {
     return {
       ok: false,
-      error: error instanceof Error ? error.message : 'Erro GSC',
+      check: {
+        ok: false,
+        error: error instanceof Error ? error.message : 'Erro GSC',
+      },
     };
   }
 }
