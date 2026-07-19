@@ -193,7 +193,7 @@ export default function CreateArticlePage() {
             <p className="text-xs text-gray-500 mt-1">
               {topic.trim()
                 ? 'Com tema fixo: 1 artigo por país'
-                : 'Cada artigo usa um tópico Google diferente (máx. 5)'}
+                : 'Cada artigo usa um nicho diferente: fiscalité, marketing, IA, ventes, gestion… (máx. 5)'}
             </p>
           </div>
           <div className="flex items-end">
@@ -213,7 +213,7 @@ export default function CreateArticlePage() {
             className="w-full px-3 py-2 border rounded-lg dark:bg-gray-950 dark:border-gray-700"
           />
           <p className="text-xs text-gray-500 mt-1">
-            Vazio = Google Suggest + tendências, excluindo tópicos publicados nos últimos 14 dias
+            Vazio = Google Suggest + tendências por nicho (fiscalité, marketing, IA, e-commerce…), excluindo duplicados recentes
           </p>
         </div>
 

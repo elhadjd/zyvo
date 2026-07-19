@@ -43,14 +43,15 @@ export function buildMarketBlogPostMetadata(
     ogType: 'article',
   });
 
-  const { path } = stripMarketPrefix(canonicalPath);
-
   return {
     ...base,
     title: { absolute: absoluteTitle },
     alternates: {
       canonical: canonicalUrl,
-      languages: getMarketAlternates(path),
+      languages: {
+        [market.hreflang]: canonicalUrl,
+        'x-default': canonicalUrl,
+      },
     },
     openGraph: {
       ...base.openGraph,

@@ -1,5 +1,5 @@
 import { runFullPipeline, type PipelineResult } from '../agents/orchestrator';
-import { resolveFreshTopics } from '../research-engine/topic-resolver';
+import { resolveFreshTopics, resolveDiverseTopics } from '../research-engine/topic-resolver';
 import { getEnabledCountryCodes, isCountryEnabled } from '../countries/registry';
 import { logAiEvent } from '../logger';
 import { SITE_AI_COUNTRIES } from '../country-labels';
@@ -8,6 +8,7 @@ import type { AgentCode, SupportedCountry } from '../types';
 export interface BatchPipelineJob {
   countryCode: SupportedCountry;
   topic: string;
+  targetCategory?: string;
 }
 
 export interface BatchPipelineResult {
@@ -86,6 +87,20 @@ async function buildJobs(options: BatchPipelineOptions): Promise<BatchPipelineJo
       continue;
     }
 
+    const useDiverse = articlesPerCountry > 1;
+
+    if (useDiverse) {
+      const diverse = await resolveDiverseTopics(countryCode, articlesPerCountry, { recentDays });
+      for (const item of diverse) {
+        const key = item.topic.toLowerCase();
+        const used = usedTopics.get(countryCode)!;
+        if (used.has(key)) continue;
+        used.add(key);
+        jobs.push({ countryCode, topic: item.topic, targetCategory: item.category });
+      }
+      continue;
+    }
+
     const topics = await resolveFreshTopics(countryCode, articlesPerCountry, { recentDays });
 
     for (const topic of topics) {
@@ -118,6 +133,7 @@ export async function runBatchPipeline(options: BatchPipelineOptions = {}): Prom
         saveAsDraft: !publishNow,
         publishNow,
         skipTopicDiscovery: true,
+        targetCategory: job.targetCategory,
       });
 
       const success = !Object.values(result.stages).some((s) => s && !s.success);

@@ -1,5 +1,5 @@
 import { runFullPipeline, type PipelineResult } from '../agents/orchestrator';
-import { resolveFreshTopics } from '../research-engine/topic-resolver';
+import { resolveFreshTopics, resolveDiverseTopics } from '../research-engine/topic-resolver';
 import { getEnabledCountryCodes, isCountryEnabled } from '../countries/registry';
 import { logAiEvent } from '../logger';
 import type { AgentCode, SupportedCountry } from '../types';
@@ -59,15 +59,26 @@ export async function runMultiCountryPipeline(
     metadata: { countries, articlesPerCountry },
   });
 
-  type Job = { countryCode: SupportedCountry; topic: string };
+  type Job = { countryCode: SupportedCountry; topic: string; targetCategory?: string };
   const jobs: Job[] = [];
 
   for (const countryCode of countries) {
-    const topics = await resolveFreshTopics(countryCode, articlesPerCountry, {
-      recentDays: options.recentDays ?? 14,
-    });
-    for (const topic of topics) {
-      jobs.push({ countryCode, topic });
+    const useDiverse = articlesPerCountry > 1;
+
+    if (useDiverse) {
+      const diverse = await resolveDiverseTopics(countryCode, articlesPerCountry, {
+        recentDays: options.recentDays ?? 14,
+      });
+      for (const item of diverse) {
+        jobs.push({ countryCode, topic: item.topic, targetCategory: item.category });
+      }
+    } else {
+      const topics = await resolveFreshTopics(countryCode, articlesPerCountry, {
+        recentDays: options.recentDays ?? 14,
+      });
+      for (const topic of topics) {
+        jobs.push({ countryCode, topic });
+      }
     }
   }
 
@@ -80,6 +91,7 @@ export async function runMultiCountryPipeline(
         saveAsDraft: options.publishNow ? false : (options.saveAsDraft ?? true),
         publishNow: options.publishNow,
         skipTopicDiscovery: true,
+        targetCategory: job.targetCategory,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Erro desconhecido';

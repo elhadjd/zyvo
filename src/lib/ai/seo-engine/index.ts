@@ -20,6 +20,7 @@ import {
   getSitemapEntries,
   buildSitemapXml,
   buildSitemapIndexXml,
+  buildFallbackArticleSitemapEntries,
 } from './sitemap-manager';
 import {
   generateProgrammaticPage,
@@ -40,6 +41,7 @@ export {
   getSitemapEntries,
   buildSitemapXml,
   buildSitemapIndexXml,
+  buildFallbackArticleSitemapEntries,
   getSeoDashboardStats,
   getRecentFreshnessChecks,
   createTopicCluster,

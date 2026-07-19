@@ -4,6 +4,9 @@ import { eq } from 'drizzle-orm';
 import { requireAdminAuth } from '@/lib/ai/auth';
 import { getDb } from '@/lib/ai/db';
 import { contentArticles, seoMetadata, factChecks } from '@/lib/ai/db/schema';
+import { syncArticleSitemap } from '@/lib/ai/seo-engine/sitemap-manager';
+import { notifySearchConsoleOfArticle } from '@/lib/ai/seo-engine/google-publish-notify';
+import type { SupportedCountry } from '@/lib/ai/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -82,6 +85,24 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
     db.update(contentArticles).set(updates).where(eq(contentArticles.id, Number(id))).run();
 
+    const updated = db
+      .select()
+      .from(contentArticles)
+      .where(eq(contentArticles.id, Number(id)))
+      .get();
+
+    if (body.status === 'published' && updated) {
+      try {
+        syncArticleSitemap(updated.countryCode as SupportedCountry);
+        await notifySearchConsoleOfArticle(
+          updated.countryCode as SupportedCountry,
+          updated.slug
+        );
+      } catch {
+        // indexing is best-effort
+      }
+    }
+
     if (article.status === 'published' || body.status === 'published') {
       try {
         revalidatePath(`/${article.countryCode}/blog`);
@@ -90,12 +111,6 @@ export async function PATCH(request: Request, { params }: RouteParams) {
         // ignore outside request context
       }
     }
-
-    const updated = db
-      .select()
-      .from(contentArticles)
-      .where(eq(contentArticles.id, Number(id)))
-      .get();
 
     return NextResponse.json(updated);
   } catch {

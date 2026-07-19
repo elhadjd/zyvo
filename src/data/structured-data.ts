@@ -306,24 +306,53 @@ export function getMarketServiceSchema(
 
 export function getMarketArticleSchema(
   market: MarketConfig,
-  post: { title: string; description: string; author: string; date: string; slug: string }
+  post: {
+    title: string;
+    metaTitle?: string;
+    description: string;
+    author: string;
+    date: string;
+    updatedAt?: string;
+    slug: string;
+    category?: string;
+    keywords?: string;
+  }
 ) {
   const articleUrl = `${SITE_URL}${market.routePrefix}/blog/${post.slug}`;
+  const headline = post.metaTitle?.replace(/\s*\|.*$/, '').trim() || post.title;
   return {
     '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: post.title,
+    '@type': 'BlogPosting',
+    headline,
+    name: post.title,
     description: post.description,
     author: { '@type': 'Person', name: post.author },
     datePublished: post.date,
+    dateModified: post.updatedAt?.split('T')[0] ?? post.date,
     inLanguage: market.language,
+    articleSection: post.category,
+    keywords: post.keywords,
+    image: {
+      '@type': 'ImageObject',
+      url: `${SITE_URL}/og-image.png`,
+      width: 1200,
+      height: 630,
+    },
     publisher: {
       '@type': 'Organization',
       name: 'ZYVO',
       logo: { '@type': 'ImageObject', url: `${SITE_URL}/favicon.svg` },
     },
-    mainEntityOfPage: articleUrl,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': articleUrl,
+    },
     url: articleUrl,
+    isPartOf: {
+      '@type': 'Blog',
+      name: `Blog ZYVO ${market.countryNameLocal}`,
+      url: `${SITE_URL}${market.routePrefix}/blog`,
+    },
   };
 }
 

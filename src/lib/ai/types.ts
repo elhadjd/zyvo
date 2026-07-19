@@ -70,7 +70,7 @@ export interface CountryAiSettings {
   enabled?: boolean;
   categories: string[];
   topics: string[];
-  sources: { name: string; url: string; type: 'government' | 'institution' | 'business' | 'news' }[];
+  sources: { name: string; url: string; type: 'government' | 'institution' | 'business' | 'news' | 'education'; category?: string }[];
 }
 
 export interface DeepSeekUsage {
@@ -88,6 +88,9 @@ export interface AgentContext {
   saveAsDraft?: boolean;
   /** When true, publisher may publish pending_review articles from the admin UI */
   publishNow?: boolean;
+  targetCategory?: string;
+  /** Content niche for diverse batch publishing */
+  targetNiche?: string;
 }
 
 export interface ResearchResult {

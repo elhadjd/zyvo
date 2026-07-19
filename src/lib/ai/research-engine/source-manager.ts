@@ -64,7 +64,9 @@ export function seedManagedSources(): void {
 
   for (const config of COUNTRY_AI_CONFIGS) {
     for (const source of config.sources) {
-      const type = (source.type === 'institution' ? 'institution' : source.type) as SourceType;
+      const type = (['institution', 'education', 'news'].includes(source.type)
+        ? source.type
+        : source.type) as SourceType;
 
       const byName = db
         .select()
@@ -98,7 +100,7 @@ export function seedManagedSources(): void {
             name: source.name,
             url: source.url,
             type,
-            category: 'Geral',
+            category: source.category ?? 'Geral',
             trustLevel: TRUST_LEVELS[type] ?? 70,
             status: 'active',
             lastChecked: null,
