@@ -247,7 +247,7 @@ export async function fetchGoogleTrendingQueries(countryCode: SupportedCountry):
     'topic_resolver',
     'google_suggest',
     `${suggestions.size} sugestões Google recolhidas`,
-    { count: suggestions.size }
+    { metadata: { count: suggestions.size } }
   );
 
   return [...suggestions];
@@ -312,7 +312,7 @@ export async function resolveFreshTopics(
     'topic_resolver',
     'resolve_start',
     `A resolver ${count} tópico(s) frescos`,
-    { count, recentDays }
+    { metadata: { count, recentDays } }
   );
 
   const candidates = await collectTopicCandidates(countryCode);
@@ -341,7 +341,7 @@ export async function resolveFreshTopics(
     'topic_resolver',
     'resolve_complete',
     `${fresh.length} tópico(s) seleccionados`,
-    { topics: fresh }
+    { metadata: { topics: fresh } }
   );
 
   return fresh.slice(0, count);

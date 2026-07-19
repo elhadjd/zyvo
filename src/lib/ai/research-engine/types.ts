@@ -1,3 +1,4 @@
+export type { SupportedCountry } from '../types';
 import type { SupportedCountry } from '../types';
 
 export type SourceType = 'official' | 'government' | 'education' | 'news' | 'business' | 'institution';

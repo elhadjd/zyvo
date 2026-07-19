@@ -195,8 +195,7 @@ export async function testManagedSource(id: number): Promise<{ ok: boolean; stat
       .run();
 
     logResearchEvent(source.countryCode, 'source_manager', 'test_source', `Fonte testada: ${source.name} (${response.status})`, {
-      sourceId: id,
-      statusCode: response.status,
+      metadata: { sourceId: id, statusCode: response.status },
     });
 
     return { ok, statusCode: response.status };

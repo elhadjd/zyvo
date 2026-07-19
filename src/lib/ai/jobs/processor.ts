@@ -70,7 +70,6 @@ export async function processAllPendingJobs(maxJobs = 10): Promise<number> {
 }
 
 import { enqueueJob } from './queue';
-import type { SupportedCountry } from '../types';
 
 export function enqueueTestPipeline(countryCode: SupportedCountry, topic: string): number[] {
   const payload = { topic, saveAsDraft: true };

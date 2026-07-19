@@ -27,7 +27,8 @@ import { PARTNERSHIP_PROGRAM_SLUGS } from '@/data/partnerships/programs';
 export interface MarketPageDefinition {
   slug: string[];
   pageKey: string;
-  component: ComponentType;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  component: ComponentType<any>;
 }
 
 const GN_PAGES: MarketPageDefinition[] = [

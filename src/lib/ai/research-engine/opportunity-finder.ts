@@ -101,7 +101,7 @@ export async function findContentOpportunities(
   opportunities.sort((a, b) => b.totalScore - a.totalScore);
 
   logResearchEvent(countryCode, 'opportunity_finder', 'complete', `${opportunities.length} oportunidades encontradas`, {
-    topScore: opportunities[0]?.totalScore ?? 0,
+    metadata: { topScore: opportunities[0]?.totalScore ?? 0 },
   });
 
   return opportunities;

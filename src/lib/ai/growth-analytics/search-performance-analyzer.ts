@@ -1,4 +1,4 @@
-import type { SupportedCountry } from '../../types';
+import type { SupportedCountry } from '../types';
 import {
   getSearchConsoleMetrics,
   getTopKeywords,

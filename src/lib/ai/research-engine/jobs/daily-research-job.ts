@@ -15,13 +15,15 @@ export async function runDailyResearchJob(countryCode: SupportedCountry): Promis
   if (topTopic) {
     enqueueJob('generate_article', countryCode, { topic: topTopic, saveAsDraft: true });
     logResearchEvent(countryCode, 'daily_research_job', 'enqueue_writer', `Tema enviado ao Writer: ${topTopic}`, {
-      score: result.topOpportunities[0]?.totalScore,
+      metadata: { score: result.topOpportunities[0]?.totalScore },
     });
   }
 
   logResearchEvent(countryCode, 'daily_research_job', 'complete', 'DailyResearchJob concluído', {
-    keywords: result.keywordsDiscovered,
-    opportunities: result.opportunitiesFound,
+    metadata: {
+      keywords: result.keywordsDiscovered,
+      opportunities: result.opportunitiesFound,
+    },
   });
 
   return result;

@@ -26,6 +26,7 @@ async function analyzeFreshness(
     content: string[];
     category: string;
     updatedAt: string;
+    publishedAt: string | null;
   },
   countryCode: SupportedCountry
 ): Promise<FreshnessCheckResult> {

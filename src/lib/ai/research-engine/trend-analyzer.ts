@@ -43,7 +43,7 @@ Réponds en JSON:
   const analysis = deepseekService.parseJson<TrendAnalysis>(response.content);
 
   logResearchEvent(countryCode, 'trend_analyzer', 'complete', `${analysis.trends.length} tendências identificadas`, {
-    emerging: analysis.emergingTopics.length,
+    metadata: { emerging: analysis.emergingTopics.length },
   });
 
   return analysis;

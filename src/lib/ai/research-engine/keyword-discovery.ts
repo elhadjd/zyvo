@@ -101,8 +101,7 @@ Réponds en JSON:
   }
 
   logResearchEvent(countryCode, 'keyword_discovery', 'complete', `${saved.length} keywords descobertas`, {
-    count: saved.length,
-    painPoints: result.painPoints.length,
+    metadata: { count: saved.length, painPoints: result.painPoints.length },
   });
 
   return saved;
