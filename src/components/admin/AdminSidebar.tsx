@@ -26,10 +26,11 @@ const NAV_ITEMS = [
   { href: '/admin/ai-engine/agents', label: 'Agentes', icon: Bot },
   { href: '/admin/ai-engine/tasks', label: 'Tarefas', icon: ListTodo },
   { href: '/admin/ai-engine/knowledge', label: 'Conhecimento', icon: BookOpen },
+  { href: '/admin/ai-engine/create', label: 'Criar Artigo', icon: FileText },
   { href: '/admin/ai-engine/articles', label: 'Artigos', icon: FileText },
-  { href: '/admin/ai-engine/sources', label: 'Fontes', icon: Search },
+  { href: '/admin/research-engine/sources', label: 'Fontes', icon: Search },
   { href: '/admin/ai-engine/logs', label: 'Logs', icon: ScrollText },
-  { href: '/admin/ai-engine/test', label: 'Teste GN', icon: FlaskConical },
+  { href: '/admin/ai-engine/test', label: 'Teste pipeline', icon: FlaskConical },
   { href: '/admin/ai-engine/settings', label: 'Configurações', icon: Settings },
 ];
 

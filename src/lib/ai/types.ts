@@ -86,6 +86,8 @@ export interface AgentContext {
   topic?: string;
   articleId?: number;
   saveAsDraft?: boolean;
+  /** When true, publisher may publish pending_review articles from the admin UI */
+  publishNow?: boolean;
 }
 
 export interface ResearchResult {
