@@ -6,6 +6,7 @@ import { createTask, completeTask, failTask, isAgentEnabled } from './task-helpe
 import { getDb } from '../db';
 import { contentArticles, countryAiConfig } from '../db/schema';
 import { syncAllSitemaps } from '../seo-engine/sitemap-manager';
+import { notifySearchConsoleOfArticle } from '../seo-engine/google-publish-notify';
 import type { AgentContext } from '../types';
 
 function now(): string {
@@ -69,6 +70,7 @@ export async function runPublisherAgent(ctx: AgentContext): Promise<number | nul
     }
 
     const timestamp = now();
+    let googleNotify: Awaited<ReturnType<typeof notifySearchConsoleOfArticle>> | null = null;
 
     if (!ctx.dryRun) {
       db.update(contentArticles)
@@ -87,17 +89,33 @@ export async function runPublisherAgent(ctx: AgentContext): Promise<number | nul
       } catch {
         // revalidatePath may fail outside request context
       }
+
+      try {
+        googleNotify = await notifySearchConsoleOfArticle(ctx.countryCode, article.slug);
+      } catch (notifyError) {
+        const message = notifyError instanceof Error ? notifyError.message : 'Erro notificação Google';
+        logAiEvent('publisher', `Search Console notify falhou: ${message}`, {
+          countryCode: ctx.countryCode,
+          level: 'warn',
+          metadata: { slug: article.slug },
+        });
+      }
     }
 
     completeTask(taskId, 'publisher', {
       published: true,
       articleId: article.id,
       slug: article.slug,
+      googleNotify: googleNotify ?? undefined,
     });
 
     logAiEvent('publisher', `Artigo publicado: ${article.title}`, {
       countryCode: ctx.countryCode,
-      metadata: { slug: article.slug },
+      metadata: {
+        slug: article.slug,
+        googleIndexing: googleNotify?.indexing.ok ?? false,
+        gscSitemap: googleNotify?.gscSitemap.ok ?? false,
+      },
     });
 
     return article.id;
