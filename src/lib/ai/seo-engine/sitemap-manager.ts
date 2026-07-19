@@ -10,6 +10,7 @@ import type { SupportedCountry } from '../types';
 import { getMarketBlogPosts } from '@/data/markets/blog';
 import type { MarketCode } from '@/lib/markets/types';
 import { getAllPublishedDbSlugs } from '../blog-repository';
+import { getAllLocalErpParams } from '@/data/markets/local-erp-pages';
 import type { SitemapType } from './types';
 
 function now(): string {
@@ -101,6 +102,18 @@ export function syncProgrammaticSitemap(countryCode: SupportedCountry): number {
   return pages.length;
 }
 
+export function syncLocalErpSitemap(countryCode: SupportedCountry): number {
+  if (!['gn', 'sn', 'ci'].includes(countryCode)) return 0;
+
+  const params = getAllLocalErpParams(countryCode as MarketCode);
+  for (const { industry, city } of params) {
+    const url = `${SITE_URL}/${countryCode}/erp/${industry}/${city}`;
+    upsertSitemapEntry(url, 'local_erp', countryCode, 0.82, 'monthly');
+  }
+
+  return params.length;
+}
+
 export function syncCountrySitemap(): number {
   const countries: SupportedCountry[] = ['gn', 'sn', 'ci', 'ao', 'mz'];
   const paths = ['', '/blog', '/pricing', '/features', '/contact', '/faq'];
@@ -116,18 +129,25 @@ export function syncCountrySitemap(): number {
   return count;
 }
 
-export function syncAllSitemaps(): { articles: number; programmatic: number; countries: number } {
+export function syncAllSitemaps(): {
+  articles: number;
+  programmatic: number;
+  localErp: number;
+  countries: number;
+} {
   const countries: SupportedCountry[] = ['gn', 'sn', 'ci', 'ao', 'mz'];
   let articles = 0;
   let programmatic = 0;
+  let localErp = 0;
 
   for (const country of countries) {
     articles += syncArticleSitemap(country);
     programmatic += syncProgrammaticSitemap(country);
+    localErp += syncLocalErpSitemap(country);
   }
 
   const countriesCount = syncCountrySitemap();
-  return { articles, programmatic, countries: countriesCount };
+  return { articles, programmatic, localErp, countries: countriesCount };
 }
 
 export function getSitemapEntries(type?: SitemapType): SitemapUrl[] {

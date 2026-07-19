@@ -6,6 +6,8 @@ import { isValidMarketCode, getMarket } from '@/lib/markets/registry';
 import { resolveMarketPage, getAllMarketStaticParams } from '@/lib/markets/pages';
 import { buildMarketMetadata, buildMarketBreadcrumbs, buildMarketBlogPostMetadata } from '@/lib/markets/metadata';
 import { getMarketPageSeo } from '@/lib/markets/seo';
+import { isLocalErpSlug } from '@/lib/markets/local-erp-seo';
+import { buildLocalErpPage } from '@/data/markets/local-erp-pages';
 import {
   getMergedMarketBlogPosts,
   getMergedMarketBlogPostBySlug,
@@ -113,6 +115,20 @@ function buildPageSchemas(marketCode: MarketCode, slug: string[], market: Return
         url: `${SITE_URL}${pageSeo.path}`,
       })
     );
+  } else if (isLocalErpSlug(slug)) {
+    const localPage = buildLocalErpPage(marketCode, slug[1], slug[2]);
+    if (localPage) {
+      schemas.push(
+        getMarketServiceSchema(market, {
+          name: localPage.headline,
+          description: localPage.metaDescription,
+          url: `${SITE_URL}/${marketCode}/erp/${slug[1]}/${slug[2]}`,
+        })
+      );
+      if (localPage.faq.length > 0) {
+        schemas.push(getFAQSchema(localPage.faq));
+      }
+    }
   }
 
   if (breadcrumbs.length > 1) {
@@ -141,6 +157,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
     postSlug?: string;
     countryCode?: string;
     industry?: string;
+    city?: string;
     posts?: ReturnType<typeof getMergedMarketBlogPosts>;
     post?: ReturnType<typeof getMergedMarketBlogPostBySlug>;
   }>;
@@ -151,6 +168,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
     postSlug: resolved.params.post,
     countryCode: country,
     industry: resolved.params.industry,
+    city: resolved.params.city,
   };
 
   if (slug[0] === 'blog' && slug.length === 1) {

@@ -6,10 +6,15 @@ import type { GnSeoPageMeta } from '@/data/markets/gn-seo';
 import { GN_HOME_SEO_CONTENT } from '@/data/markets/gn-seo';
 import { SN_HOME_SEO_CONTENT } from '@/data/markets/sn-seo';
 import { CI_HOME_SEO_CONTENT } from '@/data/markets/ci-seo';
+import { getLocalErpPageSeo, isLocalErpSlug } from '@/lib/markets/local-erp-seo';
 
 export type MarketSeoPageMeta = GnSeoPageMeta;
 
 export function getMarketPageSeo(marketCode: MarketCode, slug: string[]): MarketSeoPageMeta | null {
+  if (isLocalErpSlug(slug)) {
+    const localSeo = getLocalErpPageSeo(marketCode, slug[1], slug[2]);
+    if (localSeo) return localSeo;
+  }
   if (marketCode === 'gn') return getGnPageSeo(slug);
   if (marketCode === 'sn') return getSnPageSeo(slug);
   if (marketCode === 'ci') return getCiPageSeo(slug);

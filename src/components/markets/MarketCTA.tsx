@@ -1,8 +1,9 @@
 'use client';
 
-import { ArrowRight, Mail, Phone, MapPin, MessageCircle } from 'lucide-react';
+import { ArrowRight, Mail, Phone, MapPin } from 'lucide-react';
 import { useMarket } from '@/contexts/market-context';
 import LocalizedLink from '@/components/markets/LocalizedLink';
+import WhatsAppButton from '@/components/markets/WhatsAppButton';
 
 export default function MarketCTA() {
   const { market } = useMarket();
@@ -34,6 +35,7 @@ export default function MarketCTA() {
               >
                 Parler à un conseiller
               </LocalizedLink>
+              <WhatsAppButton placement="cta_section" variant="onPrimary" />
             </div>
           </div>
 
@@ -54,15 +56,7 @@ export default function MarketCTA() {
               {contact.phone}
             </a>
             {contact.whatsapp && (
-              <a
-                href={`https://wa.me/${contact.whatsapp.replace(/\D/g, '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 text-white/90 hover:text-white transition-colors"
-              >
-                <MessageCircle className="w-5 h-5" aria-hidden="true" />
-                WhatsApp
-              </a>
+              <WhatsAppButton placement="cta_contact_card" label="WhatsApp" variant="inline" />
             )}
             <div className="flex items-start gap-3 text-white/90">
               <MapPin className="w-5 h-5 mt-0.5 shrink-0" aria-hidden="true" />

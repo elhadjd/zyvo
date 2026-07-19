@@ -228,6 +228,15 @@ export function buildMarketBreadcrumbs(
     return crumbs;
   }
 
+  if (slug[0] === 'erp' && slug.length === 3) {
+    crumbs.push({ name: 'ERP', url: `${base}/erp/${slug[1]}` });
+    crumbs.push({
+      name: pageSeo?.breadcrumb ?? slug[2],
+      url: `${base}/erp/${slug[1]}/${slug[2]}`,
+    });
+    return crumbs;
+  }
+
   if (pageSeo?.breadcrumb) {
     crumbs.push({ name: pageSeo.breadcrumb, url: `${SITE_URL}${pageSeo.path}` });
   }

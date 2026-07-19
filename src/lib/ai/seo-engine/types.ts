@@ -2,7 +2,7 @@ import type { SupportedCountry } from '../types';
 
 export type SearchIntent = 'informational' | 'navigational' | 'transactional' | 'commercial';
 
-export type SitemapType = 'index' | 'articles' | 'countries' | 'categories' | 'programmatic';
+export type SitemapType = 'index' | 'articles' | 'countries' | 'categories' | 'programmatic' | 'local_erp';
 
 export interface SeoKeywordAnalysis {
   primaryKeyword: string;

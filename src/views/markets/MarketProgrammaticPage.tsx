@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import WhatsAppButton from '@/components/markets/WhatsAppButton';
 import type { ProgrammaticPageRow } from '@/lib/ai/db/schema';
 
 interface Props {
@@ -42,14 +43,17 @@ export default function MarketProgrammaticPage({ page, countryCode }: Props) {
         </section>
       )}
 
-      <div className="bg-brand-primary text-white rounded-xl p-8 text-center">
-        <p className="text-lg mb-4">{page.cta}</p>
-        <Link
-          href={`/${countryCode}/demo`}
-          className="inline-block px-6 py-3 bg-white text-brand-primary font-semibold rounded-lg hover:bg-gray-100"
-        >
-          Demander une démo
-        </Link>
+      <div className="bg-brand-primary text-white rounded-xl p-8 text-center space-y-4">
+        <p className="text-lg">{page.cta}</p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Link
+            href={`/${countryCode}/demo`}
+            className="inline-block px-6 py-3 bg-white text-brand-primary font-semibold rounded-lg hover:bg-gray-100"
+          >
+            Demander une démo
+          </Link>
+          <WhatsAppButton variant="onPrimary" placement="programmatic_erp_cta" label="WhatsApp" />
+        </div>
       </div>
     </div>
   );

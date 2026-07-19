@@ -31,6 +31,8 @@ import { getEnabledCountryCodes, getCountryConfig } from '../src/lib/ai/countrie
 import { isDatabaseAvailable } from '../src/lib/ai/db';
 import { PROGRAMMATIC_INDUSTRIES } from '../src/lib/ai/seo-engine/types';
 import { MARKET_SOLUTION_SLUGS } from '../src/data/markets/market-modules';
+import { getAllLocalErpParams } from '../src/data/markets/local-erp-pages';
+import { getLocalErpPageSeo } from '../src/lib/markets/local-erp-seo';
 import type { MarketCode } from '../src/lib/markets/types';
 
 const ACTIVE_MARKETS: MarketCode[] = ['gn', 'sn', 'ci'];
@@ -108,6 +110,22 @@ function runStructuralTests() {
 
   assert('Database disponível', isDatabaseAvailable());
   assert('Programmatic industries', PROGRAMMATIC_INDUSTRIES.length >= 6, `${PROGRAMMATIC_INDUSTRIES.length} indústrias`);
+
+  for (const code of ACTIVE_MARKETS) {
+    const localParams = getAllLocalErpParams(code);
+    assert(
+      `${code.toUpperCase()} local ERP pages`,
+      localParams.length === PROGRAMMATIC_INDUSTRIES.length * 5,
+      `${localParams.length} páginas`
+    );
+
+    for (const { industry, city } of localParams.slice(0, 3)) {
+      const seo = getLocalErpPageSeo(code, industry, city);
+      assert(`Local ERP SEO ${code}/${industry}/${city}`, !!seo?.title && !!seo.description);
+      const meta = buildMarketMetadata(code, ['erp', industry, city], 'erp');
+      assert(`Local ERP metadata ${code}/${industry}/${city}`, !!meta.title && !!meta.description);
+    }
+  }
 }
 
 // ─── HTTP tests ─────────────────────────────────────────────────────────────
@@ -176,6 +194,14 @@ async function runHttpTests() {
       assert(`GET ${path} → 200`, status === 200, `status ${status}`);
     }
 
+    const localSamples = getAllLocalErpParams(code).slice(0, 3);
+    for (const { industry, city } of localSamples) {
+      const path = `${prefix}/erp/${industry}/${city}`;
+      const { status, body } = await fetchStatus(path);
+      assert(`GET ${path} → 200`, status === 200, `status ${status}`);
+      assert(`Local ERP ${code}/${industry}/${city} tem <h1>`, body.includes('<h1'));
+    }
+
     const rss = await fetchStatus(`/api/markets/${code}/blog/rss`);
     assert(`GET /api/markets/${code}/blog/rss → 200`, rss.status === 200);
   }
@@ -188,6 +214,7 @@ async function runHttpTests() {
   assert('Sitemap referencia GN', sitemap.body.includes('/gn'));
   assert('Sitemap referencia SN', sitemap.body.includes('/sn'));
   assert('Sitemap referencia CI', sitemap.body.includes('/ci'));
+  assert('Sitemap inclui local ERP', sitemap.body.includes('/erp/restaurants/conakry') || sitemap.body.includes('/erp/restaurants/dakar') || sitemap.body.includes('/erp/restaurants/abidjan'));
 
   const sitemapCountries = await fetchStatus('/sitemap-countries.xml');
   assert('GET /sitemap-countries.xml → 200', sitemapCountries.status === 200);

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useMarket } from '@/contexts/market-context';
 import LocalizedLink from '@/components/markets/LocalizedLink';
+import WhatsAppButton from '@/components/markets/WhatsAppButton';
 import { useMarketPageSeo } from '@/components/markets/MarketBreadcrumbs';
 
 const featureIcons = [Smartphone, Wifi, Building2, Receipt, Users, BarChart3];
@@ -58,6 +59,7 @@ export default function MarketHero() {
                 <Calendar className="mr-2 w-5 h-5" aria-hidden="true" />
                 {hero.secondaryCta}
               </LocalizedLink>
+              <WhatsAppButton placement="hero" variant="outline" className="min-h-[48px]" />
             </div>
 
             <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600 dark:text-gray-400 mb-8">
