@@ -1,11 +1,16 @@
 'use client';
 
-import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
 import { ArrowRight, Shield, Mail, Check, ChevronRight, Building } from 'lucide-react';
 import { submitSignup } from '@/lib/api-client';
+import { useMarket } from '@/contexts/market-context';
+import LocalizedLink from '@/components/markets/LocalizedLink';
+import { getSignupFormCopy } from '@/data/markets/form-locale';
 
 const CompanySignupFlow = () => {
+    const { market, marketCode } = useMarket();
+    const copy = getSignupFormCopy(marketCode);
+    const { signup } = market;
     const [step, setStep] = useState('email'); // email, details, success
     const [email, setEmail] = useState('');
     const [link, setLink] = useState('');
@@ -17,8 +22,8 @@ const CompanySignupFlow = () => {
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const validateEmail = () => {
-        if (!email) return 'Email is required';
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Please enter a valid email';
+        if (!email) return copy.emailRequired;
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return copy.emailInvalid;
         return '';
     };
 
@@ -41,8 +46,8 @@ const CompanySignupFlow = () => {
             } else {
                 setStep('details');
             }
-        } catch {
-            setErrors({ form: 'Something went wrong. Please try again.' });
+        } catch (error) {
+            setErrors({ form: copy.formError });
         } finally {
             setLoading(false);
         }
@@ -52,7 +57,7 @@ const CompanySignupFlow = () => {
         e?.preventDefault();
 
         if (!companyData.name) {
-            setErrors({ name: 'Company name is required' });
+            setErrors({ name: copy.companyRequired });
             return;
         }
 
@@ -61,20 +66,12 @@ const CompanySignupFlow = () => {
             const data = {
                 ...companyData,
                 email: email,
-                currency: {
-                    code: 'USD',
-                    currency: 'US Dollar',
-                    digits: 2,
-                    number: 840
-                },
+                currency: signup.currency,
                 phone: '999999999',
                 type_system: 'online',
-                language: 'en',
-                country: {
-                    id: 230,
-                    name: 'United States',
-                    code: 'us'
-                }
+                language: signup.language,
+                country: signup.country,
+                market: marketCode,
             };
 
             const response = await submitSignup(data);
@@ -89,7 +86,7 @@ const CompanySignupFlow = () => {
                 response?: { data?: { errors?: Record<string, string[]>; message?: string } };
             };
 
-            let errorMessage = 'Registration failed. Please try again.';
+            let errorMessage = copy.formError;
 
             if (apiError?.response?.data) {
                 const responseData = apiError.response.data;
@@ -169,10 +166,10 @@ const CompanySignupFlow = () => {
                             <Building className="w-6 h-6 text-white" />
                         </div>
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                            Start with ZYVO
+                            {copy.title}
                         </h2>
-                            <p className="text-gray-600 dark:text-gray-400">
-                            7-day free trial · No credit card required
+                        <p className="text-gray-600 dark:text-gray-400">
+                            {copy.subtitle}
                         </p>
                     </div>
 
@@ -182,7 +179,7 @@ const CompanySignupFlow = () => {
                             <form onSubmit={handleEmailSubmit}>
                                 <div className="mb-6">
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Work Email
+                                        {copy.emailLabel}
                                     </label>
                                     <div className="relative">
                                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -193,7 +190,7 @@ const CompanySignupFlow = () => {
                                                 setEmail(e.target.value);
                                                 setErrors({});
                                             }}
-                                            placeholder="name@company.com"
+                                            placeholder={copy.emailPlaceholder}
                                             className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent"
                                             autoFocus
                                         />
@@ -211,21 +208,21 @@ const CompanySignupFlow = () => {
                                     {loading ? (
                                         <div className="flex items-center">
                                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                            Checking...
+                                            {copy.checking}
                                         </div>
                                     ) : (
                                         <>
-                                            Continue with email
+                                            {copy.continueEmail}
                                             <ChevronRight className="ml-2 w-4 h-4" />
                                         </>
                                     )}
                                 </button>
 
                                 <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">
-                                    By continuing, you agree to our{' '}
-                                    <Link href="/terms-of-service" className="text-brand-primary hover:underline">Terms</Link>
-                                    {' '}and{' '}
-                                    <Link href="/privacy-policy" className="text-brand-primary hover:underline">Privacy Policy</Link>
+                                    {copy.termsPrefix}{' '}
+                                    <LocalizedLink href="/terms-of-service" className="text-brand-primary hover:underline">{copy.termsLink}</LocalizedLink>
+                                    {' '}{copy.and}{' '}
+                                    <LocalizedLink href="/privacy-policy" className="text-brand-primary hover:underline">{copy.privacyLink}</LocalizedLink>
                                 </p>
                             </form>
                         </div>
@@ -237,12 +234,12 @@ const CompanySignupFlow = () => {
                             <div className="mb-6">
                                 <div className="flex items-center justify-between mb-4">
                                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                                        Tell us about your company
+                                        {copy.detailsTitle}
                                     </h2>
                                     <span className="text-sm text-gray-500">1/2</span>
                                 </div>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                                    We just need a few details to set up your account.
+                                    {copy.detailsSubtitle}
                                 </p>
                             </div>
 
@@ -250,7 +247,7 @@ const CompanySignupFlow = () => {
                                 <div className="space-y-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                            Company Name
+                                            {copy.companyName}
                                         </label>
                                         <input
                                             type="text"
@@ -259,7 +256,7 @@ const CompanySignupFlow = () => {
                                                 setCompanyData({ ...companyData, name: e.target.value });
                                                 setErrors({});
                                             }}
-                                            placeholder="e.g., Acme Corporation"
+                                            placeholder={copy.companyPlaceholder}
                                             className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent"
                                             autoFocus
                                         />
@@ -270,17 +267,17 @@ const CompanySignupFlow = () => {
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                            Tax ID (EIN) <span className="text-gray-400 font-normal">(optional)</span>
+                                            {copy.taxId} <span className="text-gray-400 font-normal">{copy.optional}</span>
                                         </label>
                                         <input
                                             type="text"
                                             value={companyData.nif}
                                             onChange={(e) => setCompanyData({ ...companyData, nif: e.target.value })}
-                                            placeholder="XX-XXXXXXX"
+                                            placeholder={copy.taxIdPlaceholder}
                                             className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent"
                                         />
                                         <p className="text-xs text-gray-500 mt-1">
-                                            You can add this later. Not required to start your trial.
+                                            {copy.taxIdHint}
                                         </p>
                                     </div>
                                 </div>
@@ -299,11 +296,11 @@ const CompanySignupFlow = () => {
                                     {loading ? (
                                         <div className="flex items-center">
                                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                            Setting up...
+                                            {copy.settingUp}
                                         </div>
                                     ) : (
                                         <>
-                                            Start 7-day free trial
+                                            {copy.startTrial}
                                             <ArrowRight className="ml-2 w-4 h-4" />
                                         </>
                                     )}
@@ -314,7 +311,7 @@ const CompanySignupFlow = () => {
                                     onClick={() => setStep('email')}
                                     className="w-full text-center text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 mt-4"
                                 >
-                                    ← Back
+                                    {copy.back}
                                 </button>
                             </form>
                         </div>
@@ -328,32 +325,26 @@ const CompanySignupFlow = () => {
                             </div>
 
                             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                                You&apos;re in!
+                                {copy.successTitle}
                             </h2>
 
                             <p className="text-gray-600 dark:text-gray-400 mb-6">
-                                We&apos;ve sent a confirmation email to{' '}
+                                {copy.successBody}{' '}
                                 <span className="font-medium text-gray-900 dark:text-white">{email}</span>
                             </p>
 
                             <div className="bg-brand-surface dark:bg-brand-primary/10 rounded-lg p-4 mb-6 text-left">
                                 <h3 className="font-medium text-brand-primary dark:text-brand-accent mb-2 flex items-center">
                                     <Shield className="w-4 h-4 mr-2" />
-                                    What&apos;s next?
+                                    {copy.whatsNext}
                                 </h3>
                                 <ul className="space-y-2 text-sm text-brand-primary dark:text-brand-accent">
-                                    <li className="flex items-start">
-                                        <span className="mr-2">•</span>
-                                        Check your email to verify your account
-                                    </li>
-                                    <li className="flex items-start">
-                                        <span className="mr-2">•</span>
-                                        Complete your company profile (takes 2 minutes)
-                                    </li>
-                                    <li className="flex items-start">
-                                        <span className="mr-2">•</span>
-                                        Start exploring ZYVO with full access
-                                    </li>
+                                    {copy.nextSteps.map((step) => (
+                                        <li key={step} className="flex items-start">
+                                            <span className="mr-2">•</span>
+                                            {step}
+                                        </li>
+                                    ))}
                                 </ul>
                             </div>
 
@@ -362,13 +353,13 @@ const CompanySignupFlow = () => {
                                 href={`https://${link}`}
                                 className="w-full flex items-center justify-center px-6 py-3 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors"
                             >
-                                Go to Dashboard
+                                {copy.goDashboard}
                                 <ArrowRight className="ml-2 w-4 h-4" />
                             </a>
 
                             <p className="text-xs text-gray-500 mt-4">
-                                Didn&apos;t receive the email? Check your spam or{' '}
-                                <button className="text-brand-primary hover:underline">resend</button>
+                                {copy.resend}{' '}
+                                <button type="button" className="text-brand-primary hover:underline">resend</button>
                             </p>
                         </div>
                     )}
@@ -377,15 +368,15 @@ const CompanySignupFlow = () => {
                     <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                         <div className="flex items-center">
                             <Shield className="w-4 h-4 mr-1" />
-                            Encrypted data
+                            {copy.encrypted}
                         </div>
                         <div className="w-px h-4 bg-gray-300 dark:bg-gray-700 hidden sm:block" />
                         <div className="flex items-center">
-                            7-day free trial
+                            {copy.freeTrial}
                         </div>
                         <div className="w-px h-4 bg-gray-300 dark:bg-gray-700 hidden sm:block" />
                         <div className="flex items-center">
-                            No credit card
+                            {copy.noCard}
                         </div>
                     </div>
                 </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useState, type FormEvent } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import {
   ArrowRight,
   CheckCircle2,
@@ -13,13 +13,16 @@ import {
   Wrench,
 } from 'lucide-react';
 import { submitContact } from '@/lib/api-client';
+import { useMarket } from '@/contexts/market-context';
 import {
-  budgetRanges,
-  businessTypes,
-  contactServiceOptions,
-  timelineOptions,
-  type ContactServiceId,
-} from '../data/contact-offer';
+  getContactBudgetRanges,
+  getContactBusinessTypes,
+  getContactFormCopy,
+  getContactServiceOptions,
+  getContactTimelineOptions,
+  showContactBudgetFields,
+} from '@/data/markets/form-locale';
+import type { ContactServiceId } from '@/data/contact-offer';
 
 const iconMap = {
   layers: Layers,
@@ -51,13 +54,21 @@ function ContactFormInner({
   variant = 'full',
   className = '',
 }: ContactFormProps) {
+  const { market, marketCode } = useMarket();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
+  const copy = getContactFormCopy(marketCode);
+  const contactServiceOptions = getContactServiceOptions(marketCode);
+  const businessTypes = getContactBusinessTypes(marketCode);
+  const budgetRanges = getContactBudgetRanges(marketCode);
+  const timelineOptions = getContactTimelineOptions(marketCode);
+
   const serviceParam = searchParams.get('service') as ContactServiceId | null;
 
   const [processing, setProcessing] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [selectedService, setSelectedService] = useState<ContactServiceId>(
-    defaultService ?? serviceParam ?? 'not-sure'
+    defaultService ?? serviceParam ?? (marketCode !== 'us' ? 'zyvo-software' : 'not-sure')
   );
   const [form, setForm] = useState({
     name: '',
@@ -71,26 +82,26 @@ function ContactFormInner({
   });
 
   const selectedOption = contactServiceOptions.find((s) => s.id === selectedService);
-  const isDevService = selectedService !== 'zyvo-software' && selectedService !== 'not-sure';
 
   useEffect(() => {
     if (serviceParam && contactServiceOptions.some((s) => s.id === serviceParam)) {
       setSelectedService(serviceParam);
     }
-  }, [serviceParam]);
+  }, [serviceParam, contactServiceOptions]);
 
   const buildMessage = () => {
     const serviceLabel = selectedOption?.label ?? selectedService;
     const lines = [
       `[Contact Request]`,
+      `Market: ${market.countryNameLocal} (${marketCode.toUpperCase()})`,
       `Service: ${serviceLabel}`,
       `Company: ${form.company || '—'}`,
       `Business type: ${form.businessType || '—'}`,
     ];
-    if (isDevService || selectedService === 'not-sure') {
+    if (showContactBudgetFields(marketCode, selectedService)) {
       lines.push(`Budget: ${form.budget || '—'}`, `Timeline: ${form.timeline || '—'}`);
     }
-    lines.push('', 'Project details:', form.message || '—');
+    lines.push('', 'Details:', form.message || '—');
     return lines.join('\n');
   };
 
@@ -102,6 +113,9 @@ function ContactFormInner({
       email: form.email,
       phone: form.phone,
       message: buildMessage(),
+      country: marketCode,
+      source: 'contact_form',
+      page: pathname,
     })
       .then((res) => {
         if (res?.success) {
@@ -128,20 +142,19 @@ function ContactFormInner({
         <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center mx-auto mb-5">
           <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" aria-hidden="true" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">You&apos;re on our list!</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{copy.successTitle}</h2>
         <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-md mx-auto">
-          We received your request for <strong>{selectedOption?.label}</strong>. Expect a personal reply within
-          one business day — often sooner.
+          {copy.successBody(selectedOption?.label ?? selectedService)}
         </p>
         <div className="inline-flex flex-col sm:flex-row gap-3 text-sm text-gray-600 dark:text-gray-400">
           <span className="flex items-center justify-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-green-500" aria-hidden="true" />
-            Free scoping call scheduled by email
+            {copy.successNote1}
           </span>
           <span className="hidden sm:inline text-gray-300 dark:text-gray-600">|</span>
           <span className="flex items-center justify-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-green-500" aria-hidden="true" />
-            Fixed-price quote within 24h
+            {copy.successNote2}
           </span>
         </div>
       </div>
@@ -153,7 +166,7 @@ function ContactFormInner({
       {variant === 'full' && (
         <fieldset>
           <legend className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-            What can we help you with? <span className="text-red-500">*</span>
+            {copy.serviceLegend} <span className="text-red-500">*</span>
           </legend>
           <div className="grid sm:grid-cols-2 gap-3">
             {contactServiceOptions.map((option) => {
@@ -164,18 +177,16 @@ function ContactFormInner({
                   key={option.id}
                   type="button"
                   onClick={() => setSelectedService(option.id)}
-                  className={`relative text-left p-4 rounded-xl border-2 transition-all ${
-                    isSelected
+                  className={`relative text-left p-4 rounded-xl border-2 transition-all ${isSelected
                       ? 'border-brand-primary bg-brand-primary-light/50 dark:bg-brand-primary/10 shadow-sm'
                       : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 hover:border-brand-primary/40'
-                  }`}
+                    }`}
                   aria-pressed={isSelected}
                 >
                   <div className="flex items-start gap-3">
                     <div
-                      className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
-                        isSelected ? 'bg-brand-primary text-white' : 'bg-brand-surface dark:bg-gray-700 text-brand-primary dark:text-brand-accent'
-                      }`}
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? 'bg-brand-primary text-white' : 'bg-brand-surface dark:bg-gray-700 text-brand-primary dark:text-brand-accent'
+                        }`}
                     >
                       <Icon className="w-5 h-5" aria-hidden="true" />
                     </div>
@@ -201,7 +212,7 @@ function ContactFormInner({
       {variant === 'compact' && (
         <div>
           <label htmlFor="contact-service" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Service interest
+            {copy.serviceInterest}
           </label>
           <select
             id="contact-service"
@@ -220,7 +231,7 @@ function ContactFormInner({
 
       {selectedOption && variant === 'full' && (
         <div className="flex flex-wrap items-center gap-2 px-4 py-3 rounded-xl bg-brand-surface dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-sm">
-          <span className="text-gray-500 dark:text-gray-400">Selected:</span>
+          <span className="text-gray-500 dark:text-gray-400">{copy.selected}</span>
           <span className="font-semibold text-gray-900 dark:text-white">{selectedOption.label}</span>
           <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">·</span>
           <span className="text-brand-primary dark:text-brand-accent font-medium">{selectedOption.priceHint}</span>
@@ -232,7 +243,7 @@ function ContactFormInner({
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Your name <span className="text-red-500">*</span>
+            {copy.name} <span className="text-red-500">*</span>
           </label>
           <input
             id="contact-name"
@@ -242,12 +253,12 @@ function ContactFormInner({
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             className={inputClass}
-            placeholder="Jane Smith"
+            placeholder={copy.namePlaceholder}
           />
         </div>
         <div>
           <label htmlFor="contact-company" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Business name
+            {copy.company}
           </label>
           <input
             id="contact-company"
@@ -256,7 +267,7 @@ function ContactFormInner({
             value={form.company}
             onChange={(e) => setForm({ ...form, company: e.target.value })}
             className={inputClass}
-            placeholder="Your business"
+            placeholder={copy.companyPlaceholder}
           />
         </div>
       </div>
@@ -264,7 +275,7 @@ function ContactFormInner({
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Work email <span className="text-red-500">*</span>
+            {copy.email} <span className="text-red-500">*</span>
           </label>
           <input
             id="contact-email"
@@ -274,12 +285,12 @@ function ContactFormInner({
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             className={inputClass}
-            placeholder="you@business.com"
+            placeholder={copy.emailPlaceholder}
           />
         </div>
         <div>
           <label htmlFor="contact-phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Phone
+            {copy.phone}
           </label>
           <input
             id="contact-phone"
@@ -288,14 +299,14 @@ function ContactFormInner({
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
             className={inputClass}
-            placeholder="+1 (555) 000-0000"
+            placeholder={copy.phonePlaceholder}
           />
         </div>
       </div>
 
       <div>
         <label htmlFor="contact-business-type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Business type
+          {copy.businessType}
         </label>
         <select
           id="contact-business-type"
@@ -303,7 +314,7 @@ function ContactFormInner({
           onChange={(e) => setForm({ ...form, businessType: e.target.value })}
           className={inputClass}
         >
-          <option value="">Select your industry...</option>
+          <option value="">{copy.businessTypePlaceholder}</option>
           {businessTypes.map((t) => (
             <option key={t} value={t}>
               {t}
@@ -312,11 +323,11 @@ function ContactFormInner({
         </select>
       </div>
 
-      {(isDevService || selectedService === 'not-sure') && (
+      {showContactBudgetFields(marketCode, selectedService) && (
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label htmlFor="contact-budget" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Estimated budget
+              {copy.budget}
             </label>
             <select
               id="contact-budget"
@@ -324,7 +335,7 @@ function ContactFormInner({
               onChange={(e) => setForm({ ...form, budget: e.target.value })}
               className={inputClass}
             >
-              <option value="">Select a range...</option>
+              <option value="">{copy.budgetPlaceholder}</option>
               {budgetRanges.map((b) => (
                 <option key={b} value={b}>
                   {b}
@@ -334,7 +345,7 @@ function ContactFormInner({
           </div>
           <div>
             <label htmlFor="contact-timeline" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Desired timeline
+              {copy.timeline}
             </label>
             <select
               id="contact-timeline"
@@ -342,7 +353,7 @@ function ContactFormInner({
               onChange={(e) => setForm({ ...form, timeline: e.target.value })}
               className={inputClass}
             >
-              <option value="">When do you need this?</option>
+              <option value="">{copy.timelinePlaceholder}</option>
               {timelineOptions.map((t) => (
                 <option key={t} value={t}>
                   {t}
@@ -355,7 +366,7 @@ function ContactFormInner({
 
       <div>
         <label htmlFor="contact-message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Tell us about your project <span className="text-red-500">*</span>
+          {copy.messageRequired} <span className="text-red-500">*</span>
         </label>
         <textarea
           id="contact-message"
@@ -364,17 +375,7 @@ function ContactFormInner({
           value={form.message}
           onChange={(e) => setForm({ ...form, message: e.target.value })}
           className={`${inputClass} min-h-[120px] resize-y`}
-          placeholder={
-            selectedService === 'zyvo-software'
-              ? 'What features matter most? POS, inventory, appointments, multi-location...'
-              : selectedService === 'custom-website-development'
-                ? 'How many pages? Do you have a logo/brand? Any reference sites you like?'
-                : selectedService === 'custom-software-development'
-                  ? 'What problem should the system solve? Who will use it? Any integrations needed?'
-                  : selectedService === 'website-maintenance-services'
-                    ? 'What platform is your site on? What do you need help with monthly?'
-                    : 'Describe your goals — we will recommend the best path forward.'
-          }
+          placeholder={copy.messagePlaceholder(selectedService)}
         />
       </div>
 
@@ -386,20 +387,17 @@ function ContactFormInner({
         {processing ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
-            Sending your request...
+            {copy.submitting}
           </>
         ) : (
           <>
-            Get my free quote
+            {copy.submit}
             <ArrowRight className="w-5 h-5" aria-hidden="true" />
           </>
         )}
       </button>
 
-      <p className="text-xs text-center text-gray-500 dark:text-gray-400 leading-relaxed">
-        No spam. No pressure. By submitting, you agree we may contact you about your request.
-        Fixed-price quote delivered within one business day.
-      </p>
+      <p className="text-xs text-center text-gray-500 dark:text-gray-400 leading-relaxed">{copy.disclaimer}</p>
     </form>
   );
 }

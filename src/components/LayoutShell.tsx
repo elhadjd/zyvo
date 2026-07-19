@@ -4,22 +4,31 @@ import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import FloatingWhatsApp from '@/components/markets/FloatingWhatsApp';
+import PartnershipSiteBar from '@/components/partnerships/PartnershipSiteBar';
 import { useTheme } from '@/contexts/theme-context';
 
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
   const { isDarkMode, mounted, toggleDarkMode } = useTheme();
   const pathname = usePathname();
   const showLightModeIcon = mounted && isDarkMode;
+  const isAdminRoute = pathname.startsWith('/admin');
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
 
+  if (isAdminRoute) {
+    return <>{children}</>;
+  }
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
       <Header />
       <main>{children}</main>
+      <PartnershipSiteBar />
       <Footer />
+      <FloatingWhatsApp />
       <button
         onClick={toggleDarkMode}
         className="fixed bottom-6 right-20 w-10 h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 z-40"
