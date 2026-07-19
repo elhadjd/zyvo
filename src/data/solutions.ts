@@ -108,7 +108,7 @@ export const solutions: Solution[] = [
     icon: Users,
     metaTitle: 'Employee Management Software for US SMBs | ZYVO HR',
     metaDescription:
-      'Simplify HR with scheduling, time tracking, and employee records for US small businesses. ZYVO HR starts at $39/month.',
+      'Simplify HR with scheduling, time tracking, and employee records for US small businesses. ZYVO HR starts at $20/month.',
     keywords:
       'employee management software, HR software small business, scheduling software, time tracking USA',
     benefits: [

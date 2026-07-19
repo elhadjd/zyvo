@@ -24,7 +24,7 @@ export const contactServiceOptions: ContactServiceOption[] = [
     label: 'ZYVO Business Software',
     shortLabel: 'ZYVO ERP',
     description: 'All-in-one cloud platform: POS, inventory, appointments, employees, and more.',
-    priceHint: 'From $39/mo · 7-day free trial',
+    priceHint: 'From $20/mo · 7-day free trial',
     deliveryHint: 'Start in minutes',
     icon: 'layers',
     href: '/pricing',

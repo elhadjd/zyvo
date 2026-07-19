@@ -76,7 +76,7 @@ export const blogPosts: BlogPost[] = [
       'QuickBooks is the most recognized name in small business accounting. But many growing businesses find they need more than accounting—they need a complete operational platform. That is where ZYVO comes in.',
       'QuickBooks excels at bookkeeping, tax preparation, and basic invoicing. It is the right choice if your primary need is financial record-keeping and you already have separate tools for POS, inventory, and HR.',
       'ZYVO is an all-in-one business management platform that includes accounting alongside POS, inventory management, employee scheduling, e-commerce, and marketing analytics. Businesses using ZYVO typically replace 4-6 separate tools.',
-      'On pricing, QuickBooks Simple Start begins at $30/month for one user with accounting only. ZYVO Starter at $39/month (annual) includes POS, inventory, invoicing, and basic reports for up to 3 users.',
+      'On pricing, QuickBooks Simple Start begins at $30/month for one user with accounting only. ZYVO Starter at $20/month (annual) includes POS, inventory, invoicing, and basic reports for up to 3 users.',
       'For businesses that have outgrown QuickBooks plus a patchwork of other tools, ZYVO offers a unified platform with a single login, shared data, and no integration headaches.',
       'The bottom line: choose QuickBooks if you only need accounting. Choose ZYVO if you want to run your entire business from one platform.',
     ],

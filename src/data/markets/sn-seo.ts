@@ -74,7 +74,7 @@ export const SN_PAGE_SEO: Record<string, SnSeoPageMeta> = {
     schemaType: 'product',
   },
   pricing: {
-    title: 'Tarifs ERP Sénégal — Plans en FCFA dès 23 900 FCFA/mois | ZYVO',
+    title: 'Tarifs ERP Sénégal — Plans en FCFA dès 11 950 FCFA/mois | ZYVO',
     description:
       'Tarifs transparents en FCFA pour PME sénégalaises. Plans Essentiel, Croissance et Entreprise. Paiement Wave, Orange Money, virement local. Essai gratuit 7 jours sans carte bancaire.',
     keywords:

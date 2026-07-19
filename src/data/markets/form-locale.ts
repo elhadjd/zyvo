@@ -129,7 +129,7 @@ const frContactCopy: ContactFormCopy = {
   email: 'Email professionnel',
   emailPlaceholder: 'vous@entreprise.com',
   phone: 'Téléphone / WhatsApp',
-  phonePlaceholder: '+224 620 00 00 00',
+  phonePlaceholder: '+1 9735249725',
   businessType: 'Secteur d\'activité',
   businessTypePlaceholder: 'Choisissez votre secteur...',
   budget: 'Budget estimé',

@@ -74,7 +74,7 @@ export const CI_PAGE_SEO: Record<string, CiSeoPageMeta> = {
     schemaType: 'product',
   },
   pricing: {
-    title: 'Tarifs ERP Côte d\'Ivoire — Plans en FCFA dès 23 900 FCFA/mois | ZYVO',
+    title: 'Tarifs ERP Côte d\'Ivoire — Plans en FCFA dès 11 950 FCFA/mois | ZYVO',
     description:
       'Tarifs transparents en FCFA pour PME ivoiriennes. Plans Essentiel, Croissance et Entreprise. Paiement Orange Money, MTN MoMo, virement local. Essai gratuit 7 jours sans carte bancaire.',
     keywords:

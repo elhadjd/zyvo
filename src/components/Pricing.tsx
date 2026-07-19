@@ -9,7 +9,7 @@ const Pricing = () => {
     const plans = [
         {
             name: "Professional",
-            price: { monthly: "$89", annual: "$69" },
+            price: { monthly: "$45", annual: "$35" },
             period: { monthly: "per month", annual: "per month, billed annually" },
             description: "For growing teams that need advanced features",
             features: [
@@ -26,7 +26,7 @@ const Pricing = () => {
         },
         {
             name: "Business",
-            price: { monthly: "$199", annual: "$159" },
+            price: { monthly: "$100", annual: "$80" },
             period: { monthly: "per month", annual: "per month, billed annually" },
             description: "For established businesses with complex needs",
             features: [
