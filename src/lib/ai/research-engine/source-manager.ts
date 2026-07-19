@@ -16,6 +16,48 @@ const FETCH_HEADERS = {
   Accept: 'text/html,application/xhtml+xml',
 };
 
+/** URLs substituídas no config — removidas da lista activa no seed */
+const OBSOLETE_SOURCE_URLS = new Set([
+  'https://anss.gov.gn',
+  'https://ccig.org.gn',
+  'https://www.commerce.gov.gn',
+  'https://www.impots.gouv.sn',
+  'https://www.apix.sn',
+]);
+
+function deactivateObsoleteSources(timestamp: string): void {
+  const db = getDb();
+
+  for (const url of OBSOLETE_SOURCE_URLS) {
+    db.update(managedSources)
+      .set({ status: 'inactive', updatedAt: timestamp })
+      .where(eq(managedSources.url, url))
+      .run();
+  }
+
+  for (const config of COUNTRY_AI_CONFIGS) {
+    const configNames = new Set(config.sources.map((s) => s.name));
+    const configUrls = new Set(config.sources.map((s) => s.url));
+
+    const countrySources = db
+      .select()
+      .from(managedSources)
+      .where(eq(managedSources.countryCode, config.countryCode))
+      .all();
+
+    for (const source of countrySources) {
+      if (source.status === 'inactive') continue;
+      if (source.category !== 'Geral') continue;
+      if (configNames.has(source.name) || configUrls.has(source.url)) continue;
+
+      db.update(managedSources)
+        .set({ status: 'inactive', updatedAt: timestamp })
+        .where(eq(managedSources.id, source.id))
+        .run();
+    }
+  }
+}
+
 export function seedManagedSources(): void {
   const db = getDb();
   const timestamp = now();
@@ -67,6 +109,8 @@ export function seedManagedSources(): void {
       }
     }
   }
+
+  deactivateObsoleteSources(timestamp);
 }
 
 export function getManagedSources(countryCode?: SupportedCountry, status?: SourceStatus): ManagedSource[] {
