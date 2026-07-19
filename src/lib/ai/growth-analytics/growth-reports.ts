@@ -10,6 +10,8 @@ import { getContentScores } from './content-performance-analyzer';
 import { getGrowthOpportunities } from './opportunity-detector';
 import { generateAiRecommendations } from './ai-recommendations';
 import { getCountryConfig } from '../countries';
+import { isGoogleAnalyticsConfigured, getVisitorMetrics } from './integrations/google-analytics';
+import { isSearchConsoleConfigured, getSearchConsoleMetrics } from './integrations/google-search-console';
 
 function now(): string {
   return new Date().toISOString();
@@ -142,6 +144,11 @@ export function getGrowthDashboardStats(country?: SupportedCountry) {
   const scores = getContentScores(country);
   const db = getDb();
 
+  const hasGaData = getVisitorMetrics(country, 30).length > 0;
+  const hasGscData = country
+    ? getSearchConsoleMetrics(country, 30).length > 0
+    : getSearchConsoleMetrics(undefined, 30).length > 0;
+
   const published = db
     .select()
     .from(contentArticles)
@@ -181,5 +188,12 @@ export function getGrowthDashboardStats(country?: SupportedCountry) {
     avgContentScore,
     weeklyGrowth: traffic.weeklyGrowth,
     organicClicks: search.totalClicks,
+    google: {
+      ga4Configured: isGoogleAnalyticsConfigured(),
+      gscConfigured: isSearchConsoleConfigured(),
+      hasGaData,
+      hasGscData,
+      dataSource: hasGaData || hasGscData ? 'google' : 'none',
+    },
   };
 }
