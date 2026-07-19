@@ -37,6 +37,7 @@ import { PARTNERSHIP_PROGRAM_SLUGS } from '../src/data/partnerships/programs';
 import { getPartnershipPageSeo } from '../src/lib/partnerships/seo';
 import { getLocalErpPageSeo } from '../src/lib/markets/local-erp-seo';
 import type { MarketCode } from '../src/lib/markets/types';
+import type { SupportedCountry } from '../src/lib/ai/types';
 
 const ACTIVE_MARKETS: MarketCode[] = ['gn', 'sn', 'ci'];
 
@@ -78,7 +79,7 @@ function runStructuralTests() {
     const market = getMarket(code);
     assert(`${code.toUpperCase()} market ativo`, market.active === true);
     assert(`${code.toUpperCase()} não é comingSoon`, market.comingSoon !== true);
-    assert(`${code.toUpperCase()} no AI config`, getEnabledCountryCodes().includes(code));
+    assert(`${code.toUpperCase()} no AI config`, getEnabledCountryCodes().includes(code as SupportedCountry));
 
     const ai = getCountryConfig(code);
     assert(`${code.toUpperCase()} AI config tem topics`, (ai?.topics.length ?? 0) > 0);

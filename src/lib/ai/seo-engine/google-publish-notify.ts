@@ -1,6 +1,6 @@
 import { SITE_URL } from '@/data/site';
 import { submitUrlsToIndexNow, type IndexNowResult } from '@/lib/seo/indexnow';
-import { logAiEvent } from '../../logger';
+import { logAiEvent } from '../logger';
 import {
   GSC_WRITE_SCOPE,
   INDEXING_SCOPE,
