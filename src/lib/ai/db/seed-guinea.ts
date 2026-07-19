@@ -1,12 +1,4 @@
-import { and, eq } from 'drizzle-orm';
-import { getDb } from './index';
-import { programmaticPages } from './schema';
-import { syncAllSitemaps } from '../seo-engine/sitemap-manager';
-import { PROGRAMMATIC_INDUSTRIES } from '../seo-engine/types';
-
-function now(): string {
-  return new Date().toISOString();
-}
+import { seedProgrammaticPages } from './seed-programmatic';
 
 const GN_PROGRAMMATIC_SEEDS = [
   {
@@ -21,17 +13,10 @@ const GN_PROGRAMMATIC_SEEDS = [
       'Les restaurants et maquis de Conakry font face à des défis quotidiens : gestion des commandes, suivi des stocks alimentaires, encaissements Orange Money et conformité fiscale DGI.',
       'ZYVO ERP centralise la caisse POS, la gestion des stocks et la facturation dans une seule plateforme adaptée aux PME guinéennes.',
       'Enregistrez chaque vente en GNF, suivez vos ingrédients en temps réel et générez des rapports pour vos déclarations TVA à 18 %.',
-      'Essayez ZYVO gratuitement pendant 7 jours et digitalisez votre établissement à Kaloum, Ratoma ou en province.',
     ],
     faq: [
-      {
-        question: 'ZYVO fonctionne-t-il sans connexion internet ?',
-        answer: 'Oui, ZYVO fonctionne en mode hors ligne et synchronise les données dès que le réseau revient.',
-      },
-      {
-        question: 'Puis-je accepter Orange Money à la caisse ?',
-        answer: 'Oui, ZYVO enregistre les paiements Orange Money et MTN MoMo avec un journal de caisse détaillé.',
-      },
+      { question: 'ZYVO fonctionne-t-il sans connexion internet ?', answer: 'Oui, mode hors ligne avec synchronisation automatique.' },
+      { question: 'Orange Money est-il supporté ?', answer: 'Oui, encaissements Orange Money et MTN MoMo à la caisse.' },
     ],
     cta: 'Essai gratuit 7 jours',
   },
@@ -41,70 +26,99 @@ const GN_PROGRAMMATIC_SEEDS = [
     headline: 'Gestion de pharmacie moderne à Conakry',
     metaTitle: 'Logiciel Pharmacie Guinée — Stock & Caisse POS | ZYVO',
     metaDescription:
-      'Solution ERP pour pharmacies guinéennes : gestion stock médicaments, dates de péremption, caisse POS et conformité SYSCOHADA.',
-    keywords: 'logiciel pharmacie Guinée, gestion stock médicaments Conakry, ERP pharmacie Guinée',
+      'Solution ERP pour pharmacies guinéennes : stock médicaments, péremption, caisse POS et SYSCOHADA.',
+    keywords: 'logiciel pharmacie Guinée, gestion stock médicaments Conakry',
     content: [
-      'Les pharmacies guinéennes doivent gérer des stocks sensibles avec dates de péremption, traçabilité des médicaments et conformité réglementaire.',
-      'ZYVO ERP offre un suivi d\'inventaire en temps réel, des alertes de péremption et une caisse POS intégrée pour vos ventes en GNF.',
-      'Générez des factures conformes SYSCOHADA et préparez vos déclarations fiscales à la DGI en quelques clics.',
-      'Rejoignez les pharmacies qui digitalisent leur gestion à Conakry avec ZYVO — essai gratuit de 7 jours.',
+      'Les pharmacies guinéennes gèrent des stocks sensibles avec dates de péremption et traçabilité des médicaments.',
+      'ZYVO offre inventaire temps réel, alertes de péremption et caisse POS en GNF.',
+      'Factures conformes SYSCOHADA et exports pour la DGI.',
     ],
     faq: [
-      {
-        question: 'ZYVO gère-t-il les dates de péremption ?',
-        answer: 'Oui, ZYVO alerte automatiquement sur les produits proches de la date de péremption.',
-      },
-      {
-        question: 'Le logiciel est-il conforme SYSCOHADA ?',
-        answer: 'Oui, ZYVO génère des documents comptables conformes au référentiel OHADA.',
-      },
+      { question: 'Gestion des dates de péremption ?', answer: 'Oui, alertes automatiques sur produits proches de la péremption.' },
+      { question: 'Conforme SYSCOHADA ?', answer: 'Oui, documents comptables conformes OHADA.' },
     ],
-    cta: 'Démarrer l\'essai gratuit',
+    cta: 'Essai gratuit 7 jours',
   },
-] as const;
+  {
+    industry: 'retail-stores',
+    title: 'ZYVO ERP pour les boutiques en Guinée',
+    headline: 'Logiciel de gestion commerciale pour boutiques à Conakry',
+    metaTitle: 'Logiciel Boutique Guinée — Caisse POS & Stock | ZYVO',
+    metaDescription:
+      'ERP pour boutiques et superettes guinéennes : caisse POS, stock temps réel, Orange Money. Digitalisez votre commerce à Conakry.',
+    keywords: 'logiciel boutique Guinée, caisse superette Conakry, gestion commerciale Guinée',
+    content: [
+      'Les boutiques de Kaloum, Ratoma et en province ont besoin d\'un logiciel de gestion commerciale fiable.',
+      'ZYVO combine caisse POS, inventaire temps réel et suivi des paiements mobiles.',
+      'Contrôlez vos marges en GNF et réduisez les ruptures de stock.',
+    ],
+    faq: [
+      { question: 'Adapté aux petites boutiques ?', answer: 'Oui, plan Essentiel dès 360 000 GNF/mois (annuel).' },
+      { question: 'Multi-magasins ?', answer: 'Oui, à partir du plan Croissance.' },
+    ],
+    cta: 'Essai gratuit 7 jours',
+  },
+  {
+    industry: 'salons',
+    title: 'ZYVO ERP pour les salons en Guinée',
+    headline: 'Gestion salon de coiffure et institut de beauté à Conakry',
+    metaTitle: 'Logiciel Salon Coiffure Guinée — RDV & File SMS | ZYVO',
+    metaDescription:
+      'ERP pour salons de coiffure en Guinée : rendez-vous, file d\'attente SMS, commissions et caisse POS.',
+    keywords: 'logiciel salon coiffure Guinée, gestion institut beauté Conakry',
+    content: [
+      'Les salons de coiffure et instituts de beauté à Conakry gèrent rendez-vous, files d\'attente et commissions.',
+      'ZYVO combine planning, file SMS, caisse POS et suivi des prestations.',
+      'Réduisez l\'attente et fidélisez vos clients avec des notifications SMS.',
+    ],
+    faq: [
+      { question: 'File d\'attente SMS ?', answer: 'Oui, notifications automatiques quand le client est appelé.' },
+      { question: 'Commissions employés ?', answer: 'Oui, suivi des commissions par coiffeur.' },
+    ],
+    cta: 'Essai gratuit 7 jours',
+  },
+  {
+    industry: 'clinics',
+    title: 'ZYVO ERP pour les cliniques en Guinée',
+    headline: 'Gestion de clinique et cabinet médical à Conakry',
+    metaTitle: 'Logiciel Clinique Guinée — RDV & Facturation | ZYVO',
+    metaDescription:
+      'ERP pour cliniques et cabinets médicaux en Guinée : rendez-vous, facturation, stock consommables et dossiers patients.',
+    keywords: 'logiciel clinique Guinée, gestion cabinet médical Conakry',
+    content: [
+      'Les cliniques et cabinets médicaux ont besoin de gérer rendez-vous, facturation et stock de consommables.',
+      'ZYVO offre planning, facturation TVA et suivi des encaissements en GNF.',
+      'Interface simple pour le personnel administratif et les praticiens.',
+    ],
+    faq: [
+      { question: 'Gestion des rendez-vous ?', answer: 'Oui, agenda partagé avec rappels SMS.' },
+      { question: 'Facturation conforme ?', answer: 'Oui, factures numérotées avec TVA 18 %.' },
+    ],
+    cta: 'Demander une démo',
+  },
+  {
+    industry: 'supermarkets',
+    title: 'ZYVO ERP pour les supermarchés en Guinée',
+    headline: 'Gestion superette et supermarché à Conakry',
+    metaTitle: 'Logiciel Supermarché Guinée — POS & Inventaire | ZYVO',
+    metaDescription:
+      'ERP pour superettes et supermarchés en Guinée : caisse multi-caissiers, codes-barres, stock et rapports en GNF.',
+    keywords: 'logiciel supermarché Guinée, POS superette Conakry, gestion grande surface Guinée',
+    content: [
+      'Les superettes et supermarchés gèrent des milliers de références avec rotation rapide.',
+      'ZYVO supporte multi-caissiers, codes-barres, inventaires tournants et rapports de marge.',
+      'Centralisez plusieurs points de vente à Conakry depuis un tableau de bord unique.',
+    ],
+    faq: [
+      { question: 'Codes-barres ?', answer: 'Oui, scan et recherche produit rapide à la caisse.' },
+      { question: 'Multi-caissiers ?', answer: 'Oui, suivi des ventes par caissier et par poste.' },
+    ],
+    cta: 'Contacter les ventes',
+  },
+];
 
 export function seedGuineaProgrammaticPages(): number {
-  const db = getDb();
-  const timestamp = now();
-  let seeded = 0;
-
-  for (const seed of GN_PROGRAMMATIC_SEEDS) {
-    const existing = db
-      .select()
-      .from(programmaticPages)
-      .where(and(eq(programmaticPages.country, 'gn'), eq(programmaticPages.industry, seed.industry)))
-      .get();
-
-    if (existing) continue;
-
-    const industryDef = PROGRAMMATIC_INDUSTRIES.find((i) => i.slug === seed.industry);
-    if (!industryDef) continue;
-
-    db.insert(programmaticPages)
-      .values({
-        slug: seed.industry,
-        country: 'gn',
-        industry: seed.industry,
-        language: 'fr',
-        title: seed.title,
-        metaTitle: seed.metaTitle,
-        metaDescription: seed.metaDescription,
-        headline: seed.headline,
-        content: [...seed.content],
-        faq: [...seed.faq],
-        cta: seed.cta,
-        keywords: seed.keywords,
-        schemaData: {},
-        status: 'published',
-        createdAt: timestamp,
-        updatedAt: timestamp,
-        publishedAt: timestamp,
-      })
-      .run();
-    seeded++;
-  }
-
-  return seeded;
+  return seedProgrammaticPages('gn', GN_PROGRAMMATIC_SEEDS);
 }
 
 export function seedGuineaSitemaps(): void {

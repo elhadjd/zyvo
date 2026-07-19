@@ -36,7 +36,8 @@ pnpm-debug.log*
 next-env.d.ts
 
 # AI Content Engine database
-data/
+/data/
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
+*.tsbuildinfo

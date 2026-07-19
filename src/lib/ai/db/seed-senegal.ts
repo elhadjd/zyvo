@@ -1,11 +1,4 @@
-import { and, eq } from 'drizzle-orm';
-import { getDb } from './index';
-import { programmaticPages } from './schema';
-import { PROGRAMMATIC_INDUSTRIES } from '../seo-engine/types';
-
-function now(): string {
-  return new Date().toISOString();
-}
+import { seedProgrammaticPages } from './seed-programmatic';
 
 const SN_PROGRAMMATIC_SEEDS = [
   {
@@ -14,26 +7,16 @@ const SN_PROGRAMMATIC_SEEDS = [
     headline: 'Logiciel de gestion pour restaurants et dibiteries à Dakar',
     metaTitle: 'ERP Restaurant Sénégal — Caisse POS & Stock | ZYVO Dakar',
     metaDescription:
-      'Gérez votre restaurant ou dibiterie au Sénégal avec ZYVO : caisse POS, stock, Wave, Orange Money, facturation TVA DGI. Essai gratuit 7 jours en FCFA.',
-    keywords:
-      'ERP restaurant Sénégal, POS dibiterie Dakar, gestion restaurant Sénégal, logiciel caisse restaurant Dakar',
+      'Gérez votre restaurant ou dibiterie au Sénégal : caisse POS, stock, Wave, Orange Money, TVA DGI. Essai gratuit en FCFA.',
+    keywords: 'ERP restaurant Sénégal, POS dibiterie Dakar, gestion restaurant Sénégal',
     content: [
-      'Les restaurants et dibiteries de Dakar font face à des défis quotidiens : gestion des commandes, suivi des stocks alimentaires, encaissements Wave et Orange Money, et conformité fiscale DGI.',
-      'ZYVO ERP centralise la caisse POS, la gestion des stocks et la facturation dans une seule plateforme adaptée aux PME sénégalaises.',
-      'Enregistrez chaque vente en FCFA, suivez vos ingrédients en temps réel et générez des rapports pour vos déclarations TVA à 18 %.',
-      'Essayez ZYVO gratuitement pendant 7 jours et digitalisez votre établissement au Plateau, Almadies, Pikine ou en province.',
+      'Les restaurants et dibiteries de Dakar gèrent commandes, stocks et paiements Wave/Orange Money au quotidien.',
+      'ZYVO centralise caisse POS, stock et facturation pour les PME sénégalaises.',
+      'Rapports TVA 18 % et ventes en FCFA pour la DGI.',
     ],
     faq: [
-      {
-        question: 'ZYVO accepte-t-il les paiements Wave ?',
-        answer:
-          'Oui, ZYVO enregistre les paiements Wave, Orange Money et Free Money avec un journal de caisse détaillé.',
-      },
-      {
-        question: 'Le logiciel fonctionne-t-il hors ligne ?',
-        answer:
-          'Oui, ZYVO fonctionne en mode dégradé et synchronise les données dès que le réseau revient.',
-      },
+      { question: 'Wave est-il supporté ?', answer: 'Oui, Wave, Orange Money et Free Money à la caisse.' },
+      { question: 'Mode hors ligne ?', answer: 'Oui, synchronisation automatique au retour du réseau.' },
     ],
     cta: 'Essai gratuit 7 jours',
   },
@@ -43,28 +26,18 @@ const SN_PROGRAMMATIC_SEEDS = [
     headline: 'Logiciel de gestion commerciale pour boutiques à Dakar',
     metaTitle: 'Logiciel Boutique Sénégal — Caisse POS & Stock | ZYVO',
     metaDescription:
-      'ERP pour boutiques et superettes sénégalaises : caisse POS, codes-barres, stock temps réel, Wave et Orange Money. Digitalisez votre commerce à Dakar.',
-    keywords:
-      'logiciel boutique Sénégal, caisse superette Dakar, gestion commerciale Sénégal, POS retail Dakar',
+      'ERP pour boutiques sénégalaises : caisse POS, stock temps réel, Wave et Orange Money à Dakar.',
+    keywords: 'logiciel boutique Sénégal, caisse superette Dakar, gestion commerciale Sénégal',
     content: [
-      'Les boutiques et superettes du Sénégal — du Plateau à Pikine, de Sandaga à Thiès — ont besoin d\'un logiciel de gestion commerciale fiable pour suivre stock, ventes et paiements mobiles.',
-      'ZYVO offre une caisse POS rapide, la gestion d\'inventaire en temps réel et le suivi des encaissements Wave et Orange Money dans un seul outil en français.',
-      'Réduisez les ruptures de stock, contrôlez vos marges en FCFA et générez des rapports pour piloter votre activité au quotidien.',
-      'Rejoignez les commerçants sénégalais qui digitalisent leur boutique avec ZYVO — essai gratuit de 7 jours.',
+      'Du Plateau à Pikine, les commerçants sénégalais digitalisent leur gestion avec ZYVO.',
+      'Caisse POS rapide, inventaire temps réel et paiements mobiles intégrés.',
+      'Contrôlez vos marges en FCFA et réduisez les ruptures.',
     ],
     faq: [
-      {
-        question: 'ZYVO convient-il aux petites boutiques de quartier ?',
-        answer:
-          'Oui, le plan Essentiel est conçu pour les petites boutiques avec caisse POS, stock de base et facturation à partir de 23 900 FCFA/mois.',
-      },
-      {
-        question: 'Puis-je gérer plusieurs magasins ?',
-        answer:
-          'Oui, à partir du plan Croissance vous centralisez stock et ventes de plusieurs points de vente à Dakar et en province.',
-      },
+      { question: 'Petites boutiques ?', answer: 'Oui, plan Essentiel dès 23 900 FCFA/mois (annuel).' },
+      { question: 'Multi-magasins ?', answer: 'Oui, plan Croissance et plus.' },
     ],
-    cta: 'Démarrer l\'essai gratuit',
+    cta: 'Essai gratuit 7 jours',
   },
   {
     industry: 'pharmacies',
@@ -72,69 +45,78 @@ const SN_PROGRAMMATIC_SEEDS = [
     headline: 'Gestion de pharmacie moderne à Dakar',
     metaTitle: 'Logiciel Pharmacie Sénégal — Stock & Caisse POS | ZYVO',
     metaDescription:
-      'Solution ERP pour pharmacies sénégalaises : gestion stock médicaments, dates de péremption, caisse POS et conformité SYSCOHADA. Essai gratuit.',
-    keywords:
-      'logiciel pharmacie Sénégal, gestion stock médicaments Dakar, ERP pharmacie Sénégal, officine Dakar',
+      'ERP pharmacies sénégalaises : stock médicaments, péremption, caisse POS et SYSCOHADA.',
+    keywords: 'logiciel pharmacie Sénégal, gestion stock médicaments Dakar',
     content: [
-      'Les pharmacies sénégalaises doivent gérer des stocks sensibles avec dates de péremption, traçabilité des médicaments et conformité réglementaire.',
-      'ZYVO ERP offre un suivi d\'inventaire en temps réel, des alertes de péremption et une caisse POS intégrée pour vos ventes en FCFA.',
-      'Générez des factures conformes SYSCOHADA et préparez vos déclarations fiscales à la DGI en quelques clics.',
-      'Digitalisez votre officine à Dakar, Thiès ou Saint-Louis avec ZYVO — essai gratuit de 7 jours.',
+      'Les pharmacies sénégalaises gèrent stocks sensibles, péremption et conformité réglementaire.',
+      'ZYVO : inventaire temps réel, alertes péremption et caisse POS en FCFA.',
+      'Factures SYSCOHADA et déclarations DGI simplifiées.',
     ],
     faq: [
-      {
-        question: 'ZYVO gère-t-il les dates de péremption ?',
-        answer: 'Oui, ZYVO alerte automatiquement sur les produits proches de la date de péremption.',
-      },
-      {
-        question: 'Le logiciel est-il conforme SYSCOHADA ?',
-        answer: 'Oui, ZYVO génère des documents comptables conformes au référentiel OHADA.',
-      },
+      { question: 'Alertes péremption ?', answer: 'Oui, notifications automatiques.' },
+      { question: 'SYSCOHADA ?', answer: 'Oui, exports comptables conformes OHADA.' },
     ],
     cta: 'Essai gratuit 7 jours',
   },
-] as const;
+  {
+    industry: 'salons',
+    title: 'ZYVO ERP pour les salons au Sénégal',
+    headline: 'Gestion salon de coiffure à Dakar',
+    metaTitle: 'Logiciel Salon Coiffure Sénégal — RDV & File SMS | ZYVO',
+    metaDescription:
+      'ERP salons de coiffure au Sénégal : rendez-vous, file SMS, commissions et caisse POS à Dakar.',
+    keywords: 'logiciel salon coiffure Sénégal, gestion institut beauté Dakar',
+    content: [
+      'Salons et instituts de beauté dakarois : rendez-vous, files d\'attente et commissions.',
+      'ZYVO combine planning, SMS clients et caisse POS.',
+      'Fidélisez vos clients avec des rappels automatiques.',
+    ],
+    faq: [
+      { question: 'File d\'attente SMS ?', answer: 'Oui, module file d\'attente intégré.' },
+      { question: 'Commissions ?', answer: 'Oui, suivi par styliste.' },
+    ],
+    cta: 'Essai gratuit 7 jours',
+  },
+  {
+    industry: 'clinics',
+    title: 'ZYVO ERP pour les cliniques au Sénégal',
+    headline: 'Gestion clinique et cabinet médical à Dakar',
+    metaTitle: 'Logiciel Clinique Sénégal — RDV & Facturation | ZYVO',
+    metaDescription:
+      'ERP cliniques sénégalaises : rendez-vous, facturation NINEA, stock consommables et dossiers.',
+    keywords: 'logiciel clinique Sénégal, gestion cabinet médical Dakar',
+    content: [
+      'Cliniques et cabinets médicaux : rendez-vous, facturation et gestion des consommables.',
+      'ZYVO : planning, facturation TVA et encaissements Wave/Orange Money.',
+      'Interface adaptée au personnel administratif sénégalais.',
+    ],
+    faq: [
+      { question: 'Rendez-vous en ligne ?', answer: 'Oui, agenda avec rappels SMS.' },
+      { question: 'Factures NINEA ?', answer: 'Oui, mentions légales et TVA 18 %.' },
+    ],
+    cta: 'Demander une démo',
+  },
+  {
+    industry: 'supermarkets',
+    title: 'ZYVO ERP pour les supermarchés au Sénégal',
+    headline: 'Gestion superette et supermarché à Dakar',
+    metaTitle: 'Logiciel Supermarché Sénégal — POS Multi-Caissiers | ZYVO',
+    metaDescription:
+      'ERP supermarchés sénégalais : caisse multi-caissiers, codes-barres, inventaire et rapports FCFA.',
+    keywords: 'logiciel supermarché Sénégal, POS superette Dakar',
+    content: [
+      'Superettes et supermarchés dakarois gèrent des milliers de références.',
+      'ZYVO : multi-caissiers, codes-barres, inventaires et rapports de marge en FCFA.',
+      'Centralisez plusieurs magasins depuis un tableau de bord.',
+    ],
+    faq: [
+      { question: 'Codes-barres ?', answer: 'Oui, scan rapide à la caisse.' },
+      { question: 'Multi-caissiers ?', answer: 'Oui, suivi par poste et employé.' },
+    ],
+    cta: 'Contacter les ventes',
+  },
+];
 
 export function seedSenegalProgrammaticPages(): number {
-  const db = getDb();
-  const timestamp = now();
-  let seeded = 0;
-
-  for (const seed of SN_PROGRAMMATIC_SEEDS) {
-    const existing = db
-      .select()
-      .from(programmaticPages)
-      .where(and(eq(programmaticPages.country, 'sn'), eq(programmaticPages.industry, seed.industry)))
-      .get();
-
-    if (existing) continue;
-
-    const industryDef = PROGRAMMATIC_INDUSTRIES.find((i) => i.slug === seed.industry);
-    if (!industryDef) continue;
-
-    db.insert(programmaticPages)
-      .values({
-        slug: seed.industry,
-        country: 'sn',
-        industry: seed.industry,
-        language: 'fr',
-        title: seed.title,
-        metaTitle: seed.metaTitle,
-        metaDescription: seed.metaDescription,
-        headline: seed.headline,
-        content: [...seed.content],
-        faq: [...seed.faq],
-        cta: seed.cta,
-        keywords: seed.keywords,
-        schemaData: {},
-        status: 'published',
-        createdAt: timestamp,
-        updatedAt: timestamp,
-        publishedAt: timestamp,
-      })
-      .run();
-    seeded++;
-  }
-
-  return seeded;
+  return seedProgrammaticPages('sn', SN_PROGRAMMATIC_SEEDS);
 }

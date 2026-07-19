@@ -17,6 +17,7 @@ import MarketBlogPostPage from '@/views/markets/MarketBlogPostPage';
 import ProgrammaticPageServer from '@/views/markets/ProgrammaticPageServer';
 import { getAllMergedMarketBlogSlugs } from '@/lib/markets/blog-server';
 import { PROGRAMMATIC_INDUSTRIES } from '@/lib/ai/seo-engine/types';
+import { MARKET_SOLUTION_SLUGS } from '@/data/markets/market-modules';
 
 export interface MarketPageDefinition {
   slug: string[];
@@ -83,15 +84,7 @@ function appendDynamicMarketParams(marketCode: MarketCode, params: { slug: strin
     params.push({ slug: ['industries', ind.id] });
   });
 
-  const solutionSlugs = [
-    'point-of-sale',
-    'inventory-management',
-    'employee-management',
-    'customer-queue-management',
-    'invoicing',
-    'financial-management',
-  ];
-  solutionSlugs.forEach((s) => {
+  MARKET_SOLUTION_SLUGS.forEach((s) => {
     params.push({ slug: ['solutions', s] });
   });
 

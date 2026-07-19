@@ -1,4 +1,5 @@
 import type { MarketConfig } from '@/lib/markets/types';
+import { getSolutionsNavSubmenu } from '@/data/markets/market-modules';
 
 export const snMarket: MarketConfig = {
   code: 'sn',
@@ -405,14 +406,7 @@ export const snMarket: MarketConfig = {
     {
       label: 'Solutions',
       href: '/solutions',
-      submenu: [
-        { label: 'Caisse (POS)', href: '/solutions/point-of-sale' },
-        { label: 'File d\'attente & SMS', href: '/solutions/customer-queue-management' },
-        { label: 'Inventaire', href: '/solutions/inventory-management' },
-        { label: 'Employés', href: '/solutions/employee-management' },
-        { label: 'Facturation', href: '/solutions/invoicing' },
-        { label: 'Toutes les solutions', href: '/solutions' },
-      ],
+      submenu: getSolutionsNavSubmenu(),
     },
     {
       label: 'Secteurs',

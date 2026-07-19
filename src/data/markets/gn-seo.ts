@@ -228,6 +228,61 @@ export const GN_PAGE_SEO: Record<string, GnSeoPageMeta> = {
     breadcrumb: 'Comptabilité',
     schemaType: 'product',
   },
+  'solutions/logistics': {
+    title: 'Logiciel Logistique Guinée — Livraisons & Transport | ZYVO Conakry',
+    description:
+      'Gérez livraisons, tournées et expéditions en Guinée. Suivi GPS, preuve de livraison et facturation transport pour PME à Conakry et en province.',
+    keywords:
+      'logiciel logistique Guinée, gestion livraisons Conakry, transport PME Guinée, suivi expéditions Guinée',
+    path: '/gn/solutions/logistics',
+    h1: 'Logistique et livraisons',
+    breadcrumb: 'Logistique',
+    schemaType: 'product',
+  },
+  'solutions/purchasing': {
+    title: 'Achats & Approvisionnement Guinée — Bons de Commande | ZYVO',
+    description:
+      'Logiciel d\'achats pour PME guinéennes : bons de commande, fournisseurs, approbations et liaison stock. Contrôlez vos dépenses en GNF.',
+    keywords:
+      'logiciel achats Guinée, approvisionnement PME Conakry, bon de commande Guinée, gestion fournisseurs Guinée',
+    path: '/gn/solutions/purchasing',
+    h1: 'Achats et approvisionnement',
+    breadcrumb: 'Achats',
+    schemaType: 'product',
+  },
+  'solutions/scheduling': {
+    title: 'Rendez-vous & Planning Guinée — Agenda Salons & Services | ZYVO',
+    description:
+      'Logiciel de rendez-vous pour salons, cliniques et services en Guinée. Agenda en ligne, rappels SMS et planning employés à Conakry.',
+    keywords:
+      'logiciel rendez-vous Guinée, planning salon Conakry, agenda PME Guinée, réservation en ligne Guinée',
+    path: '/gn/solutions/scheduling',
+    h1: 'Rendez-vous et planning',
+    breadcrumb: 'Planning',
+    schemaType: 'product',
+  },
+  'solutions/online-store': {
+    title: 'Boutique en Ligne Guinée — E-commerce & POS Sync | ZYVO',
+    description:
+      'Créez votre boutique en ligne en Guinée. Catalogue produits, paiement Orange Money, stock synchronisé avec caisse POS. Idéal pour commerçants à Conakry.',
+    keywords:
+      'boutique en ligne Guinée, e-commerce Conakry, vendre en ligne Guinée, site e-commerce PME Guinée',
+    path: '/gn/solutions/online-store',
+    h1: 'Boutique en ligne',
+    breadcrumb: 'E-commerce',
+    schemaType: 'product',
+  },
+  'solutions/marketing-analytics': {
+    title: 'Marketing & Analyses Ventes Guinée — SMS & Fidélité | ZYVO',
+    description:
+      'Analysez vos ventes, lancez des campagnes SMS et fidélisez vos clients en Guinée. Tableaux de bord et rapports pour PME à Conakry.',
+    keywords:
+      'marketing PME Guinée, campagne SMS Conakry, fidélité clients Guinée, analytics ventes Guinée',
+    path: '/gn/solutions/marketing-analytics',
+    h1: 'Marketing et analyses',
+    breadcrumb: 'Marketing',
+    schemaType: 'product',
+  },
   // Secteurs
   'industries/retail': {
     title: 'Logiciel Boutique & Superette Guinée — Caisse POS Conakry | ZYVO',

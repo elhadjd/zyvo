@@ -42,12 +42,14 @@ export function getMarketInternalLinkGroups(marketCode: MarketCode) {
 
   return [
     {
-      title: 'Solutions populaires',
+      title: 'Modules ERP',
       paths: [
         'solutions/point-of-sale',
         'solutions/inventory-management',
         'solutions/invoicing',
-        'solutions/financial-management',
+        'solutions/employee-management',
+        'solutions/logistics',
+        'solutions/online-store',
       ],
     },
     {

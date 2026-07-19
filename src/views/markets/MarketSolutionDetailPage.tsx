@@ -12,10 +12,15 @@ import { getMarketSolutionContent } from '@/data/markets/solution-content';
 
 interface MarketSolutionDetailPageProps {
   solutionSlug?: string;
+  countryCode?: string;
 }
 
-export default function MarketSolutionDetailPage({ solutionSlug }: MarketSolutionDetailPageProps) {
-  const { market, marketCode } = useMarket();
+export default function MarketSolutionDetailPage({
+  solutionSlug,
+  countryCode: countryCodeProp,
+}: MarketSolutionDetailPageProps) {
+  const { market, marketCode: contextMarketCode } = useMarket();
+  const marketCode = (countryCodeProp as typeof contextMarketCode) || contextMarketCode;
   const solution = solutions.find((s) => s.slug === solutionSlug);
   const content = solutionSlug ? getMarketSolutionContent(marketCode, solutionSlug) : undefined;
   const pageSeo = useMarketPageSeo();

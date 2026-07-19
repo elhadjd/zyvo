@@ -37,6 +37,26 @@ export default function GrowthReportsPage() {
       </Link>
       <h1 className="text-2xl font-bold mb-6">Relatório Semanal IA</h1>
 
+      <div className="mb-6">
+        <label htmlFor="country-select" className="block text-sm font-medium text-gray-700 mb-1">
+          País
+        </label>
+        <select
+          id="country-select"
+          value={country}
+          onChange={(e) => {
+            setLoading(true);
+            setCountry(e.target.value);
+          }}
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+        >
+          <option value="gn">Guinée</option>
+          <option value="sn">Sénégal</option>
+          <option value="ao">Angola</option>
+          <option value="mz">Moçambique</option>
+        </select>
+      </div>
+
       {!report ? (
         <p className="text-gray-500">Nenhum relatório gerado. Execute &quot;Relatório Semanal&quot; no dashboard.</p>
       ) : (

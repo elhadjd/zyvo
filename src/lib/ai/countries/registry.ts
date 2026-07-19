@@ -88,6 +88,7 @@ export function syncCountryConfigsToDatabase(): void {
           language: config.language,
           categories: config.categories,
           sources: config.sources,
+          enabled: config.enabled ?? true,
           updatedAt: timestamp,
         })
         .where(eq(countryAiConfig.countryCode, config.countryCode))

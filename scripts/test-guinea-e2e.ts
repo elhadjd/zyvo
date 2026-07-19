@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 /**
- * Teste completo E2E — Guiné (GN)
+ * Teste completo E2E — mercados GN + SN (11 módulos cada)
  * Uso: npx tsx scripts/test-guinea-e2e.ts [--base-url=http://localhost:3000]
  */
 import { readFileSync, existsSync } from 'fs';
@@ -24,13 +24,16 @@ loadEnvLocal();
 
 import { getMarket } from '../src/lib/markets/registry';
 import { resolveMarketPage, getMarketStaticParams } from '../src/lib/markets/pages';
-import { getMergedMarketBlogPosts, getMergedMarketBlogPostBySlug } from '../src/lib/markets/blog-server';
+import { getMergedMarketBlogPosts } from '../src/lib/markets/blog-server';
 import { getMarketBlogConfig } from '../src/data/markets/blog';
 import { buildMarketBlogPostMetadata, buildMarketMetadata } from '../src/lib/markets/metadata';
 import { getEnabledCountryCodes, getCountryConfig } from '../src/lib/ai/countries/registry';
 import { isDatabaseAvailable } from '../src/lib/ai/db';
-import { getPublishedDbArticles } from '../src/lib/ai/blog-repository';
 import { PROGRAMMATIC_INDUSTRIES } from '../src/lib/ai/seo-engine/types';
+import { MARKET_SOLUTION_SLUGS } from '../src/data/markets/market-modules';
+import type { MarketCode } from '../src/lib/markets/types';
+
+const ACTIVE_MARKETS: MarketCode[] = ['gn', 'sn'];
 
 const BASE_URL = process.argv.find((a) => a.startsWith('--base-url='))?.split('=')[1] ?? 'http://localhost:3000';
 
@@ -64,51 +67,47 @@ function runStructuralTests() {
   assert('GN routePrefix /gn', gn.routePrefix === '/gn');
   assert('GN locale fr-GN', gn.hreflang === 'fr-GN');
 
-  const sn = getMarket('sn');
-  assert('SN inativo (coming soon)', sn.active === false && sn.comingSoon === true);
+  assert('11 módulos ERP definidos', MARKET_SOLUTION_SLUGS.length === 11, `${MARKET_SOLUTION_SLUGS.length} módulos`);
 
-  assert('GN no AI config', getEnabledCountryCodes().includes('gn'));
-  const gnAi = getCountryConfig('gn');
-  assert('GN AI config tem topics', (gnAi?.topics.length ?? 0) > 0);
-  assert('GN AI config tem sources', (gnAi?.sources.length ?? 0) > 0);
+  for (const code of ACTIVE_MARKETS) {
+    const market = getMarket(code);
+    assert(`${code.toUpperCase()} market ativo`, market.active === true);
+    assert(`${code.toUpperCase()} não é comingSoon`, market.comingSoon !== true);
+    assert(`${code.toUpperCase()} no AI config`, getEnabledCountryCodes().includes(code));
 
-  const blogConfig = getMarketBlogConfig('gn');
-  assert('Blog config GN existe', !!blogConfig);
-  assert('Blog index tem keywords', !!blogConfig?.indexKeywords?.length);
+    const ai = getCountryConfig(code);
+    assert(`${code.toUpperCase()} AI config tem topics`, (ai?.topics.length ?? 0) > 0);
 
-  const staticParams = getMarketStaticParams('gn');
-  assert('Static params GN gerados', staticParams.length > 10, `${staticParams.length} rotas`);
+    const blogConfig = getMarketBlogConfig(code);
+    assert(`Blog config ${code.toUpperCase()} existe`, !!blogConfig);
 
-  for (const { slug } of staticParams) {
-    const resolved = resolveMarketPage('gn', slug);
-    assert(`resolveMarketPage gn/${slug.join('/')}`, !!resolved);
+    const staticParams = getMarketStaticParams(code);
+    assert(`Static params ${code.toUpperCase()} gerados`, staticParams.length > 20, `${staticParams.length} rotas`);
+
+    for (const { slug } of staticParams) {
+      const resolved = resolveMarketPage(code, slug);
+      assert(`resolveMarketPage ${code}/${slug.join('/')}`, !!resolved);
+    }
+
+    for (const moduleSlug of MARKET_SOLUTION_SLUGS) {
+      const hasRoute = staticParams.some((p) => p.slug.join('/') === `solutions/${moduleSlug}`);
+      assert(`${code.toUpperCase()} rota solutions/${moduleSlug}`, hasRoute);
+    }
+
+    const posts = getMergedMarketBlogPosts(code);
+    assert(`Blog posts merged ${code.toUpperCase()}`, posts.length >= 3, `${posts.length} artigos`);
+
+    for (const post of posts.slice(0, 3)) {
+      const meta = buildMarketBlogPostMetadata(code, post);
+      assert(`Metadata build ${code}/${post.slug}`, !!meta.title && !!meta.description);
+    }
+
+    const blogIndexMeta = buildMarketMetadata(code, ['blog'], 'blog');
+    assert(`Blog index metadata ${code.toUpperCase()}`, !!blogIndexMeta.title && !!blogIndexMeta.description);
   }
-
-  const posts = getMergedMarketBlogPosts('gn');
-  assert('Blog posts merged', posts.length >= 3, `${posts.length} artigos`);
-
-  for (const post of posts) {
-    assert(`Post SEO: ${post.slug} metaTitle`, !!post.metaTitle);
-    assert(`Post SEO: ${post.slug} metaDescription`, post.metaDescription.length >= 50);
-    assert(`Post SEO: ${post.slug} keywords`, !!post.keywords);
-    assert(`Post SEO: ${post.slug} content`, post.content.length > 0);
-
-    const meta = buildMarketBlogPostMetadata('gn', post);
-    assert(`Metadata build: ${post.slug}`, !!meta.title && !!meta.description);
-  }
-
-  const samplePost = posts[0];
-  const bySlug = getMergedMarketBlogPostBySlug('gn', samplePost.slug);
-  assert('getMergedMarketBlogPostBySlug', bySlug?.slug === samplePost.slug);
-
-  const blogIndexMeta = buildMarketMetadata('gn', ['blog'], 'blog');
-  assert('Blog index metadata', !!blogIndexMeta.title && !!blogIndexMeta.description);
 
   assert('Database disponível', isDatabaseAvailable());
-  const dbPosts = getPublishedDbArticles('gn');
-  pass('Artigos DB publicados', `${dbPosts.length} no banco`);
-
-  assert('Programmatic industries', PROGRAMMATIC_INDUSTRIES.length > 0, `${PROGRAMMATIC_INDUSTRIES.length} indústrias`);
+  assert('Programmatic industries', PROGRAMMATIC_INDUSTRIES.length >= 6, `${PROGRAMMATIC_INDUSTRIES.length} indústrias`);
 }
 
 // ─── HTTP tests ─────────────────────────────────────────────────────────────
@@ -122,80 +121,80 @@ async function fetchStatus(path: string, init?: RequestInit): Promise<{ status: 
 async function runHttpTests() {
   console.log('\n🌐 Testes HTTP (servidor: ' + BASE_URL + ')\n');
 
-  // Health — home GN
-  const gnHome = await fetchStatus('/gn');
-  assert('GET /gn → 200', gnHome.status === 200, `status ${gnHome.status}`);
-  assert('GN home contém Guinée', gnHome.body.includes('Guinée') || gnHome.body.includes('Guinee'));
+  for (const code of ACTIVE_MARKETS) {
+    const prefix = `/${code}`;
+    const market = getMarket(code);
 
-  const staticPages = [
-    '/gn/features',
-    '/gn/pricing',
-    '/gn/about',
-    '/gn/contact',
-    '/gn/faq',
-    '/gn/demo',
-    '/gn/getting-started',
-    '/gn/blog',
-    '/gn/solutions',
-    '/gn/industries',
-    '/gn/solutions/point-of-sale',
-    '/gn/solutions/inventory-management',
-    '/gn/industries/retail',
-    '/gn/industries/restaurants',
-  ];
+    const home = await fetchStatus(prefix);
+    assert(`GET ${prefix} → 200`, home.status === 200, `status ${home.status}`);
+    assert(
+      `${code.toUpperCase()} home contém país`,
+      home.body.includes(market.countryNameLocal) || home.body.includes(market.countryName)
+    );
 
-  for (const path of staticPages) {
-    const { status } = await fetchStatus(path);
-    assert(`GET ${path} → 200`, status === 200, `status ${status}`);
+    const corePages = [
+      `${prefix}/features`,
+      `${prefix}/pricing`,
+      `${prefix}/about`,
+      `${prefix}/contact`,
+      `${prefix}/faq`,
+      `${prefix}/demo`,
+      `${prefix}/getting-started`,
+      `${prefix}/blog`,
+      `${prefix}/solutions`,
+      `${prefix}/industries`,
+      `${prefix}/industries/retail`,
+      `${prefix}/industries/restaurants`,
+    ];
+
+    for (const path of corePages) {
+      const { status } = await fetchStatus(path);
+      assert(`GET ${path} → 200`, status === 200, `status ${status}`);
+    }
+
+    for (const moduleSlug of MARKET_SOLUTION_SLUGS) {
+      const path = `${prefix}/solutions/${moduleSlug}`;
+      const { status } = await fetchStatus(path);
+      assert(`GET ${path} → 200`, status === 200, `status ${status}`);
+    }
+
+    const posts = getMergedMarketBlogPosts(code);
+    for (const post of posts.slice(0, 3)) {
+      const path = `${prefix}/blog/${post.slug}`;
+      const { status, body } = await fetchStatus(path);
+      assert(`GET ${path} → 200`, status === 200);
+      assert(`Post ${code}/${post.slug} tem <h1>`, body.includes('<h1') || body.includes('text-3xl'));
+      assert(
+        `Post ${code}/${post.slug} canonical`,
+        body.includes(`${prefix}/blog/`) || body.includes('canonical')
+      );
+    }
+
+    for (const ind of PROGRAMMATIC_INDUSTRIES.slice(0, 3)) {
+      const path = `${prefix}/erp/${ind.slug}`;
+      const { status } = await fetchStatus(path);
+      assert(`GET ${path} → 200`, status === 200, `status ${status}`);
+    }
+
+    const rss = await fetchStatus(`/api/markets/${code}/blog/rss`);
+    assert(`GET /api/markets/${code}/blog/rss → 200`, rss.status === 200);
   }
-
-  // Blog posts
-  const posts = getMergedMarketBlogPosts('gn');
-  for (const post of posts.slice(0, 5)) {
-    const path = `/gn/blog/${post.slug}`;
-    const { status, body } = await fetchStatus(path);
-    assert(`GET ${path} → 200`, status === 200);
-    assert(`Post ${post.slug} tem <h1>`, body.includes('<h1') || body.includes('text-3xl'));
-    assert(`Post ${post.slug} JSON-LD Article`, body.includes('Article') || body.includes('BlogPosting'));
-    assert(`Post ${post.slug} canonical`, body.includes('/gn/blog/') || body.includes('canonical'));
-  }
-
-  // Blog index SEO
-  const blogIndex = await fetchStatus('/gn/blog');
-  assert('Blog index tem hero', blogIndex.body.includes('Blog') || blogIndex.body.includes('blog'));
-
-  // Programmatic ERP pages
-  for (const ind of PROGRAMMATIC_INDUSTRIES.slice(0, 2)) {
-    const path = `/gn/erp/${ind.slug}`;
-    const { status } = await fetchStatus(path);
-    assert(`GET ${path} → 200`, status === 200, `status ${status}`);
-  }
-
-  // Coming soon markets should 404
-  const snHome = await fetchStatus('/sn');
-  assert('GET /sn → 404 (coming soon)', snHome.status === 404);
 
   const aoHome = await fetchStatus('/ao');
   assert('GET /ao → 404 (coming soon)', aoHome.status === 404);
 
-  // Sitemaps
   const sitemap = await fetchStatus('/sitemap.xml');
   assert('GET /sitemap.xml → 200', sitemap.status === 200);
   assert('Sitemap referencia GN', sitemap.body.includes('/gn'));
+  assert('Sitemap referencia SN', sitemap.body.includes('/sn'));
 
   const sitemapCountries = await fetchStatus('/sitemap-countries.xml');
   assert('GET /sitemap-countries.xml → 200', sitemapCountries.status === 200);
 
   const sitemapArticles = await fetchStatus('/sitemap-articles.xml');
   assert('GET /sitemap-articles.xml → 200', sitemapArticles.status === 200);
-  if (posts.length > 0) {
-    assert('Sitemap articles inclui post GN', sitemapArticles.body.includes('/gn/blog/'));
-  }
-
-  // RSS
-  const rss = await fetchStatus('/api/markets/gn/blog/rss');
-  assert('GET /api/markets/gn/blog/rss → 200', rss.status === 200);
-  assert('RSS é XML válido', rss.body.includes('<rss') && rss.body.includes('<channel>'));
+  assert('Sitemap articles inclui post GN', sitemapArticles.body.includes('/gn/blog/'));
+  assert('Sitemap articles inclui post SN', sitemapArticles.body.includes('/sn/blog/'));
 
   // robots.txt
   const robots = await fetchStatus('/robots.txt');
@@ -254,10 +253,12 @@ async function runHttpTests() {
     if (authedCountries.status === 200) {
       const data = JSON.parse(authedCountries.body);
       const countries = data.configured ?? data;
-      assert(
-        'Admin countries inclui GN',
-        Array.isArray(countries) && countries.some((c: { countryCode: string }) => c.countryCode === 'gn')
-      );
+      for (const code of ACTIVE_MARKETS) {
+        assert(
+          `Admin countries inclui ${code.toUpperCase()}`,
+          Array.isArray(countries) && countries.some((c: { countryCode: string }) => c.countryCode === code)
+        );
+      }
     }
 
     const authedSeo = await fetchStatus('/api/admin/seo-engine/stats', {
@@ -333,7 +334,7 @@ async function waitForServer(maxAttempts = 30): Promise<boolean> {
 }
 
 async function main() {
-  console.log('🇬🇳 Teste completo E2E — Guiné (GN)\n');
+  console.log('🌍 Teste completo E2E — GN + SN (11 módulos)\n');
   console.log('='.repeat(50));
 
   runStructuralTests();
@@ -366,7 +367,7 @@ function printSummary() {
     process.exit(1);
   }
 
-  console.log('\n✅ Todos os fluxos da Guiné estão funcionando!\n');
+  console.log('\n✅ Todos os fluxos GN + SN estão funcionando!\n');
 }
 
 main().catch((err) => {

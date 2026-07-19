@@ -228,6 +228,61 @@ export const SN_PAGE_SEO: Record<string, SnSeoPageMeta> = {
     breadcrumb: 'Comptabilité',
     schemaType: 'product',
   },
+  'solutions/logistics': {
+    title: 'Logiciel Logistique Sénégal — Livraisons & Transport | ZYVO Dakar',
+    description:
+      'Gérez livraisons, tournées et expéditions au Sénégal. Suivi GPS, preuve de livraison et facturation transport pour PME à Dakar et en région.',
+    keywords:
+      'logiciel logistique Sénégal, gestion livraisons Dakar, transport PME Sénégal, suivi expéditions Sénégal',
+    path: '/sn/solutions/logistics',
+    h1: 'Logistique et livraisons',
+    breadcrumb: 'Logistique',
+    schemaType: 'product',
+  },
+  'solutions/purchasing': {
+    title: 'Achats & Approvisionnement Sénégal — Bons de Commande | ZYVO',
+    description:
+      'Logiciel d\'achats pour PME sénégalaises : bons de commande, fournisseurs, approbations et liaison stock. Contrôlez vos dépenses en FCFA.',
+    keywords:
+      'logiciel achats Sénégal, approvisionnement PME Dakar, bon de commande Sénégal, gestion fournisseurs Sénégal',
+    path: '/sn/solutions/purchasing',
+    h1: 'Achats et approvisionnement',
+    breadcrumb: 'Achats',
+    schemaType: 'product',
+  },
+  'solutions/scheduling': {
+    title: 'Rendez-vous & Planning Sénégal — Agenda Salons & Services | ZYVO',
+    description:
+      'Logiciel de rendez-vous pour salons, cliniques et services au Sénégal. Agenda en ligne, rappels SMS et planning employés à Dakar.',
+    keywords:
+      'logiciel rendez-vous Sénégal, planning salon Dakar, agenda PME Sénégal, réservation en ligne Dakar',
+    path: '/sn/solutions/scheduling',
+    h1: 'Rendez-vous et planning',
+    breadcrumb: 'Planning',
+    schemaType: 'product',
+  },
+  'solutions/online-store': {
+    title: 'Boutique en Ligne Sénégal — E-commerce & POS Sync | ZYVO Dakar',
+    description:
+      'Créez votre boutique en ligne au Sénégal. Catalogue produits, paiement Wave/Orange Money, stock synchronisé avec caisse POS.',
+    keywords:
+      'boutique en ligne Sénégal, e-commerce Dakar, vendre en ligne Sénégal, site e-commerce PME Sénégal',
+    path: '/sn/solutions/online-store',
+    h1: 'Boutique en ligne',
+    breadcrumb: 'E-commerce',
+    schemaType: 'product',
+  },
+  'solutions/marketing-analytics': {
+    title: 'Marketing & Analyses Ventes Sénégal — SMS & Fidélité | ZYVO',
+    description:
+      'Analysez vos ventes, lancez des campagnes SMS et fidélisez vos clients au Sénégal. Tableaux de bord pour PME à Dakar.',
+    keywords:
+      'marketing PME Sénégal, campagne SMS Dakar, fidélité clients Sénégal, analytics ventes Dakar',
+    path: '/sn/solutions/marketing-analytics',
+    h1: 'Marketing et analyses',
+    breadcrumb: 'Marketing',
+    schemaType: 'product',
+  },
   // Secteurs
   'industries/retail': {
     title: 'Logiciel Boutique & Superette Sénégal — Caisse POS Dakar | ZYVO',
