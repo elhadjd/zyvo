@@ -31,6 +31,7 @@ import { getEnabledCountryCodes, getCountryConfig } from '../src/lib/ai/countrie
 import { isDatabaseAvailable } from '../src/lib/ai/db';
 import { PROGRAMMATIC_INDUSTRIES } from '../src/lib/ai/seo-engine/types';
 import { MARKET_SOLUTION_SLUGS } from '../src/data/markets/market-modules';
+import { getContactFormCopy, isFrancophoneMarket } from '../src/data/markets/form-locale';
 import { getAllLocalErpParams } from '../src/data/markets/local-erp-pages';
 import { getLocalErpPageSeo } from '../src/lib/markets/local-erp-seo';
 import type { MarketCode } from '../src/lib/markets/types';
@@ -112,6 +113,12 @@ function runStructuralTests() {
   assert('Programmatic industries', PROGRAMMATIC_INDUSTRIES.length >= 6, `${PROGRAMMATIC_INDUSTRIES.length} indústrias`);
 
   for (const code of ACTIVE_MARKETS) {
+    assert(`${code.toUpperCase()} contact form FR`, isFrancophoneMarket(code));
+    const contactCopy = getContactFormCopy(code);
+    assert(`${code.toUpperCase()} contact labels FR`, contactCopy.name === 'Votre nom');
+    assert(`${code.toUpperCase()} signup config`, getMarket(code).signup.country.code === code);
+    assert(`${code.toUpperCase()} signup currency`, getMarket(code).signup.currency.code === (code === 'gn' ? 'GNF' : 'XOF'));
+
     const localParams = getAllLocalErpParams(code);
     assert(
       `${code.toUpperCase()} local ERP pages`,
@@ -169,6 +176,19 @@ async function runHttpTests() {
       const { status } = await fetchStatus(path);
       assert(`GET ${path} → 200`, status === 200, `status ${status}`);
     }
+
+    const contactPage = await fetchStatus(`${prefix}/contact`);
+    assert(`GET ${prefix}/contact → 200`, contactPage.status === 200);
+    assert(
+      `${code.toUpperCase()} contact page FR`,
+      contactPage.body.includes('Contactez') || contactPage.body.includes('contact')
+    );
+
+    const gettingStarted = await fetchStatus(`${prefix}/getting-started`);
+    assert(
+      `${code.toUpperCase()} signup localized`,
+      gettingStarted.body.includes('Commencer avec ZYVO') || gettingStarted.body.includes('Essai gratuit 7 jours')
+    );
 
     for (const moduleSlug of MARKET_SOLUTION_SLUGS) {
       const path = `${prefix}/solutions/${moduleSlug}`;

@@ -1,8 +1,9 @@
 'use client';
 
-import { Mail, Phone, MapPin, MessageCircle, Clock } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock } from 'lucide-react';
 import { useMarket } from '@/contexts/market-context';
 import ContactForm from '@/components/ContactForm';
+import WhatsAppButton from '@/components/markets/WhatsAppButton';
 import MarketBreadcrumbs, { useMarketPageSeo } from '@/components/markets/MarketBreadcrumbs';
 
 export default function MarketContactPage() {
@@ -41,15 +42,7 @@ export default function MarketContactPage() {
                   {contact.phone}
                 </a>
                 {contact.whatsapp && (
-                  <a
-                    href={`https://wa.me/${contact.whatsapp.replace(/\D/g, '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-brand-primary dark:hover:text-brand-accent transition-colors"
-                  >
-                    <MessageCircle className="w-5 h-5" aria-hidden="true" />
-                    WhatsApp Business
-                  </a>
+                  <WhatsAppButton placement="contact_page" label="WhatsApp Business" variant="muted" />
                 )}
                 <div className="flex items-start gap-3 text-gray-700 dark:text-gray-300">
                   <MapPin className="w-5 h-5 mt-0.5 shrink-0" aria-hidden="true" />

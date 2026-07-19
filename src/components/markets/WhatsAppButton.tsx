@@ -10,7 +10,7 @@ interface WhatsAppButtonProps {
   placement: string;
   label?: string;
   message?: string;
-  variant?: 'primary' | 'outline' | 'onPrimary' | 'inline';
+  variant?: 'primary' | 'outline' | 'onPrimary' | 'inline' | 'muted';
   className?: string;
 }
 
@@ -23,6 +23,8 @@ const variantClasses: Record<NonNullable<WhatsAppButtonProps['variant']>, string
     'inline-flex items-center gap-2 px-6 py-3 bg-[#25D366] text-white font-semibold rounded-lg hover:bg-[#1fb855] transition-colors',
   inline:
     'inline-flex items-center gap-3 text-white/90 hover:text-white transition-colors',
+  muted:
+    'inline-flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-brand-primary dark:hover:text-brand-accent transition-colors',
 };
 
 export default function WhatsAppButton({

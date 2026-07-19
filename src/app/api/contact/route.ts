@@ -18,7 +18,13 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${API_KEY}`,
       },
-      body: JSON.stringify({ ...body, key: API_KEY }),
+      body: JSON.stringify({
+        ...body,
+        key: API_KEY,
+        country: body.country ?? body.market ?? undefined,
+        source: body.source ?? 'website',
+        page: body.page ?? undefined,
+      }),
     });
 
     const data = await response.json().catch(() => ({ success: response.ok }));

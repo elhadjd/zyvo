@@ -5,6 +5,9 @@ export async function submitContact(data: {
   email: string;
   phone?: string;
   message: string;
+  country?: string;
+  source?: string;
+  page?: string;
 }) {
   const response = await fetch('/api/contact', {
     method: 'POST',
