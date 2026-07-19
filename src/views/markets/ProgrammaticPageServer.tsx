@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getProgrammaticPage } from '@/lib/ai/seo-engine';
+import { getProgrammaticPage } from '@/lib/ai/seo-engine/programmatic-pages';
 import { runMigrations } from '@/lib/ai/db/migrate';
 import type { SupportedCountry } from '@/lib/ai/types';
 import MarketProgrammaticPage from '@/views/markets/MarketProgrammaticPage';
