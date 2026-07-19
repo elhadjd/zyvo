@@ -45,6 +45,7 @@ export async function runFullPipeline(
     saveAsDraft?: boolean;
     publishNow?: boolean;
     skipTopicDiscovery?: boolean;
+    targetCategory?: string;
   } = {}
 ): Promise<PipelineResult> {
   seedDatabase();
@@ -79,6 +80,7 @@ export async function runFullPipeline(
     topic,
     saveAsDraft: options.saveAsDraft ?? !options.publishNow,
     publishNow: options.publishNow,
+    targetCategory: options.targetCategory,
   };
 
   const defaultStages: AgentCode[] = options.publishNow

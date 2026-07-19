@@ -112,6 +112,7 @@ export async function runContentWriterAgent(ctx: AgentContext): Promise<number |
     const timestamp = now();
     const slug = slugify(article.title);
     const knowledgeIds = entries.map((e) => e.id);
+    const category = ctx.targetCategory || article.category;
 
     let articleId: number | null = null;
 
@@ -129,7 +130,7 @@ export async function runContentWriterAgent(ctx: AgentContext): Promise<number |
           faq: article.faq,
           conclusion: article.conclusion,
           cta: article.cta,
-          category: article.category,
+          category,
           author: `Équipe ZYVO ${config.countryName}`,
           language: config.language,
           readTime: article.readTime,

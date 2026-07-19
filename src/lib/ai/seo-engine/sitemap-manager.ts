@@ -199,6 +199,53 @@ ${items}
 }
 
 export function getPublishedArticleUrls(countryCode: SupportedCountry): string[] {
-  const slugs = getAllPublishedDbSlugs(countryCode);
-  return slugs.map((slug) => `${SITE_URL}/${countryCode}/blog/${slug}`);
+  const dbSlugs = getAllPublishedDbSlugs(countryCode);
+  const staticPosts = getMarketBlogPosts(countryCode as MarketCode);
+  const seen = new Set(dbSlugs);
+  const allSlugs = [...dbSlugs];
+
+  for (const post of staticPosts) {
+    if (!seen.has(post.slug)) {
+      seen.add(post.slug);
+      allSlugs.push(post.slug);
+    }
+  }
+
+  return allSlugs.map((slug) => `${SITE_URL}/${countryCode}/blog/${slug}`);
+}
+
+export function buildFallbackArticleSitemapEntries(): SitemapUrl[] {
+  const countries: MarketCode[] = ['gn', 'sn', 'ci'];
+  const timestamp = now();
+  const entries: SitemapUrl[] = [];
+
+  for (const country of countries) {
+    const dbSlugs = getAllPublishedDbSlugs(country);
+    const staticPosts = getMarketBlogPosts(country);
+    const seen = new Set<string>();
+
+    for (const slug of dbSlugs) {
+      if (seen.has(slug)) continue;
+      seen.add(slug);
+      entries.push({
+        url: `${SITE_URL}/${country}/blog/${slug}`,
+        lastmod: timestamp,
+        changefreq: 'weekly',
+        priority: 0.8,
+      });
+    }
+
+    for (const post of staticPosts) {
+      if (seen.has(post.slug)) continue;
+      seen.add(post.slug);
+      entries.push({
+        url: `${SITE_URL}/${country}/blog/${post.slug}`,
+        lastmod: post.date,
+        changefreq: 'weekly',
+        priority: 0.8,
+      });
+    }
+  }
+
+  return entries;
 }

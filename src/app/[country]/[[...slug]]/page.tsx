@@ -89,10 +89,14 @@ function buildPageSchemas(
       schemas.push(
         getMarketArticleSchema(market, {
           title: blogPost.title,
+          metaTitle: blogPost.metaTitle,
           description: blogPost.metaDescription,
           author: blogPost.author,
           date: blogPost.date,
+          updatedAt: blogPost.updatedAt,
           slug: blogPost.slug,
+          category: blogPost.category,
+          keywords: blogPost.keywords,
         })
       );
       if (blogPost.faq?.length) {

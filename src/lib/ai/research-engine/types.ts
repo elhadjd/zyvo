@@ -106,6 +106,8 @@ export const RESEARCH_CATEGORIES = [
   'Marketing',
   'Vendas',
   'Gestão',
+  'Croissance',
+  'E-commerce',
 ] as const;
 
 export const TRUST_LEVELS: Record<SourceType, number> = {

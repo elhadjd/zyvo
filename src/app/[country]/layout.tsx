@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import type { MarketCode } from '@/lib/markets/types';
 import { getMarket, isValidMarketCode } from '@/lib/markets/registry';
 import { buildMarketMetadata } from '@/lib/markets/metadata';
+import MarketLangSetter from '@/components/markets/MarketLangSetter';
 
 export async function generateMetadata({
   params,
@@ -33,5 +34,10 @@ export default async function CountryLayout({
     notFound();
   }
 
-  return children;
+  return (
+    <>
+      <MarketLangSetter language={market.language} />
+      {children}
+    </>
+  );
 }

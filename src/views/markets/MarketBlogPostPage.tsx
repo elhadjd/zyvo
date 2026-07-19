@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { ArrowRight, Calendar, Clock, User } from 'lucide-react';
 import { useMarket } from '@/contexts/market-context';
 import { getMarketBlogConfig, getMarketBlogPostBySlug } from '@/data/markets/blog';
-import MarketBreadcrumbs, { useMarketPageSeo } from '@/components/markets/MarketBreadcrumbs';
+import MarketBreadcrumbs from '@/components/markets/MarketBreadcrumbs';
 import LocalizedLink from '@/components/markets/LocalizedLink';
 import BlogShareButtons from '@/components/markets/blog/BlogShareButtons';
 import BlogFaqSection from '@/components/markets/blog/BlogFaqSection';
@@ -25,7 +25,6 @@ export default function MarketBlogPostPage({
   allPosts = [],
 }: MarketBlogPostPageProps) {
   const { marketCode, market } = useMarket();
-  const pageSeo = useMarketPageSeo();
   const config = getMarketBlogConfig(marketCode);
   const post = serverPost ?? (postSlug ? getMarketBlogPostBySlug(marketCode, postSlug) : undefined);
 
@@ -35,7 +34,7 @@ export default function MarketBlogPostPage({
 
   const style = getBlogCategoryStyle(post.category);
   const canonicalUrl = `${SITE_URL}${market.routePrefix}/blog/${post.slug}`;
-  const displayTitle = pageSeo?.h1 ?? post.title;
+  const displayTitle = post.title;
 
   return (
     <>

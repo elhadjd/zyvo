@@ -8,6 +8,15 @@ import { getContentOpportunities } from './opportunity-finder';
 import { analyzeTrends } from './trend-analyzer';
 import { logResearchEvent } from './research-logger';
 import type { SupportedCountry } from '../types';
+import {
+  CONTENT_NICHES,
+  classifyTopicNiche,
+  getAllNicheSeedTopics,
+  getNicheSeedTopics,
+  nicheToCategoryLabel,
+  type ContentNiche,
+  type DiverseTopicResult,
+} from './topic-niches';
 
 const DEFAULT_RECENT_DAYS = 14;
 const SIMILARITY_THRESHOLD = 0.5;
@@ -30,6 +39,11 @@ const SEED_QUERIES: Partial<Record<SupportedCountry, string[]>> = {
     'orange money commerce guinée',
     'SYSCOHADA guinée',
     'marketing digital PME conakry',
+    'publicité facebook instagram guinée',
+    'whatsapp business commerce conakry',
+    'vendre en ligne guinée',
+    'intelligence artificielle PME guinée',
+    'développer entreprise conakry',
   ],
   sn: [
     'gestion PME dakar',
@@ -40,6 +54,11 @@ const SEED_QUERIES: Partial<Record<SupportedCountry, string[]>> = {
     'logiciel gestion restaurant dakar',
     'TVA sénégal PME',
     'digitalisation commerce sénégal',
+    'publicité facebook instagram dakar',
+    'whatsapp business vente sénégal',
+    'vendre en ligne dakar',
+    'intelligence artificielle PME sénégal',
+    'expansion entreprise dakar',
   ],
   ci: [
     'gestion PME abidjan',
@@ -50,6 +69,11 @@ const SEED_QUERIES: Partial<Record<SupportedCountry, string[]>> = {
     'logiciel gestion maquis abidjan',
     'TVA côte ivoire PME',
     'marketing digital abidjan',
+    'publicité facebook instagram abidjan',
+    'whatsapp business vente abidjan',
+    'e-commerce PME abidjan',
+    'intelligence artificielle entreprises CI',
+    'croissance PME abidjan',
   ],
   ao: [
     'criar empresa angola',
@@ -57,12 +81,22 @@ const SEED_QUERIES: Partial<Record<SupportedCountry, string[]>> = {
     'IVA angola empresas',
     'software gestão comercial angola',
     'AGT impostos angola',
+    'marketing digital angola',
+    'publicidade facebook instagram angola',
+    'vender online angola',
+    'inteligência artificial empresas angola',
+    'crescer negócio luanda',
   ],
   mz: [
     'criar empresa moçambique',
     'gestão PME maputo',
     'IVA moçambique empresas',
     'software gestão comercial maputo',
+    'marketing digital moçambique',
+    'publicidade facebook maputo',
+    'vender online moçambique',
+    'inteligência artificial PME moçambique',
+    'expansão negócio maputo',
   ],
 };
 
@@ -99,6 +133,22 @@ const BUSINESS_HINTS = [
   'ohada',
   'ninea',
   'rccm',
+  'facebook',
+  'instagram',
+  'whatsapp',
+  'e-commerce',
+  'ecommerce',
+  'intelligence',
+  'artificielle',
+  'artificial',
+  'croissance',
+  'crescimento',
+  'expansion',
+  'expansão',
+  'publicité',
+  'publicidade',
+  'vendre',
+  'vender',
 ];
 
 function normalizeText(value: string): string {
@@ -368,6 +418,117 @@ function configFallbackTopics(
   }
 
   return extras.length > 0 ? extras : null;
+}
+
+function groupCandidatesByNiche(
+  candidates: string[],
+  countryCode: SupportedCountry
+): Map<ContentNiche, string[]> {
+  const config = getCountryConfig(countryCode);
+  const language = config?.language === 'pt' ? 'pt' : 'fr';
+  const grouped = new Map<ContentNiche, string[]>();
+
+  for (const niche of CONTENT_NICHES) {
+    grouped.set(niche, []);
+  }
+
+  for (const topic of candidates) {
+    const niche = classifyTopicNiche(topic);
+    grouped.get(niche)!.push(topic);
+  }
+
+  for (const niche of CONTENT_NICHES) {
+    const seeds = getNicheSeedTopics(countryCode, niche);
+    const existing = grouped.get(niche)!;
+    for (const seed of seeds) {
+      if (!existing.includes(seed)) existing.push(seed);
+    }
+  }
+
+  void language;
+  return grouped;
+}
+
+/**
+ * Select diverse topics — one per content niche when possible.
+ * E.g. 5 articles → fiscalité, marketing, IA, ventes, gestion (not 5 tax articles).
+ */
+export async function resolveDiverseTopics(
+  countryCode: SupportedCountry,
+  count: number,
+  options: { recentDays?: number } = {}
+): Promise<DiverseTopicResult[]> {
+  const recentDays = options.recentDays ?? DEFAULT_RECENT_DAYS;
+  const config = getCountryConfig(countryCode);
+  const language = config?.language === 'pt' ? 'pt' : 'fr';
+
+  logResearchEvent(
+    countryCode,
+    'topic_resolver',
+    'diverse_start',
+    `A seleccionar ${count} tópico(s) diversos por nicho`,
+    { metadata: { count, recentDays } }
+  );
+
+  const candidates = await collectTopicCandidates(countryCode);
+  const nicheSeeds = getAllNicheSeedTopics(countryCode);
+  const allCandidates = [...new Set([...candidates, ...nicheSeeds])];
+
+  const ranked = [
+    ...allCandidates.filter((c) => isBusinessRelevant(c)),
+    ...allCandidates.filter((c) => !isBusinessRelevant(c)),
+  ];
+
+  const byNiche = groupCandidatesByNiche(ranked, countryCode);
+  const picked: DiverseTopicResult[] = [];
+  const usedTopics = new Set<string>();
+  const usedNiches = new Set<ContentNiche>();
+
+  const nicheOrder = [...CONTENT_NICHES];
+
+  for (const niche of nicheOrder) {
+    if (picked.length >= count) break;
+    const pool = byNiche.get(niche) ?? [];
+    for (const topic of pool) {
+      const key = topic.toLowerCase();
+      if (usedTopics.has(key)) continue;
+      if (wasTopicPublishedRecently(countryCode, topic, recentDays)) continue;
+      usedTopics.add(key);
+      usedNiches.add(niche);
+      picked.push({
+        topic,
+        niche,
+        category: nicheToCategoryLabel(niche, language),
+      });
+      break;
+    }
+  }
+
+  if (picked.length < count) {
+    const fresh = await resolveFreshTopics(countryCode, count - picked.length, { recentDays });
+    for (const topic of fresh) {
+      const key = topic.toLowerCase();
+      if (usedTopics.has(key)) continue;
+      const niche = classifyTopicNiche(topic);
+      usedTopics.add(key);
+      picked.push({
+        topic,
+        niche,
+        category: nicheToCategoryLabel(niche, language),
+      });
+      if (picked.length >= count) break;
+    }
+  }
+
+  logResearchEvent(
+    countryCode,
+    'topic_resolver',
+    'diverse_complete',
+    `${picked.length} tópico(s) diversos: ${picked.map((p) => p.niche).join(', ')}`,
+    { metadata: { topics: picked.map((p) => ({ topic: p.topic, niche: p.niche })) } }
+  );
+
+  return picked.slice(0, count);
 }
 
 export async function resolveNextFreshTopic(
