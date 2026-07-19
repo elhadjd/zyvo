@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { COMPANY } from '../data/site';
 
@@ -43,7 +44,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">4. Data Security</h2>
               <p>
-                We use industry-standard security practices including encrypted communications (TLS), secure cloud hosting, daily backups, and role-based access controls. See our <a href="/security" className="text-brand-primary dark:text-brand-accent hover:underline">Security page</a> for details.
+                We use industry-standard security practices including encrypted communications (TLS), secure cloud hosting, daily backups, and role-based access controls. See our <Link href="/security" className="text-brand-primary dark:text-brand-accent hover:underline">Security page</Link> for details.
               </p>
             </section>
             <section>

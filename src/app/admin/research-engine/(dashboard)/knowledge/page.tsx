@@ -58,7 +58,7 @@ export default function ResearchKnowledgePage() {
         <select value={country} onChange={(e) => setCountry(e.target.value)} className="px-3 py-2 border rounded-lg">
           <option value="gn">Guinée</option>
           <option value="sn">Sénégal</option>
-            <option value="ci">Côte d'Ivoire</option>
+            <option value="ci">Côte d&apos;Ivoire</option>
         </select>
       </div>
 
