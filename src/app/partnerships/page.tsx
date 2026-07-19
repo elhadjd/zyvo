@@ -21,7 +21,7 @@ export default function Page() {
   const programs = getAllPartnershipPrograms('us');
   const allFaq = programs.flatMap((p) => p.faq);
 
-  const schemas: object[] = [
+  const schemas: Record<string, unknown>[] = [
     getMarketServiceSchema(market, {
       name: seo.h1 ?? 'ZYVO Partnership Programs',
       description: seo.description,

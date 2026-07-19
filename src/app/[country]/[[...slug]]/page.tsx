@@ -57,7 +57,11 @@ export async function generateMetadata({ params }: CountryPageProps): Promise<Me
   return buildMarketMetadata(country as MarketCode, slug, resolved.pageKey);
 }
 
-function buildPageSchemas(marketCode: MarketCode, slug: string[], market: ReturnType<typeof getMarket>) {
+function buildPageSchemas(
+  marketCode: MarketCode,
+  slug: string[],
+  market: ReturnType<typeof getMarket>
+): Record<string, unknown>[] {
   const pageSeo = getMarketPageSeo(marketCode, slug);
   const blogPost =
     slug[0] === 'blog' && slug.length === 2
@@ -66,7 +70,7 @@ function buildPageSchemas(marketCode: MarketCode, slug: string[], market: Return
   const breadcrumbs = buildMarketBreadcrumbs(marketCode, slug, {
     blogPostTitle: blogPost?.title,
   });
-  const schemas: object[] = [];
+  const schemas: Record<string, unknown>[] = [];
 
   if (slug.length === 0) {
     schemas.push(

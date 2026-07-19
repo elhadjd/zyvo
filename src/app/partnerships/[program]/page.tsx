@@ -41,7 +41,7 @@ export default async function Page({ params }: PageProps) {
   const programData = getPartnershipProgram('us', program as PartnershipProgramSlug);
   const market = getMarket('us');
 
-  const schemas: object[] = [
+  const schemas: Record<string, unknown>[] = [
     getMarketServiceSchema(market, {
       name: programData.title,
       description: programData.description,

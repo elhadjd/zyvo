@@ -81,11 +81,11 @@ export async function runFullPipeline(
     publishNow: options.publishNow,
   };
 
-  const defaultStages = options.publishNow
+  const defaultStages: AgentCode[] = options.publishNow
     ? [...STAGE_ORDER, 'publisher']
-    : [...STAGE_ORDER, ...(options.saveAsDraft === false ? (['publisher'] as AgentCode[]) : [])];
+    : [...STAGE_ORDER, ...(options.saveAsDraft === false ? (['publisher'] as const) : [])];
 
-  const stagesToRun = options.stages ?? defaultStages;
+  const stagesToRun: AgentCode[] = options.stages ?? defaultStages;
   const result: PipelineResult = {
     countryCode,
     topic,

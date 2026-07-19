@@ -31,9 +31,9 @@ export async function POST(request: Request) {
 
   let bodyUrls: string[] = [];
   try {
-    const body = await request.json();
+    const body = (await request.json()) as { urls?: unknown };
     if (Array.isArray(body.urls)) {
-      bodyUrls = body.urls.filter((u): u is string => typeof u === 'string');
+      bodyUrls = body.urls.filter((u: unknown): u is string => typeof u === 'string');
     }
   } catch {
     // optional body

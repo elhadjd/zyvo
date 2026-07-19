@@ -3,7 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { runMultiCountryPipeline } from '@/lib/ai/jobs/multi-country-pipeline';
 import { syncAllSitemaps } from '@/lib/ai/seo-engine/sitemap-manager';
 import { getPublishedArticleUrls } from '@/lib/ai/seo-engine/sitemap-manager';
-import { submitUrlsToIndexNow } from '@/lib/seo/indexnow';
+import { submitUrlsToIndexNow, type IndexNowResult } from '@/lib/seo/indexnow';
 import { SITE_URL } from '@/data/site';
 import type { SupportedCountry } from '@/lib/ai/types';
 
@@ -47,7 +47,7 @@ export async function GET(request: Request) {
       // revalidatePath may fail outside request context
     }
 
-    let indexNow = { submitted: 0, skipped: true as boolean, reason: 'disabled' };
+    let indexNow: IndexNowResult = { submitted: 0, skipped: true, reason: 'disabled' };
     if (notifyIndexNow) {
       const urls = TRAFFIC_COUNTRIES.flatMap((code) =>
         getPublishedArticleUrls(code).map((path) => path)
