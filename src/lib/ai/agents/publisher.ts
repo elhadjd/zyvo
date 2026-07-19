@@ -34,13 +34,15 @@ export async function runPublisherAgent(ctx: AgentContext): Promise<number | nul
     const requireApproval = countrySettings?.requireApproval ?? true;
     const autoPublish = countrySettings?.autoPublish ?? false;
 
-    const article = db
-      .select()
-      .from(contentArticles)
-      .where(eq(contentArticles.countryCode, ctx.countryCode))
-      .orderBy(desc(contentArticles.createdAt))
-      .limit(1)
-      .get();
+    const article = ctx.articleId
+      ? db.select().from(contentArticles).where(eq(contentArticles.id, ctx.articleId)).get()
+      : db
+          .select()
+          .from(contentArticles)
+          .where(eq(contentArticles.countryCode, ctx.countryCode))
+          .orderBy(desc(contentArticles.createdAt))
+          .limit(1)
+          .get();
 
     if (!article) {
       completeTask(taskId, 'publisher', { published: false, reason: 'no_article' });
@@ -48,7 +50,9 @@ export async function runPublisherAgent(ctx: AgentContext): Promise<number | nul
     }
 
     const canPublish =
-      article.status === 'approved' || (autoPublish && !requireApproval && article.status === 'pending_review');
+      article.status === 'approved' ||
+      (autoPublish && !requireApproval && article.status === 'pending_review') ||
+      (ctx.publishNow && ['pending_review', 'approved', 'draft'].includes(article.status));
 
     if (!canPublish) {
       completeTask(taskId, 'publisher', {

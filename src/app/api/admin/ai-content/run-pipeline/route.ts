@@ -15,13 +15,15 @@ export async function POST(request: Request) {
   try {
     await requireAdminAuth();
     const body = await request.json();
-    const { action, countryCode = 'gn', agent, dryRun = false } = body;
+    const { action, countryCode = 'gn', agent, dryRun = false, publishNow = false } = body;
 
     if (action === 'pipeline') {
       const result = await runFullPipeline(countryCode as SupportedCountry, {
         dryRun,
         topic: body.topic,
-        saveAsDraft: body.saveAsDraft ?? true,
+        saveAsDraft: publishNow ? false : (body.saveAsDraft ?? true),
+        publishNow,
+        stages: body.stages,
       });
       return NextResponse.json(result);
     }

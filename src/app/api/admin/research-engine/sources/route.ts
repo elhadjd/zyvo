@@ -6,8 +6,10 @@ import {
   updateManagedSource,
   deleteManagedSource,
   testManagedSource,
+  testAllManagedSources,
   seedManagedSources,
 } from '@/lib/ai/research-engine/source-manager';
+import type { SupportedCountry } from '@/lib/ai/types';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -17,8 +19,8 @@ export async function GET(request: Request) {
     await requireAdminAuth();
     seedManagedSources();
     const { searchParams } = new URL(request.url);
-    const country = searchParams.get('country') ?? undefined;
-    const sources = getManagedSources(country as 'gn' | undefined);
+    const country = searchParams.get('country') as SupportedCountry | null;
+    const sources = getManagedSources(country ?? undefined);
     return NextResponse.json(sources);
   } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -32,6 +34,11 @@ export async function POST(request: Request) {
 
     if (body.action === 'test' && body.id) {
       const result = await testManagedSource(body.id);
+      return NextResponse.json(result);
+    }
+
+    if (body.action === 'test_all' && body.countryCode) {
+      const result = await testAllManagedSources(body.countryCode as SupportedCountry);
       return NextResponse.json(result);
     }
 

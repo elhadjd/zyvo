@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Loader2, Plus, ExternalLink, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, Plus, ExternalLink, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+import AdminCountrySelect from '@/components/admin/AdminCountrySelect';
 
 interface Source {
   id: number;
@@ -22,6 +23,7 @@ export default function ResearchSourcesPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name: '', url: '', type: 'government', category: 'Geral' });
   const [testing, setTesting] = useState<number | null>(null);
+  const [testingAll, setTestingAll] = useState(false);
 
   async function fetchSources() {
     setLoading(true);
@@ -55,6 +57,17 @@ export default function ResearchSourcesPage() {
     setTesting(null);
   }
 
+  async function testAllSources() {
+    setTestingAll(true);
+    await fetch('/api/admin/research-engine/sources', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'test_all', countryCode: country }),
+    });
+    await fetchSources();
+    setTestingAll(false);
+  }
+
   const STATUS_ICON: Record<string, React.ReactNode> = {
     active: <CheckCircle className="w-4 h-4 text-green-500" />,
     error: <XCircle className="w-4 h-4 text-red-500" />,
@@ -65,13 +78,16 @@ export default function ResearchSourcesPage() {
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold">Fontes de Pesquisa</h1>
         <div className="flex gap-3">
-          <select value={country} onChange={(e) => setCountry(e.target.value)} className="px-3 py-2 border rounded-lg">
-            <option value="gn">Guinée</option>
-            <option value="sn">Sénégal</option>
-            <option value="ci">Côte d'Ivoire</option>
-            <option value="ao">Angola</option>
-            <option value="mz">Moçambique</option>
-          </select>
+          <AdminCountrySelect value={country} onChange={setCountry} scope="all" />
+          <button
+            onClick={testAllSources}
+            disabled={testingAll}
+            type="button"
+            className="flex items-center gap-2 px-4 py-2 border rounded-lg text-sm"
+          >
+            {testingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            Testar todas
+          </button>
           <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg" type="button">
             <Plus className="w-4 h-4" /> Adicionar Fonte
           </button>

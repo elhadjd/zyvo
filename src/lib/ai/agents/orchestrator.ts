@@ -37,7 +37,13 @@ const STAGE_ORDER: AgentCode[] = [
 
 export async function runFullPipeline(
   countryCode: SupportedCountry,
-  options: { dryRun?: boolean; stages?: AgentCode[]; topic?: string; saveAsDraft?: boolean } = {}
+  options: {
+    dryRun?: boolean;
+    stages?: AgentCode[];
+    topic?: string;
+    saveAsDraft?: boolean;
+    publishNow?: boolean;
+  } = {}
 ): Promise<PipelineResult> {
   seedDatabase();
 
@@ -60,10 +66,15 @@ export async function runFullPipeline(
     countryCode,
     dryRun: options.dryRun,
     topic,
-    saveAsDraft: options.saveAsDraft ?? true,
+    saveAsDraft: options.saveAsDraft ?? !options.publishNow,
+    publishNow: options.publishNow,
   };
 
-  const stagesToRun = options.stages ?? [...STAGE_ORDER, 'publisher'];
+  const defaultStages = options.publishNow
+    ? [...STAGE_ORDER, 'publisher']
+    : [...STAGE_ORDER, ...(options.saveAsDraft === false ? (['publisher'] as AgentCode[]) : [])];
+
+  const stagesToRun = options.stages ?? defaultStages;
   const result: PipelineResult = {
     countryCode,
     topic,
@@ -86,7 +97,10 @@ export async function runFullPipeline(
           break;
         case 'content_writer':
           data = await runContentWriterAgent(ctx);
-          if (typeof data === 'number') result.articleId = data;
+          if (typeof data === 'number') {
+            result.articleId = data;
+            ctx.articleId = data;
+          }
           break;
         case 'seo_optimizer':
           data = await runSeoOptimizerAgent(ctx);
@@ -96,13 +110,17 @@ export async function runFullPipeline(
           break;
         case 'editor':
           data = await runEditorAgent(ctx);
-          if (typeof data === 'number') result.articleId = data;
+          if (typeof data === 'number') {
+            result.articleId = data;
+            ctx.articleId = data;
+          }
           break;
         case 'translation':
           data = await runTranslationAgent(ctx);
           break;
         case 'publisher':
-          if (options.saveAsDraft) {
+          if (result.articleId) ctx.articleId = result.articleId;
+          if (options.saveAsDraft && !options.publishNow) {
             data = { skipped: true, reason: 'saveAsDraft enabled' };
           } else {
             data = await runPublisherAgent(ctx);

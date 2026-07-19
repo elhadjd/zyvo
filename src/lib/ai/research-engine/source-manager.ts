@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { getDb } from '../db';
 import { managedSources } from '../db/schema';
 import { COUNTRY_AI_CONFIGS } from '../countries/config';
@@ -11,20 +11,45 @@ function now(): string {
   return new Date().toISOString();
 }
 
+const FETCH_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (compatible; ZYVO-ResearchEngine/1.0)',
+  Accept: 'text/html,application/xhtml+xml',
+};
+
 export function seedManagedSources(): void {
   const db = getDb();
   const timestamp = now();
 
   for (const config of COUNTRY_AI_CONFIGS) {
     for (const source of config.sources) {
-      const existing = db
+      const type = (source.type === 'institution' ? 'institution' : source.type) as SourceType;
+
+      const byName = db
         .select()
         .from(managedSources)
-        .where(eq(managedSources.url, source.url))
+        .where(
+          and(eq(managedSources.countryCode, config.countryCode), eq(managedSources.name, source.name))
+        )
         .get();
 
-      if (!existing) {
-        const type = (source.type === 'institution' ? 'institution' : source.type) as SourceType;
+      if (byName) {
+        if (byName.url !== source.url || byName.type !== type) {
+          db.update(managedSources)
+            .set({
+              url: source.url,
+              type,
+              status: 'active',
+              updatedAt: timestamp,
+            })
+            .where(eq(managedSources.id, byName.id))
+            .run();
+        }
+        continue;
+      }
+
+      const byUrl = db.select().from(managedSources).where(eq(managedSources.url, source.url)).get();
+
+      if (!byUrl) {
         db.insert(managedSources)
           .values({
             countryCode: config.countryCode,
@@ -107,15 +132,18 @@ export async function testManagedSource(id: number): Promise<{ ok: boolean; stat
 
   try {
     const response = await fetch(source.url, {
-      method: 'HEAD',
-      signal: AbortSignal.timeout(10_000),
-      headers: { 'User-Agent': 'ZYVO-ResearchEngine/1.0' },
+      method: 'GET',
+      redirect: 'follow',
+      signal: AbortSignal.timeout(20_000),
+      headers: FETCH_HEADERS,
     });
+
+    const ok = response.status >= 200 && response.status < 400;
 
     const db = getDb();
     db.update(managedSources)
       .set({
-        status: response.ok ? 'active' : 'error',
+        status: ok ? 'active' : 'error',
         lastChecked: now(),
         updatedAt: now(),
       })
@@ -127,7 +155,7 @@ export async function testManagedSource(id: number): Promise<{ ok: boolean; stat
       statusCode: response.status,
     });
 
-    return { ok: response.ok, statusCode: response.status };
+    return { ok, statusCode: response.status };
   } catch (error) {
     const db = getDb();
     db.update(managedSources)
@@ -138,6 +166,20 @@ export async function testManagedSource(id: number): Promise<{ ok: boolean; stat
     const message = error instanceof Error ? error.message : 'Erro de conexão';
     return { ok: false, error: message };
   }
+}
+
+export async function testAllManagedSources(countryCode: SupportedCountry): Promise<{ tested: number; active: number; failed: number }> {
+  const sources = getManagedSources(countryCode);
+  let active = 0;
+  let failed = 0;
+
+  for (const source of sources) {
+    const result = await testManagedSource(source.id);
+    if (result.ok) active++;
+    else failed++;
+  }
+
+  return { tested: sources.length, active, failed };
 }
 
 export function markSourceChecked(id: number): void {
