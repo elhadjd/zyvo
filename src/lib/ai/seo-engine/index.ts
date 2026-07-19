@@ -53,6 +53,7 @@ export {
   runKeywordResearchAgent,
   runInternalLinkAgent,
   runContentUpdateAgent,
+  syncAllSitemaps,
 };
 export type { SeoOptimizationResult, SeoDashboardStats };
 
