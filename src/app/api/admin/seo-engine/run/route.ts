@@ -2,12 +2,14 @@ import { NextResponse } from 'next/server';
 import { requireAdminAuth } from '@/lib/ai/auth';
 import {
   getProgrammaticPages,
-  getPendingFreshnessChecks,
   runSeoOptimizationJob,
   syncAllSitemaps,
   generateAllProgrammaticPages,
-  runContentUpdateAgent,
 } from '@/lib/ai/seo-engine';
+import {
+  getPendingFreshnessChecks,
+  runContentUpdateAgent,
+} from '@/lib/ai/seo-engine/agents/content-update-agent';
 import type { SupportedCountry } from '@/lib/ai/types';
 
 export const runtime = 'nodejs';

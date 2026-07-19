@@ -28,9 +28,6 @@ import {
   getProgrammaticPage,
 } from './programmatic-pages';
 import { getSeoDashboardStats, getRecentFreshnessChecks } from './seo-monitor';
-import { runKeywordResearchAgent } from './agents/keyword-research-agent';
-import { runInternalLinkAgent } from './agents/internal-link-agent';
-import { runContentUpdateAgent, getPendingFreshnessChecks } from './agents/content-update-agent';
 
 export {
   getSeoKeywords,
@@ -45,14 +42,10 @@ export {
   buildSitemapIndexXml,
   getSeoDashboardStats,
   getRecentFreshnessChecks,
-  getPendingFreshnessChecks,
   createTopicCluster,
   findOrCreateClusterForArticle,
   generateProgrammaticPage,
   generateAllProgrammaticPages,
-  runKeywordResearchAgent,
-  runInternalLinkAgent,
-  runContentUpdateAgent,
   syncAllSitemaps,
 };
 export type { SeoOptimizationResult, SeoDashboardStats };
@@ -99,6 +92,10 @@ export async function runSeoOptimizationJob(countryCode: SupportedCountry): Prom
   freshness: number;
   programmatic: number;
 }> {
+  const { runKeywordResearchAgent } = await import('./agents/keyword-research-agent');
+  const { runInternalLinkAgent } = await import('./agents/internal-link-agent');
+  const { runContentUpdateAgent } = await import('./agents/content-update-agent');
+
   const keywordCount = (await runKeywordResearchAgent({ countryCode })) ?? 0;
   const linkCount = (await runInternalLinkAgent({ countryCode })) ?? 0;
   const freshness = await runContentUpdateAgent({ countryCode });
