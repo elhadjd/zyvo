@@ -38,8 +38,7 @@ JSON: {"status":"validated|requires_review","trustScore":85,"notes":"..."}`,
   const result = deepseekService.parseJson<{ status: ValidationStatus; trustScore: number; notes: string }>(response.content);
 
   logResearchEvent(countryCode, 'source_validator', 'validated', `${source.name}: ${result.status}`, {
-    sourceId,
-    trustScore: result.trustScore,
+    metadata: { sourceId, trustScore: result.trustScore },
   });
 
   return result;

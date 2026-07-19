@@ -57,8 +57,7 @@ export async function extractAndStoreDocument(
     }
 
     logResearchEvent(countryCode, 'knowledge_storage', 'stored', `Documento #${docId}: ${validation.status}`, {
-      docId,
-      validation: validation.status,
+      metadata: { docId, validation: validation.status },
     });
 
     return {
@@ -76,7 +75,7 @@ export async function extractAndStoreDocument(
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Erro de extração';
-    logResearchEvent(countryCode, 'knowledge_storage', 'error', message, { level: 'error', sourceId });
+    logResearchEvent(countryCode, 'knowledge_storage', 'error', message, { level: 'error', metadata: { sourceId } });
     return null;
   }
 }

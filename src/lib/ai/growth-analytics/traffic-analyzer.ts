@@ -1,4 +1,4 @@
-import type { SupportedCountry } from '../../types';
+import type { SupportedCountry } from '../types';
 import { getTrafficSummary, getVisitorMetrics } from './integrations/google-analytics';
 import { getSearchConsoleMetrics, getTopPages } from './integrations/google-search-console';
 

@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { deepseekService } from '../services/deepseek-service';
 import { getDb } from '../db';
 import { growthRecommendations } from '../db/schema';
-import type { SupportedCountry } from '../../types';
+import type { SupportedCountry } from '../types';
 import type { ContentWeekPlan } from './types';
 import { analyzeTraffic } from './traffic-analyzer';
 import { analyzeSearchPerformance } from './search-performance-analyzer';

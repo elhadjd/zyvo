@@ -6,7 +6,7 @@ import {
   internalLinks,
   seoKeywords,
 } from '../db/schema';
-import type { SupportedCountry } from '../../types';
+import type { SupportedCountry } from '../types';
 import type { ContentScore } from './types';
 import { getSearchConsoleMetrics } from './integrations/google-search-console';
 import { getVisitorMetrics } from './integrations/google-analytics';

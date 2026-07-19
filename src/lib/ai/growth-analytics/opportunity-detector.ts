@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { getDb } from '../db';
 import { growthOpportunities } from '../db/schema';
-import type { SupportedCountry } from '../../types';
+import type { SupportedCountry } from '../types';
 import type { GrowthOpportunity } from './types';
 import { analyzeSearchPerformance } from './search-performance-analyzer';
 import { getWeakArticles } from './content-performance-analyzer';

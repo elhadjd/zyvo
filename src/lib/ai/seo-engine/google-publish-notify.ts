@@ -169,7 +169,7 @@ export async function notifySearchConsoleOfArticle(
     {
       countryCode,
       level,
-      metadata: result,
+      metadata: result as unknown as Record<string, unknown>,
     }
   );
 

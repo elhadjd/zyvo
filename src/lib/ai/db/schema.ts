@@ -274,7 +274,9 @@ export const growthRecommendations = sqliteTable('growth_recommendations', {
   priority: text('priority').notNull().default('medium'),
   articleCount: integer('article_count').default(0),
   status: text('status').notNull().default('pending'),
-  weekPlan: text('week_plan', { mode: 'json' }).$type<{ week: number; items: string[] }[]>(),
+  weekPlan: text('week_plan', { mode: 'json' }).$type<
+    { week: number; items: { category: string; count: number; topics: string[] }[] }[]
+  >(),
   createdAt: text('created_at').notNull(),
 });
 

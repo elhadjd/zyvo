@@ -40,9 +40,11 @@ export class ResearchEngine {
     const topOpportunities = opportunities.slice(0, 5);
 
     logResearchEvent(countryCode, 'research_engine', 'daily_complete', 'Pesquisa diária concluída', {
-      keywords: keywords.length,
-      opportunities: opportunities.length,
-      documents: documentsExtracted,
+      metadata: {
+        keywords: keywords.length,
+        opportunities: opportunities.length,
+        documents: documentsExtracted,
+      },
     });
 
     return {
