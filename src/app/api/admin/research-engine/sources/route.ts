@@ -20,7 +20,8 @@ export async function GET(request: Request) {
     seedManagedSources();
     const { searchParams } = new URL(request.url);
     const country = searchParams.get('country') as SupportedCountry | null;
-    const sources = getManagedSources(country ?? undefined);
+    const includeInactive = searchParams.get('includeInactive') === '1';
+    const sources = getManagedSources(country ?? undefined, includeInactive ? undefined : 'active');
     return NextResponse.json(sources);
   } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

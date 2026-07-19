@@ -9,6 +9,7 @@ import { runPublisherAgent } from './publisher';
 import { logAiEvent } from '../logger';
 import { seedDatabase } from '../db/seed';
 import { researchEngine } from '../research-engine';
+import { resolveNextFreshTopic } from '../research-engine/topic-resolver';
 import {
   getCountryConfig,
   isCountryEnabled,
@@ -43,6 +44,7 @@ export async function runFullPipeline(
     topic?: string;
     saveAsDraft?: boolean;
     publishNow?: boolean;
+    skipTopicDiscovery?: boolean;
   } = {}
 ): Promise<PipelineResult> {
   seedDatabase();
@@ -56,11 +58,20 @@ export async function runFullPipeline(
   }
 
   const config = getCountryConfig(countryCode);
-  const topic =
-    options.topic ??
-    researchEngine.getNextTopicForContent(countryCode) ??
-    getNextTopicForCountry(countryCode) ??
-    config?.topics[0];
+  let topic = options.topic;
+
+  if (!topic && !options.skipTopicDiscovery) {
+    topic =
+      (await resolveNextFreshTopic(countryCode)) ??
+      researchEngine.getNextTopicForContent(countryCode) ??
+      getNextTopicForCountry(countryCode) ??
+      config?.topics[0];
+  } else if (!topic) {
+    topic =
+      researchEngine.getNextTopicForContent(countryCode) ??
+      getNextTopicForCountry(countryCode) ??
+      config?.topics[0];
+  }
 
   const ctx: AgentContext = {
     countryCode,

@@ -41,6 +41,9 @@ export async function GET(request: Request) {
     if (mode === 'all') {
       const result = await runMultiCountryPipeline({
         saveAsDraft: searchParams.get('publish') !== 'true',
+        publishNow: searchParams.get('publish') === 'true',
+        articlesPerCountry: Number(searchParams.get('perCountry') ?? 1),
+        recentDays: Number(searchParams.get('recentDays') ?? 14),
       });
       return NextResponse.json(result);
     }

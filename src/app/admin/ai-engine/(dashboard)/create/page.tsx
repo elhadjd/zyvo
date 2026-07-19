@@ -1,10 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Loader2, Play, FileText, Globe } from 'lucide-react';
+import { Loader2, Play, FileText, Globe, CheckSquare, Square } from 'lucide-react';
 import Link from 'next/link';
-import AdminCountrySelect from '@/components/admin/AdminCountrySelect';
-import { COUNTRY_LABELS } from '@/lib/ai/country-labels';
+import { COUNTRY_LABELS, SITE_AI_COUNTRY_OPTIONS } from '@/lib/ai/country-labels';
 
 const PIPELINE_STEPS = [
   'research',
@@ -16,72 +15,192 @@ const PIPELINE_STEPS = [
   'publisher',
 ] as const;
 
+interface BatchJobResult {
+  countryCode: string;
+  topic: string;
+  success: boolean;
+  result: {
+    articleId?: number;
+    stages?: Record<string, { success: boolean; error?: string }>;
+  };
+}
+
 export default function CreateArticlePage() {
-  const [country, setCountry] = useState('gn');
+  const [selectedCountries, setSelectedCountries] = useState<string[]>(['gn', 'sn', 'ci']);
+  const [allCountries, setAllCountries] = useState(true);
   const [topic, setTopic] = useState('');
+  const [articlesPerCountry, setArticlesPerCountry] = useState(1);
   const [publishNow, setPublishNow] = useState(true);
   const [running, setRunning] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
-  const [articleId, setArticleId] = useState<number | null>(null);
-  const [stageResults, setStageResults] = useState<Record<string, { success: boolean; error?: string }>>({});
+  const [summary, setSummary] = useState<string | null>(null);
+  const [batchResults, setBatchResults] = useState<BatchJobResult[]>([]);
+
+  function toggleCountry(code: string) {
+    if (allCountries) {
+      setAllCountries(false);
+      setSelectedCountries(SITE_AI_COUNTRY_OPTIONS.map((c) => c.code).filter((c) => c !== code));
+      return;
+    }
+    setSelectedCountries((prev) =>
+      prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]
+    );
+  }
+
+  function selectAllCountries() {
+    setAllCountries(true);
+    setSelectedCountries(SITE_AI_COUNTRY_OPTIONS.map((c) => c.code));
+  }
 
   async function runPipeline() {
+    const countries = allCountries ? SITE_AI_COUNTRY_OPTIONS.map((c) => c.code) : selectedCountries;
+
+    if (countries.length === 0) {
+      setSummary('Seleccione pelo menos um país.');
+      return;
+    }
+
     setRunning(true);
-    setResult(null);
-    setArticleId(null);
-    setStageResults({});
+    setSummary(null);
+    setBatchResults([]);
+
+    const isBatch = countries.length > 1 || articlesPerCountry > 1 || !topic.trim();
+    const action = isBatch ? 'pipeline_batch' : 'pipeline';
+    const singleCountry = countries[0];
 
     const res = await fetch('/api/admin/ai-content/run-pipeline', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        action: 'pipeline',
-        countryCode: country,
+        action,
+        allCountries,
+        countryCodes: countries,
+        countryCode: singleCountry,
         topic: topic.trim() || undefined,
+        articlesPerCountry: topic.trim() ? 1 : articlesPerCountry,
         publishNow,
         saveAsDraft: !publishNow,
         stages: [...PIPELINE_STEPS],
+        recentDays: 14,
+        concurrency: 3,
       }),
     });
 
     const data = await res.json();
-    if (res.ok) {
-      setStageResults(data.stages ?? {});
-      const id = data.articleId as number | undefined;
-      setArticleId(id ?? null);
-      const label = COUNTRY_LABELS[country] ?? country.toUpperCase();
-      if (publishNow && id) {
-        const published = data.stages?.publisher?.success;
-        setResult(
-          published
-            ? `Artigo #${id} publicado em /${country}/blog — ${label}`
-            : `Artigo #${id} criado. Verifique o estágio Publisher ou aprove em Artigos.`
-        );
-      } else if (id) {
-        setResult(`Rascunho #${id} criado — aprove em Artigos para publicar.`);
-      } else {
-        setResult('Pipeline concluído. Verifique Artigos.');
-      }
-    } else {
-      setResult(`Erro: ${data.error ?? 'Falha no pipeline'}`);
+
+    if (!res.ok) {
+      setSummary(`Erro: ${data.error ?? 'Falha no pipeline'}`);
+      setRunning(false);
+      return;
     }
+
+    if (action === 'pipeline_batch') {
+      const jobs = (data.jobs ?? []) as BatchJobResult[];
+      setBatchResults(jobs);
+      const published = jobs.filter((j) => j.success).length;
+      setSummary(
+        `${published}/${jobs.length} artigo(s) gerado(s) — ${countries.map((c) => COUNTRY_LABELS[c] ?? c).join(', ')}`
+      );
+    } else {
+      const id = data.articleId as number | undefined;
+      const label = COUNTRY_LABELS[singleCountry] ?? singleCountry.toUpperCase();
+      const published = data.stages?.publisher?.success;
+      setBatchResults([
+        {
+          countryCode: singleCountry,
+          topic: data.topic ?? topic,
+          success: Boolean(published ?? id),
+          result: data,
+        },
+      ]);
+      setSummary(
+        publishNow && id
+          ? published
+            ? `Artigo #${id} publicado em /${singleCountry}/blog — ${label}`
+            : `Artigo #${id} criado. Verifique o estágio Publisher.`
+          : id
+            ? `Rascunho #${id} criado — ${label}`
+            : 'Pipeline concluído.'
+      );
+    }
+
     setRunning(false);
   }
 
+  const activeCountries = allCountries
+    ? SITE_AI_COUNTRY_OPTIONS.map((c) => c.code)
+    : selectedCountries;
+
+  const totalArticles = activeCountries.length * (topic.trim() ? 1 : articlesPerCountry);
+
   return (
-    <div className="p-8 max-w-3xl">
+    <div className="p-8 max-w-4xl">
       <div className="flex items-center gap-3 mb-8">
         <FileText className="w-8 h-8 text-brand-primary" />
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Criar artigo real</h1>
-          <p className="text-gray-500">Pipeline completo com DeepSeek — publicação no site</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Criar artigos reais</h1>
+          <p className="text-gray-500">
+            Um ou vários países em paralelo — tópicos do Google quando o campo está vazio
+          </p>
         </div>
       </div>
 
       <div className="bg-white dark:bg-gray-900 border rounded-xl p-6 space-y-5 mb-8">
         <div>
-          <label className="block text-sm font-medium mb-2">País / mercado</label>
-          <AdminCountrySelect value={country} onChange={setCountry} scope="site" className="w-full px-3 py-2 border rounded-lg" />
+          <div className="flex items-center justify-between mb-3">
+            <label className="block text-sm font-medium">Países / mercados</label>
+            <button
+              type="button"
+              onClick={selectAllCountries}
+              className="text-xs text-brand-primary hover:underline"
+            >
+              Seleccionar todos (GN, SN, CI)
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {SITE_AI_COUNTRY_OPTIONS.map((opt) => {
+              const checked = allCountries || selectedCountries.includes(opt.code);
+              return (
+                <button
+                  key={opt.code}
+                  type="button"
+                  onClick={() => toggleCountry(opt.code)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm transition-colors ${
+                    checked
+                      ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
+                      : 'border-gray-200 dark:border-gray-700 text-gray-600'
+                  }`}
+                >
+                  {checked ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">Artigos por país</label>
+            <input
+              type="number"
+              min={1}
+              max={5}
+              value={articlesPerCountry}
+              onChange={(e) => setArticlesPerCountry(Math.min(5, Math.max(1, Number(e.target.value) || 1)))}
+              disabled={Boolean(topic.trim())}
+              className="w-full px-3 py-2 border rounded-lg dark:bg-gray-950 dark:border-gray-700 disabled:opacity-50"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              {topic.trim()
+                ? 'Com tema fixo: 1 artigo por país'
+                : 'Cada artigo usa um tópico Google diferente (máx. 5)'}
+            </p>
+          </div>
+          <div className="flex items-end">
+            <p className="text-sm text-gray-600 dark:text-gray-400 pb-2">
+              Total: <strong>{totalArticles}</strong> artigo(s) em paralelo
+            </p>
+          </div>
         </div>
 
         <div>
@@ -93,7 +212,9 @@ export default function CreateArticlePage() {
             placeholder="Ex: Comment gérer le stock d'une boutique à Dakar"
             className="w-full px-3 py-2 border rounded-lg dark:bg-gray-950 dark:border-gray-700"
           />
-          <p className="text-xs text-gray-500 mt-1">Vazio = tópico automático do calendário editorial do país</p>
+          <p className="text-xs text-gray-500 mt-1">
+            Vazio = Google Suggest + tendências, excluindo tópicos publicados nos últimos 14 dias
+          </p>
         </div>
 
         <label className="flex items-center gap-3 cursor-pointer">
@@ -104,62 +225,72 @@ export default function CreateArticlePage() {
             className="rounded border-gray-300"
           />
           <span className="text-sm">
-            <strong>Publicar imediatamente</strong> no site (/{country}/blog/…) após fact-check e edição
+            <strong>Publicar imediatamente</strong> no site após fact-check e edição
           </span>
         </label>
-
-        {!publishNow && (
-          <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">
-            Sem publicação imediata: o artigo fica em <em>pending_review</em>. Aprove em Artigos e execute o agente Publisher.
-          </p>
-        )}
       </div>
 
       <button
         onClick={runPipeline}
-        disabled={running}
+        disabled={running || activeCountries.length === 0}
         type="button"
         className="flex items-center gap-2 px-6 py-3 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover disabled:opacity-50 mb-8"
       >
         {running ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5" />}
-        {publishNow ? 'Gerar e publicar artigo' : 'Gerar rascunho'}
+        {running
+          ? `A gerar ${totalArticles} artigo(s)…`
+          : publishNow
+            ? `Gerar e publicar ${totalArticles} artigo(s)`
+            : `Gerar ${totalArticles} rascunho(s)`}
       </button>
 
-      {result && (
-        <div className="mb-8 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 rounded-lg text-green-800 dark:text-green-200 text-sm space-y-2">
-          <p>{result}</p>
-          {articleId && (
-            <div className="flex gap-3 pt-2">
-              <Link href={`/admin/ai-engine/articles/${articleId}`} className="underline font-medium">
-                Editar artigo #{articleId}
-              </Link>
-              {publishNow && (
-                <a
-                  href={`/${country}/blog`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 underline font-medium"
-                >
-                  <Globe className="w-4 h-4" /> Ver blog
-                </a>
-              )}
-            </div>
-          )}
+      {summary && (
+        <div className="mb-8 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 rounded-lg text-green-800 dark:text-green-200 text-sm">
+          {summary}
         </div>
       )}
 
-      {Object.keys(stageResults).length > 0 && (
-        <div className="space-y-2">
-          <h2 className="font-semibold mb-2">Etapas</h2>
-          {PIPELINE_STEPS.map((step) => {
-            const s = stageResults[step];
-            if (!s) return null;
+      {batchResults.length > 0 && (
+        <div className="space-y-3 mb-8">
+          <h2 className="font-semibold">Resultados</h2>
+          {batchResults.map((job, index) => {
+            const label = COUNTRY_LABELS[job.countryCode] ?? job.countryCode.toUpperCase();
+            const articleId = job.result.articleId;
+            const published = job.result.stages?.publisher?.success;
+
             return (
-              <div key={step} className="flex items-center justify-between text-sm border rounded-lg px-4 py-2">
-                <span className="font-mono">{step}</span>
-                <span className={s.success ? 'text-green-600' : 'text-red-600'}>
-                  {s.success ? '✓ OK' : `✗ ${s.error ?? 'falhou'}`}
-                </span>
+              <div
+                key={`${job.countryCode}-${job.topic}-${index}`}
+                className="border rounded-xl p-4 bg-white dark:bg-gray-900"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="font-medium text-sm">
+                      {label} · {job.success ? '✓' : '✗'}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{job.topic}</p>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    {articleId && (
+                      <Link
+                        href={`/admin/ai-engine/articles/${articleId}`}
+                        className="text-xs underline"
+                      >
+                        #{articleId}
+                      </Link>
+                    )}
+                    {publishNow && published && (
+                      <a
+                        href={`/${job.countryCode}/blog`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs underline"
+                      >
+                        <Globe className="w-3 h-3" /> Blog
+                      </a>
+                    )}
+                  </div>
+                </div>
               </div>
             );
           })}
@@ -167,11 +298,11 @@ export default function CreateArticlePage() {
       )}
 
       <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg text-sm text-gray-600 dark:text-gray-400">
-        <p className="font-medium mb-2">Requisitos:</p>
+        <p className="font-medium mb-2">Como funciona:</p>
         <ul className="list-disc list-inside space-y-1">
-          <li><code>DEEPSEEK_API_KEY</code> no ambiente</li>
-          <li>Fontes activas em Research Engine → Fontes (botão Testar todas)</li>
-          <li><code>npm run db:seed</code> para base de conhecimento inicial</li>
+          <li>Sem tema: consulta Google Suggest por país e ignora tópicos já publicados (14 dias)</li>
+          <li>Vários países e vários artigos por país correm em paralelo (até 3 de cada vez)</li>
+          <li><code>DEEPSEEK_API_KEY</code> obrigatório no ambiente</li>
         </ul>
       </div>
     </div>
