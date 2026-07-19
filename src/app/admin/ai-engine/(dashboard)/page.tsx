@@ -14,6 +14,8 @@ import {
   Activity,
 } from 'lucide-react';
 import type { DashboardStats } from '@/lib/ai/types';
+import AdminCountrySelect from '@/components/admin/AdminCountrySelect';
+import { COUNTRY_LABELS } from '@/lib/ai/country-labels';
 
 function StatCard({
   label,
@@ -60,14 +62,15 @@ export default function AiEngineDashboard() {
     const res = await fetch('/api/admin/ai-content/run-pipeline', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'test_guinea' }),
+      body: JSON.stringify({ action: 'test_country', countryCode: country }),
     });
     const data = await res.json();
     if (res.ok) {
       const stages = Object.entries(data.stages ?? {})
         .map(([k, v]) => `${k}: ${(v as { success: boolean }).success ? '✓' : '✗'}`)
         .join(' → ');
-      setPipelineResult(`Teste Guiné concluído — ${stages}${data.articleId ? ` | Artigo #${data.articleId}` : ''}`);
+      const label = COUNTRY_LABELS[country] ?? country.toUpperCase();
+      setPipelineResult(`Teste ${label} concluído — ${stages}${data.articleId ? ` | Artigo #${data.articleId}` : ''}`);
     } else {
       setPipelineResult(`Erro: ${data.error}`);
     }
@@ -90,16 +93,12 @@ export default function AiEngineDashboard() {
           <p className="text-gray-500 dark:text-gray-400 mt-1">DeepSeek · Agentes autónomos · ZYVO</p>
         </div>
         <div className="flex items-center gap-3">
-          <select
+          <AdminCountrySelect
             value={country}
-            onChange={(e) => { setCountry(e.target.value); setLoading(true); }}
+            onChange={(v) => { setCountry(v); setLoading(true); }}
+            scope="site"
             className="px-4 py-2 border rounded-lg bg-white dark:bg-gray-900 dark:border-gray-700"
-          >
-            <option value="gn">Guinée (GN)</option>
-            <option value="sn">Sénégal (SN)</option>
-            <option value="ao">Angola (AO)</option>
-            <option value="mz">Moçambique (MZ)</option>
-          </select>
+          />
           <button
             onClick={runTestPipeline}
             disabled={pipelineRunning}
@@ -107,7 +106,7 @@ export default function AiEngineDashboard() {
             type="button"
           >
             {pipelineRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-            Teste Guiné
+            Testar pipeline
           </button>
         </div>
       </div>

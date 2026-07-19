@@ -3,7 +3,7 @@ import { desc } from 'drizzle-orm';
 import { requireAdminAuth } from '@/lib/ai/auth';
 import { getDb } from '@/lib/ai/db';
 import { aiLogs } from '@/lib/ai/db/schema';
-import { runFullPipeline, runSingleAgent, runGuineaTestPipeline } from '@/lib/ai/agents/orchestrator';
+import { runFullPipeline, runSingleAgent, runCountryTestPipeline } from '@/lib/ai/agents/orchestrator';
 import { enqueueTestPipeline } from '@/lib/ai/jobs/processor';
 import { processAllPendingJobs } from '@/lib/ai/jobs/processor';
 import type { AgentCode, SupportedCountry } from '@/lib/ai/types';
@@ -26,8 +26,9 @@ export async function POST(request: Request) {
       return NextResponse.json(result);
     }
 
-    if (action === 'test_guinea') {
-      const result = await runGuineaTestPipeline();
+    if (action === 'test_guinea' || action === 'test_country') {
+      const code = (body.countryCode ?? 'gn') as SupportedCountry;
+      const result = await runCountryTestPipeline(code);
       return NextResponse.json(result);
     }
 

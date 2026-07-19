@@ -54,7 +54,7 @@ export const CI_PAGE_SEO: Record<string, CiSeoPageMeta> = {
   home: {
     title: 'Logiciel de Gestion Entreprise Côte d\'Ivoire — Caisse POS, Stock & ERP PME | ZYVO',
     description:
-      'ZYVO : logiciel de gestion tout-en-un pour PME en Côte d\'Ivoire. Caisse POS Abidjan, stock, facturation TVA DGI, Orange Money & Orange Money. Essai gratuit 7 jours en FCFA.',
+      'ZYVO : logiciel de gestion tout-en-un pour PME en Côte d\'Ivoire. Caisse POS Abidjan, stock, facturation TVA DGI, Orange Money & MTN MoMo. Essai gratuit 7 jours en FCFA.',
     keywords: `${BASE_KEYWORDS}, logiciel gestion PME Abidjan, ERP cloud Côte d\'Ivoire, franc CFA FCFA`,
     path: '/ci',
     h1: 'Logiciel de gestion d\'entreprise pour les PME ivoiriennes',
@@ -163,7 +163,7 @@ export const CI_PAGE_SEO: Record<string, CiSeoPageMeta> = {
   },
   // Solutions détaillées
   'solutions/point-of-sale': {
-    title: 'Logiciel Caisse POS Côte d\'Ivoire — Orange Money & Orange Money | ZYVO Abidjan',
+    title: 'Logiciel Caisse POS Côte d\'Ivoire — Orange Money & MTN MoMo | ZYVO Abidjan',
     description:
       'Caisse enregistreuse cloud pour boutiques et restaurants en Côte d\'Ivoire. Encaissement Orange Money, MTN MoMo, Moov Money, espèces FCFA. Mode hors-ligne, tickets et multi-caissiers à Abidjan.',
     keywords:
@@ -264,7 +264,7 @@ export const CI_PAGE_SEO: Record<string, CiSeoPageMeta> = {
   'solutions/online-store': {
     title: 'Boutique en Ligne Côte d\'Ivoire — E-commerce & POS Sync | ZYVO Abidjan',
     description:
-      'Créez votre boutique en ligne en Côte d\'Ivoire. Catalogue produits, paiement Orange Money/Orange Money, stock synchronisé avec caisse POS.',
+      'Créez votre boutique en ligne en Côte d\'Ivoire. Catalogue produits, paiement Orange Money/MTN MoMo, stock synchronisé avec caisse POS.',
     keywords:
       'boutique en ligne Côte d\'Ivoire, e-commerce Abidjan, vendre en ligne Côte d\'Ivoire, site e-commerce PME Côte d\'Ivoire',
     path: '/ci/solutions/online-store',
@@ -298,7 +298,7 @@ export const CI_PAGE_SEO: Record<string, CiSeoPageMeta> = {
   'industries/restaurants': {
     title: 'Logiciel Restaurant & Dibiterie Côte d\'Ivoire — Caisse POS Abidjan | ZYVO',
     description:
-      'Caisse pour restaurants, maquis et traiteurs en Côte d\'Ivoire. Gestion menus, commandes, ventes journalières et encaissement Orange Money & Orange Money. Optimisé pour Abidjan.',
+      'Caisse pour restaurants, maquis et traiteurs en Côte d\'Ivoire. Gestion menus, commandes, ventes journalières et encaissement Orange Money & MTN MoMo. Optimisé pour Abidjan.',
     keywords:
       'logiciel restaurant Côte d\'Ivoire, caisse maquis Abidjan, POS restaurant Côte d\'Ivoire, gestion menu maquis',
     path: '/ci/industries/restaurants',
@@ -405,7 +405,7 @@ export const CI_HOME_SEO_CONTENT = {
     },
     {
       heading: 'Orange Money, MTN MoMo, Moov Money et connexion 4G',
-      body: `Les paiements mobiles dominent le commerce ivoiriens — Orange Money est le leader incontesté, suivi d'Orange Money et Moov Money. ZYVO permet d'enregistrer les encaissements Orange Money, MTN MoMo et Moov Money à la caisse avec un journal détaillé pour le rapprochement mensuel. L'interface légère fonctionne sur smartphone Android, tablette ou PC — même avec une connexion 4G instable. Le mode dégradé permet de continuer à vendre lors des coupures réseau.`,
+      body: `Les paiements mobiles dominent le commerce ivoirien — Orange Money est le leader incontesté, suivi de MTN MoMo et Moov Money. ZYVO permet d'enregistrer les encaissements Orange Money, MTN MoMo et Moov Money à la caisse avec un journal détaillé pour le rapprochement mensuel. L'interface légère fonctionne sur smartphone Android, tablette ou PC — même avec une connexion 4G instable. Le mode dégradé permet de continuer à vendre lors des coupures réseau.`,
     },
     {
       heading: 'Qui utilise ZYVO en Côte d\'Ivoire ?',

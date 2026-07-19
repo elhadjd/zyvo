@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   try {
     await requireAdminAuth();
     const { searchParams } = new URL(request.url);
-    const country = (searchParams.get('country') ?? 'gn') as 'gn' | 'sn' | 'ao' | 'mz';
+    const country = (searchParams.get('country') ?? 'gn') as 'gn' | 'sn' | 'ci' | 'ao' | 'mz';
     const type = searchParams.get('type') ?? 'all';
 
     if (type === 'top') return NextResponse.json(getTopArticles(country));

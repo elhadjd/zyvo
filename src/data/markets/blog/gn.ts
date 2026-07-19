@@ -44,6 +44,22 @@ export const gnBlogPosts: MarketBlogPost[] = [
       'Testez la solution avec votre connexion réelle — 3G/4G à Conakry peut fluctuer. Un bon logiciel doit fonctionner en mode dégradé et synchroniser les données dès que le réseau revient.',
       'Enfin, profitez des essais gratuits. Impliquez vos caissiers et gérants dans le test. Le meilleur logiciel est celui que votre équipe utilisera chaque jour — pas celui avec le plus de fonctionnalités inutilisées.',
     ],
+    faq: [
+      {
+        question: 'Quel est le meilleur ERP pour une PME en Guinée ?',
+        answer:
+          'Le meilleur ERP dépend de votre secteur et taille. ZYVO est conçu pour les boutiques, restaurants, salons et pharmacies guinéennes avec caisse POS, stock, Orange Money/MTN MoMo et conformité SYSCOHADA.',
+      },
+      {
+        question: 'Combien coûte un logiciel de gestion en Guinée ?',
+        answer:
+          'ZYVO propose des plans à partir de 180 000 GNF/mois (facturation annuelle). Essai gratuit de 7 jours sans carte bancaire internationale.',
+      },
+    ],
+    internalLinks: [
+      { title: 'Logiciel caisse POS Conakry', url: '/solutions/point-of-sale', anchorText: 'Découvrir la caisse POS ZYVO' },
+      { title: 'Tarifs en GNF', url: '/pricing', anchorText: 'Voir les tarifs ZYVO Guinée' },
+    ],
   },
   {
     slug: 'gestion-stock-bonnes-pratiques-guinee',
