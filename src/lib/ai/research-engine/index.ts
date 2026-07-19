@@ -9,6 +9,7 @@ import type { SupportedCountry } from '../types';
 
 export { searchKnowledge, getKnowledgeDocuments, approveKnowledgeDocument, rejectKnowledgeDocument } from './knowledge-storage';
 export { getManagedSources, createManagedSource, updateManagedSource, deleteManagedSource, testManagedSource, seedManagedSources } from './source-manager';
+export { resolveFreshTopics, resolveNextFreshTopic, wasTopicPublishedRecently } from './topic-resolver';
 export { getDiscoveredKeywords } from './keyword-discovery';
 export { getContentOpportunities, getTopApprovedOpportunity } from './opportunity-finder';
 export { getResearchLogs } from './research-logger';

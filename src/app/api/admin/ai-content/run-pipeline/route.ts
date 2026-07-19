@@ -4,8 +4,11 @@ import { requireAdminAuth } from '@/lib/ai/auth';
 import { getDb } from '@/lib/ai/db';
 import { aiLogs } from '@/lib/ai/db/schema';
 import { runFullPipeline, runSingleAgent, runCountryTestPipeline } from '@/lib/ai/agents/orchestrator';
+import { runBatchPipeline } from '@/lib/ai/jobs/batch-pipeline';
+import { runMultiCountryPipeline } from '@/lib/ai/jobs/multi-country-pipeline';
 import { enqueueTestPipeline } from '@/lib/ai/jobs/processor';
 import { processAllPendingJobs } from '@/lib/ai/jobs/processor';
+import { SITE_AI_COUNTRIES } from '@/lib/ai/country-labels';
 import type { AgentCode, SupportedCountry } from '@/lib/ai/types';
 
 export const dynamic = 'force-dynamic';
@@ -24,6 +27,39 @@ export async function POST(request: Request) {
         saveAsDraft: publishNow ? false : (body.saveAsDraft ?? true),
         publishNow,
         stages: body.stages,
+      });
+      return NextResponse.json(result);
+    }
+
+    if (action === 'pipeline_batch' || action === 'pipeline_all') {
+      const countryCodes = (body.countryCodes as SupportedCountry[] | undefined)?.filter(Boolean);
+      const allCountries = body.allCountries === true || action === 'pipeline_all';
+
+      const result = await runBatchPipeline({
+        countryCodes: allCountries ? [...SITE_AI_COUNTRIES] : countryCodes,
+        articlesPerCountry: Number(body.articlesPerCountry ?? 1),
+        topic: body.topic,
+        publishNow,
+        dryRun,
+        stages: body.stages,
+        recentDays: Number(body.recentDays ?? 14),
+        concurrency: Number(body.concurrency ?? 3),
+        siteCountriesOnly: allCountries,
+      });
+
+      return NextResponse.json(result);
+    }
+
+    if (action === 'multi_country') {
+      const result = await runMultiCountryPipeline({
+        countryCodes: body.countryCodes,
+        articlesPerCountry: Number(body.articlesPerCountry ?? 1),
+        publishNow,
+        dryRun,
+        saveAsDraft: publishNow ? false : (body.saveAsDraft ?? true),
+        stages: body.stages,
+        recentDays: Number(body.recentDays ?? 14),
+        concurrency: Number(body.concurrency ?? 3),
       });
       return NextResponse.json(result);
     }
