@@ -8,6 +8,7 @@ export interface PageSeoInput {
   canonical?: string;
   ogType?: 'website' | 'article';
   noindex?: boolean;
+  locale?: string;
 }
 
 export function buildPageTitle(title: string): string {
@@ -21,6 +22,7 @@ export function buildMetadata({
   canonical,
   ogType = 'website',
   noindex = false,
+  locale = 'en_US',
 }: PageSeoInput): Metadata {
   const fullTitle = buildPageTitle(title);
   const canonicalUrl = canonical ? `${SITE_URL}${canonical}` : undefined;
@@ -39,7 +41,7 @@ export function buildMetadata({
       description,
       type: ogType,
       url: canonicalUrl,
-      locale: 'en_US',
+      locale,
       images: [
         {
           url: `${SITE_URL}/og-image.png`,

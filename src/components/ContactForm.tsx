@@ -51,7 +51,7 @@ function ContactFormInner({
   variant = 'full',
   className = '',
 }: ContactFormProps) {
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
   const serviceParam = searchParams.get('service') as ContactServiceId | null;
 
   const [processing, setProcessing] = useState(false);

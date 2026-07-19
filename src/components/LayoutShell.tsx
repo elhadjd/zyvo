@@ -9,10 +9,15 @@ import { useTheme } from '@/contexts/theme-context';
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const pathname = usePathname();
+  const isAdminRoute = pathname.startsWith('/admin');
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
+
+  if (isAdminRoute) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
