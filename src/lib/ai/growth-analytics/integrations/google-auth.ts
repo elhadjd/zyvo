@@ -4,6 +4,8 @@ const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 
 export const GA4_SCOPE = 'https://www.googleapis.com/auth/analytics.readonly';
 export const GSC_SCOPE = 'https://www.googleapis.com/auth/webmasters.readonly';
+export const GSC_WRITE_SCOPE = 'https://www.googleapis.com/auth/webmasters';
+export const INDEXING_SCOPE = 'https://www.googleapis.com/auth/indexing';
 
 export interface GoogleServiceAccountCredentials {
   client_email: string;
