@@ -1,0 +1,375 @@
+#!/usr/bin/env tsx
+/**
+ * Teste completo E2E — Guiné (GN)
+ * Uso: npx tsx scripts/test-guinea-e2e.ts [--base-url=http://localhost:3000]
+ */
+import { readFileSync, existsSync } from 'fs';
+import { resolve } from 'path';
+
+function loadEnvLocal() {
+  const envPath = resolve(process.cwd(), '.env.local');
+  if (!existsSync(envPath)) return;
+  for (const line of readFileSync(envPath, 'utf-8').split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eqIdx = trimmed.indexOf('=');
+    if (eqIdx === -1) continue;
+    const key = trimmed.slice(0, eqIdx);
+    const val = trimmed.slice(eqIdx + 1);
+    if (!process.env[key]) process.env[key] = val;
+  }
+}
+
+loadEnvLocal();
+
+import { getMarket } from '../src/lib/markets/registry';
+import { resolveMarketPage, getMarketStaticParams } from '../src/lib/markets/pages';
+import { getMergedMarketBlogPosts, getMergedMarketBlogPostBySlug } from '../src/lib/markets/blog-server';
+import { getMarketBlogConfig } from '../src/data/markets/blog';
+import { buildMarketBlogPostMetadata, buildMarketMetadata } from '../src/lib/markets/metadata';
+import { getEnabledCountryCodes, getCountryConfig } from '../src/lib/ai/countries/registry';
+import { isDatabaseAvailable } from '../src/lib/ai/db';
+import { getPublishedDbArticles } from '../src/lib/ai/blog-repository';
+import { PROGRAMMATIC_INDUSTRIES } from '../src/lib/ai/seo-engine/types';
+
+const BASE_URL = process.argv.find((a) => a.startsWith('--base-url='))?.split('=')[1] ?? 'http://localhost:3000';
+
+type TestResult = { name: string; ok: boolean; detail?: string };
+
+const results: TestResult[] = [];
+
+function pass(name: string, detail?: string) {
+  results.push({ name, ok: true, detail });
+  console.log(`  ✅ ${name}${detail ? ` — ${detail}` : ''}`);
+}
+
+function fail(name: string, detail?: string) {
+  results.push({ name, ok: false, detail });
+  console.log(`  ❌ ${name}${detail ? ` — ${detail}` : ''}`);
+}
+
+function assert(name: string, condition: boolean, detail?: string) {
+  if (condition) pass(name, detail);
+  else fail(name, detail);
+}
+
+// ─── Structural tests (no server) ───────────────────────────────────────────
+
+function runStructuralTests() {
+  console.log('\n📦 Testes estruturais (código + DB)\n');
+
+  const gn = getMarket('gn');
+  assert('GN market ativo', gn.active === true);
+  assert('GN não é comingSoon', gn.comingSoon !== true);
+  assert('GN routePrefix /gn', gn.routePrefix === '/gn');
+  assert('GN locale fr-GN', gn.hreflang === 'fr-GN');
+
+  const sn = getMarket('sn');
+  assert('SN inativo (coming soon)', sn.active === false && sn.comingSoon === true);
+
+  assert('GN no AI config', getEnabledCountryCodes().includes('gn'));
+  const gnAi = getCountryConfig('gn');
+  assert('GN AI config tem topics', (gnAi?.topics.length ?? 0) > 0);
+  assert('GN AI config tem sources', (gnAi?.sources.length ?? 0) > 0);
+
+  const blogConfig = getMarketBlogConfig('gn');
+  assert('Blog config GN existe', !!blogConfig);
+  assert('Blog index tem keywords', !!blogConfig?.indexKeywords?.length);
+
+  const staticParams = getMarketStaticParams('gn');
+  assert('Static params GN gerados', staticParams.length > 10, `${staticParams.length} rotas`);
+
+  for (const { slug } of staticParams) {
+    const resolved = resolveMarketPage('gn', slug);
+    assert(`resolveMarketPage gn/${slug.join('/')}`, !!resolved);
+  }
+
+  const posts = getMergedMarketBlogPosts('gn');
+  assert('Blog posts merged', posts.length >= 3, `${posts.length} artigos`);
+
+  for (const post of posts) {
+    assert(`Post SEO: ${post.slug} metaTitle`, !!post.metaTitle);
+    assert(`Post SEO: ${post.slug} metaDescription`, post.metaDescription.length >= 50);
+    assert(`Post SEO: ${post.slug} keywords`, !!post.keywords);
+    assert(`Post SEO: ${post.slug} content`, post.content.length > 0);
+
+    const meta = buildMarketBlogPostMetadata('gn', post);
+    assert(`Metadata build: ${post.slug}`, !!meta.title && !!meta.description);
+  }
+
+  const samplePost = posts[0];
+  const bySlug = getMergedMarketBlogPostBySlug('gn', samplePost.slug);
+  assert('getMergedMarketBlogPostBySlug', bySlug?.slug === samplePost.slug);
+
+  const blogIndexMeta = buildMarketMetadata('gn', ['blog'], 'blog');
+  assert('Blog index metadata', !!blogIndexMeta.title && !!blogIndexMeta.description);
+
+  assert('Database disponível', isDatabaseAvailable());
+  const dbPosts = getPublishedDbArticles('gn');
+  pass('Artigos DB publicados', `${dbPosts.length} no banco`);
+
+  assert('Programmatic industries', PROGRAMMATIC_INDUSTRIES.length > 0, `${PROGRAMMATIC_INDUSTRIES.length} indústrias`);
+}
+
+// ─── HTTP tests ─────────────────────────────────────────────────────────────
+
+async function fetchStatus(path: string, init?: RequestInit): Promise<{ status: number; body: string; headers: Headers }> {
+  const res = await fetch(`${BASE_URL}${path}`, init);
+  const body = await res.text();
+  return { status: res.status, body, headers: res.headers };
+}
+
+async function runHttpTests() {
+  console.log('\n🌐 Testes HTTP (servidor: ' + BASE_URL + ')\n');
+
+  // Health — home GN
+  const gnHome = await fetchStatus('/gn');
+  assert('GET /gn → 200', gnHome.status === 200, `status ${gnHome.status}`);
+  assert('GN home contém Guinée', gnHome.body.includes('Guinée') || gnHome.body.includes('Guinee'));
+
+  const staticPages = [
+    '/gn/features',
+    '/gn/pricing',
+    '/gn/about',
+    '/gn/contact',
+    '/gn/faq',
+    '/gn/demo',
+    '/gn/getting-started',
+    '/gn/blog',
+    '/gn/solutions',
+    '/gn/industries',
+    '/gn/solutions/point-of-sale',
+    '/gn/solutions/inventory-management',
+    '/gn/industries/retail',
+    '/gn/industries/restaurants',
+  ];
+
+  for (const path of staticPages) {
+    const { status } = await fetchStatus(path);
+    assert(`GET ${path} → 200`, status === 200, `status ${status}`);
+  }
+
+  // Blog posts
+  const posts = getMergedMarketBlogPosts('gn');
+  for (const post of posts.slice(0, 5)) {
+    const path = `/gn/blog/${post.slug}`;
+    const { status, body } = await fetchStatus(path);
+    assert(`GET ${path} → 200`, status === 200);
+    assert(`Post ${post.slug} tem <h1>`, body.includes('<h1') || body.includes('text-3xl'));
+    assert(`Post ${post.slug} JSON-LD Article`, body.includes('Article') || body.includes('BlogPosting'));
+    assert(`Post ${post.slug} canonical`, body.includes('/gn/blog/') || body.includes('canonical'));
+  }
+
+  // Blog index SEO
+  const blogIndex = await fetchStatus('/gn/blog');
+  assert('Blog index tem hero', blogIndex.body.includes('Blog') || blogIndex.body.includes('blog'));
+
+  // Programmatic ERP pages
+  for (const ind of PROGRAMMATIC_INDUSTRIES.slice(0, 2)) {
+    const path = `/gn/erp/${ind.slug}`;
+    const { status } = await fetchStatus(path);
+    assert(`GET ${path} → 200`, status === 200, `status ${status}`);
+  }
+
+  // Coming soon markets should 404
+  const snHome = await fetchStatus('/sn');
+  assert('GET /sn → 404 (coming soon)', snHome.status === 404);
+
+  const aoHome = await fetchStatus('/ao');
+  assert('GET /ao → 404 (coming soon)', aoHome.status === 404);
+
+  // Sitemaps
+  const sitemap = await fetchStatus('/sitemap.xml');
+  assert('GET /sitemap.xml → 200', sitemap.status === 200);
+  assert('Sitemap referencia GN', sitemap.body.includes('/gn'));
+
+  const sitemapCountries = await fetchStatus('/sitemap-countries.xml');
+  assert('GET /sitemap-countries.xml → 200', sitemapCountries.status === 200);
+
+  const sitemapArticles = await fetchStatus('/sitemap-articles.xml');
+  assert('GET /sitemap-articles.xml → 200', sitemapArticles.status === 200);
+  if (posts.length > 0) {
+    assert('Sitemap articles inclui post GN', sitemapArticles.body.includes('/gn/blog/'));
+  }
+
+  // RSS
+  const rss = await fetchStatus('/api/markets/gn/blog/rss');
+  assert('GET /api/markets/gn/blog/rss → 200', rss.status === 200);
+  assert('RSS é XML válido', rss.body.includes('<rss') && rss.body.includes('<channel>'));
+
+  // robots.txt
+  const robots = await fetchStatus('/robots.txt');
+  assert('GET /robots.txt → 200', robots.status === 200);
+  assert('robots.txt tem Sitemap', robots.body.toLowerCase().includes('sitemap'));
+
+  // Admin pages load (HTML)
+  const adminLogin = await fetchStatus('/admin/ai-engine/login');
+  assert('GET /admin/ai-engine/login → 200', adminLogin.status === 200);
+
+  // Admin API — sem auth deve falhar
+  const adminDash = await fetchStatus('/api/admin/ai-content/dashboard');
+  assert('Admin dashboard sem auth → 401', adminDash.status === 401);
+
+  const adminArticles = await fetchStatus('/api/admin/ai-content/articles');
+  assert('Admin articles sem auth → 401', adminArticles.status === 401);
+
+  const seoStats = await fetchStatus('/api/admin/seo-engine/stats');
+  assert('SEO engine stats sem auth → 401', seoStats.status === 401);
+
+  const growthStats = await fetchStatus('/api/admin/growth/stats');
+  assert('Growth stats sem auth → 401', growthStats.status === 401);
+
+  // Admin auth flow
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (adminPassword) {
+    const loginRes = await fetch(`${BASE_URL}/api/admin/ai-content/auth`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: adminPassword }),
+    });
+    const setCookie = loginRes.headers.get('set-cookie') ?? '';
+    assert('Admin login → 200', loginRes.status === 200);
+    assert('Admin login set-cookie', setCookie.includes('zyvo_admin_token'));
+
+    const cookie = setCookie.split(';')[0];
+    const authedDash = await fetchStatus('/api/admin/ai-content/dashboard', {
+      headers: { Cookie: cookie },
+    });
+    assert('Admin dashboard com auth → 200', authedDash.status === 200);
+
+    const authedArticles = await fetchStatus('/api/admin/ai-content/articles', {
+      headers: { Cookie: cookie },
+    });
+    assert('Admin articles com auth → 200', authedArticles.status === 200);
+
+    const authedSettings = await fetchStatus('/api/admin/ai-content/settings', {
+      headers: { Cookie: cookie },
+    });
+    assert('Admin settings com auth → 200', authedSettings.status === 200);
+
+    const authedCountries = await fetchStatus('/api/admin/ai-content/countries', {
+      headers: { Cookie: cookie },
+    });
+    assert('Admin countries com auth → 200', authedCountries.status === 200);
+    if (authedCountries.status === 200) {
+      const data = JSON.parse(authedCountries.body);
+      const countries = data.configured ?? data;
+      assert(
+        'Admin countries inclui GN',
+        Array.isArray(countries) && countries.some((c: { countryCode: string }) => c.countryCode === 'gn')
+      );
+    }
+
+    const authedSeo = await fetchStatus('/api/admin/seo-engine/stats', {
+      headers: { Cookie: cookie },
+    });
+    assert('SEO engine stats com auth → 200', authedSeo.status === 200);
+
+    const authedGrowth = await fetchStatus('/api/admin/growth/stats', {
+      headers: { Cookie: cookie },
+    });
+    assert('Growth stats com auth → 200', authedGrowth.status === 200);
+
+    // Invalid login
+    const badLogin = await fetch(`${BASE_URL}/api/admin/ai-content/auth`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: 'wrong-password' }),
+    });
+    assert('Admin login senha errada → 401', badLogin.status === 401);
+  } else {
+    fail('Admin auth flow', 'ADMIN_PASSWORD não configurada — saltado');
+  }
+
+  // Cron endpoint
+  const cronSecret = process.env.CRON_SECRET;
+  if (cronSecret) {
+    const cronBad = await fetchStatus('/api/cron/daily-pipeline?country=gn&stage=research');
+    assert('Cron sem secret → 401', cronBad.status === 401);
+
+    const cronOk = await fetchStatus(
+      `/api/cron/daily-pipeline?country=gn&stage=research&secret=${cronSecret}`
+    );
+    assert('Cron research GN → 200', cronOk.status === 200, `status ${cronOk.status}`);
+  } else {
+    const cronOpen = await fetchStatus('/api/cron/daily-pipeline?country=gn&stage=research');
+    assert('Cron research GN (sem CRON_SECRET) → 200', cronOpen.status === 200, `status ${cronOpen.status}`);
+  }
+
+  // Conversion tracking API
+  const conversion = await fetch(`${BASE_URL}/api/analytics/conversion`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userAction: 'pricing_view', country: 'gn', page: '/gn/pricing' }),
+  });
+  assert('Conversion API → 200', conversion.status === 200, `status ${conversion.status}`);
+
+  // Contact API — sem API_KEY configurada retorna 500
+  const contactBad = await fetch(`${BASE_URL}/api/contact`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({}),
+  });
+  assert(
+    'Contact API dados inválidos → 400 ou 500',
+    contactBad.status === 400 || contactBad.status === 500,
+    `status ${contactBad.status}`
+  );
+}
+
+// ─── Main ───────────────────────────────────────────────────────────────────
+
+async function waitForServer(maxAttempts = 30): Promise<boolean> {
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      const res = await fetch(BASE_URL);
+      if (res.ok || res.status === 404) return true;
+    } catch {
+      // retry
+    }
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+  return false;
+}
+
+async function main() {
+  console.log('🇬🇳 Teste completo E2E — Guiné (GN)\n');
+  console.log('='.repeat(50));
+
+  runStructuralTests();
+
+  console.log('\n⏳ Aguardando servidor...');
+  const serverUp = await waitForServer();
+  if (!serverUp) {
+    fail('Servidor disponível', `Não responde em ${BASE_URL}. Execute: npm run start`);
+    printSummary();
+    process.exit(1);
+  }
+  pass('Servidor disponível', BASE_URL);
+
+  await runHttpTests();
+
+  printSummary();
+}
+
+function printSummary() {
+  console.log('\n' + '='.repeat(50));
+  const passed = results.filter((r) => r.ok).length;
+  const failed = results.filter((r) => !r.ok);
+  console.log(`\n📊 Resultado: ${passed}/${results.length} testes passaram`);
+
+  if (failed.length > 0) {
+    console.log('\n❌ Falhas:');
+    for (const f of failed) {
+      console.log(`   • ${f.name}${f.detail ? `: ${f.detail}` : ''}`);
+    }
+    process.exit(1);
+  }
+
+  console.log('\n✅ Todos os fluxos da Guiné estão funcionando!\n');
+}
+
+main().catch((err) => {
+  console.error('Erro fatal:', err);
+  process.exit(1);
+});

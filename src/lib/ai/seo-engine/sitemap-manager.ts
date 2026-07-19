@@ -7,6 +7,8 @@ import {
   seoSitemapEntries,
 } from '../db/schema';
 import type { SupportedCountry } from '../types';
+import { getMarketBlogPosts } from '@/data/markets/blog';
+import type { MarketCode } from '@/lib/markets/types';
 import { getAllPublishedDbSlugs } from '../blog-repository';
 import type { SitemapType } from './types';
 
@@ -61,12 +63,25 @@ export function syncArticleSitemap(countryCode: SupportedCountry): number {
     .all()
     .filter((a) => a.status === 'published');
 
+  let count = 0;
+
   for (const article of articles) {
     const url = `${SITE_URL}/${countryCode}/blog/${article.slug}`;
     upsertSitemapEntry(url, 'articles', countryCode, 0.8, 'weekly');
+    count++;
   }
 
-  return articles.length;
+  const staticPosts = getMarketBlogPosts(countryCode as MarketCode);
+  const seenSlugs = new Set(articles.map((a) => a.slug));
+
+  for (const post of staticPosts) {
+    if (seenSlugs.has(post.slug)) continue;
+    const url = `${SITE_URL}/${countryCode}/blog/${post.slug}`;
+    upsertSitemapEntry(url, 'articles', countryCode, 0.8, 'weekly');
+    count++;
+  }
+
+  return count;
 }
 
 export function syncProgrammaticSitemap(countryCode: SupportedCountry): number {

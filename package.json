@@ -9,7 +9,8 @@
     "lint": "next lint",
     "db:migrate": "tsx scripts/db-migrate.ts",
     "db:seed": "tsx scripts/db-seed.ts",
-    "ai:test-gn": "tsx scripts/test-guinea-pipeline.ts"
+    "ai:test-gn": "tsx scripts/test-guinea-pipeline.ts",
+    "test:gn": "tsx scripts/test-guinea-e2e.ts"
   },
   "dependencies": {
     "axios": "^1.13.5",

@@ -6,6 +6,7 @@ import { syncCountryConfigsToDatabase } from '../countries/registry';
 import { AGENT_DEFINITIONS } from '../types';
 import { AGENT_PROMPTS } from '../agents/prompts';
 import { seedManagedSources } from '../research-engine/source-manager';
+import { seedGuineaSitemaps } from './seed-guinea';
 import type { SupportedCountry } from '../types';
 
 function now(): string {
@@ -49,4 +50,6 @@ export function seedDatabase(): void {
         .run();
     }
   }
+
+  seedGuineaSitemaps();
 }
