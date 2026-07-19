@@ -46,6 +46,7 @@ export default function AdminSettingsPage() {
   const countryNames: Record<string, string> = {
     gn: 'Guinée',
     sn: 'Sénégal',
+    ci: "Côte d'Ivoire",
     ao: 'Angola',
     mz: 'Moçambique',
   };

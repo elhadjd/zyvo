@@ -7,15 +7,15 @@ const CI_PROGRAMMATIC_SEEDS = [
     headline: 'Logiciel de gestion pour restaurants et maquis à Abidjan',
     metaTitle: 'ERP Restaurant Côte d\'Ivoire — Caisse POS & Stock | ZYVO Abidjan',
     metaDescription:
-      'Gérez votre restaurant ou dibiterie en Côte d\'Ivoire : caisse POS, stock, Orange Money, Orange Money, TVA DGI. Essai gratuit en FCFA.',
-    keywords: 'ERP restaurant Côte d\'Ivoire, POS dibiterie Abidjan, gestion restaurant Côte d\'Ivoire',
+      'Gérez votre restaurant ou maquis en Côte d\'Ivoire : caisse POS, stock, Orange Money, MTN MoMo, TVA DGI. Essai gratuit en FCFA.',
+    keywords: 'ERP restaurant Côte d\'Ivoire, POS maquis Abidjan, gestion restaurant Côte d\'Ivoire',
     content: [
-      'Les restaurants et maquis de Abidjan gèrent commandes, stocks et paiements Orange Money/Orange Money au quotidien.',
+      'Les restaurants et maquis d\'Abidjan gèrent commandes, stocks et paiements Orange Money/MTN MoMo au quotidien.',
       'ZYVO centralise caisse POS, stock et facturation pour les PME ivoiriennes.',
       'Rapports TVA 18 % et ventes en FCFA pour la DGI.',
     ],
     faq: [
-      { question: 'Orange Money est-il supporté ?', answer: 'Oui, Orange Money, Orange Money et Moov Money à la caisse.' },
+      { question: 'Orange Money et MTN MoMo sont-ils supportés ?', answer: 'Oui, Orange Money, MTN MoMo et Moov Money à la caisse.' },
       { question: 'Mode hors ligne ?', answer: 'Oui, synchronisation automatique au retour du réseau.' },
     ],
     cta: 'Essai gratuit 7 jours',
@@ -26,10 +26,10 @@ const CI_PROGRAMMATIC_SEEDS = [
     headline: 'Logiciel de gestion commerciale pour boutiques à Abidjan',
     metaTitle: 'Logiciel Boutique Côte d\'Ivoire — Caisse POS & Stock | ZYVO',
     metaDescription:
-      'ERP pour boutiques ivoiriennes : caisse POS, stock temps réel, Orange Money et Orange Money à Abidjan.',
+      'ERP pour boutiques ivoiriennes : caisse POS, stock temps réel, Orange Money et MTN MoMo à Abidjan.',
     keywords: 'logiciel boutique Côte d\'Ivoire, caisse superette Abidjan, gestion commerciale Côte d\'Ivoire',
     content: [
-      'Du Plateau à Pikine, les commerçants ivoiriens digitalisent leur gestion avec ZYVO.',
+      'De Cocody à Yopougon, les commerçants ivoiriens digitalisent leur gestion avec ZYVO.',
       'Caisse POS rapide, inventaire temps réel et paiements mobiles intégrés.',
       'Contrôlez vos marges en FCFA et réduisez les ruptures.',
     ],
@@ -67,7 +67,7 @@ const CI_PROGRAMMATIC_SEEDS = [
       'ERP salons de coiffure en Côte d\'Ivoire : rendez-vous, file SMS, commissions et caisse POS à Abidjan.',
     keywords: 'logiciel salon coiffure Côte d\'Ivoire, gestion institut beauté Abidjan',
     content: [
-      'Salons et instituts de beauté dakarois : rendez-vous, files d\'attente et commissions.',
+      'Salons et instituts de beauté abidjanais : rendez-vous, files d\'attente et commissions.',
       'ZYVO combine planning, SMS clients et caisse POS.',
       'Fidélisez vos clients avec des rappels automatiques.',
     ],
@@ -83,16 +83,16 @@ const CI_PROGRAMMATIC_SEEDS = [
     headline: 'Gestion clinique et cabinet médical à Abidjan',
     metaTitle: 'Logiciel Clinique Côte d\'Ivoire — RDV & Facturation | ZYVO',
     metaDescription:
-      'ERP cliniques ivoiriennes : rendez-vous, facturation NCC, stock consommables et dossiers.',
+      'ERP cliniques ivoiriennes : rendez-vous, facturation RCCM, stock consommables et dossiers.',
     keywords: 'logiciel clinique Côte d\'Ivoire, gestion cabinet médical Abidjan',
     content: [
       'Cliniques et cabinets médicaux : rendez-vous, facturation et gestion des consommables.',
-      'ZYVO : planning, facturation TVA et encaissements Orange Money/Orange Money.',
-      'Interface adaptée au personnel administratif ivoiriens.',
+      'ZYVO : planning, facturation TVA et encaissements Orange Money/MTN MoMo.',
+      'Interface adaptée au personnel administratif ivoirien.',
     ],
     faq: [
       { question: 'Rendez-vous en ligne ?', answer: 'Oui, agenda avec rappels SMS.' },
-      { question: 'Factures NCC ?', answer: 'Oui, mentions légales et TVA 18 %.' },
+      { question: 'Factures conformes ?', answer: 'Oui, mentions légales et TVA 18 %.' },
     ],
     cta: 'Demander une démo',
   },
@@ -105,7 +105,7 @@ const CI_PROGRAMMATIC_SEEDS = [
       'ERP supermarchés ivoiriens : caisse multi-caissiers, codes-barres, inventaire et rapports FCFA.',
     keywords: 'logiciel supermarché Côte d\'Ivoire, POS superette Abidjan',
     content: [
-      'Superettes et supermarchés dakarois gèrent des milliers de références.',
+      'Superettes et supermarchés abidjanais gèrent des milliers de références.',
       'ZYVO : multi-caissiers, codes-barres, inventaires et rapports de marge en FCFA.',
       'Centralisez plusieurs magasins depuis un tableau de bord.',
     ],
