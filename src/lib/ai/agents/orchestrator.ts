@@ -16,6 +16,7 @@ import {
   isConfiguredCountry,
 } from '../countries/registry';
 import type { AgentCode, AgentContext, SupportedCountry } from '../types';
+import { COUNTRY_TEST_TOPICS, isSiteAiCountry } from '../country-labels';
 
 export interface PipelineResult {
   countryCode: SupportedCountry;
@@ -121,13 +122,21 @@ export async function runFullPipeline(
   return result;
 }
 
-/** Teste real: Guiné — "Como abrir uma pequena empresa na Guiné" → rascunho */
-export async function runGuineaTestPipeline(): Promise<PipelineResult> {
-  return runFullPipeline('gn', {
-    topic: 'Comment ouvrir une petite entreprise en Guinée',
+/** Teste real por país — gera rascunho com tópico local */
+export async function runCountryTestPipeline(countryCode: SupportedCountry): Promise<PipelineResult> {
+  const topic = isSiteAiCountry(countryCode)
+    ? COUNTRY_TEST_TOPICS[countryCode]
+    : `Guide gestion PME ${countryCode}`;
+  return runFullPipeline(countryCode, {
+    topic,
     saveAsDraft: true,
     stages: STAGE_ORDER,
   });
+}
+
+/** @deprecated Use runCountryTestPipeline('gn') */
+export async function runGuineaTestPipeline(): Promise<PipelineResult> {
+  return runCountryTestPipeline('gn');
 }
 
 export async function runSingleAgent(

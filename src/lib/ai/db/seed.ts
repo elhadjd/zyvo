@@ -9,6 +9,7 @@ import { seedManagedSources } from '../research-engine/source-manager';
 import { seedGuineaProgrammaticPages } from './seed-guinea';
 import { seedSenegalProgrammaticPages } from './seed-senegal';
 import { seedCoteDIvoireProgrammaticPages } from './seed-cote-divoire';
+import { seedMarketKnowledgeFromBlog } from './seed-market-knowledge';
 import { syncAllSitemaps } from '../seo-engine/sitemap-manager';
 import type { SupportedCountry } from '../types';
 
@@ -57,5 +58,6 @@ export function seedDatabase(): void {
   seedGuineaProgrammaticPages();
   seedSenegalProgrammaticPages();
   seedCoteDIvoireProgrammaticPages();
+  seedMarketKnowledgeFromBlog();
   syncAllSitemaps();
 }

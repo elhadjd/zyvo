@@ -65,6 +65,7 @@ export default function AdminArticlesPage() {
           >
             <option value="gn">Guinée</option>
             <option value="sn">Sénégal</option>
+            <option value="ci">Côte d'Ivoire</option>
             <option value="ao">Angola</option>
             <option value="mz">Moçambique</option>
           </select>

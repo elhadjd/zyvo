@@ -39,7 +39,7 @@ export const ciBlogPosts: MarketBlogPost[] = [
       'Choisir un logiciel de gestion d\'entreprise est l\'une des décisions les plus importantes pour un commerçant ou dirigeant de PME en Côte d\'Ivoire. Entre les boutiques du Cocody, les restaurants d\'Plateau, les commerces de Yopougon et les entreprises de Bouaké ou Yamoussoukro, les besoins varient — mais les critères de sélection restent les mêmes.',
       'Commencez par identifier vos problèmes prioritaires. Perdez-vous de l\'argent à cause d\'erreurs de caisse ? Votre stock est-il géré dans un cahier ou Excel ? Avez-vous du mal à suivre les paiements Orange Money et MTN MoMo ? Un bon logiciel résout d\'abord vos douleurs principales.',
       'Vérifiez que le logiciel supporte le franc CFA (XOF/FCFA) nativement. Le Côte d\'Ivoire est dans la zone UEMOA — votre ERP doit gérer le FCFA de bout en bout, y compris les tarifs, factures et rapports.',
-      'Le paiement mobile est incontournable en Côte d\'Ivoire. Orange Money et MTN MoMo dominent le marché dakarois. Assurez-vous que la caisse POS permet d\'enregistrer ces encaissements avec un journal de caisse clair pour le rapprochement mensuel.',
+      'Le paiement mobile est incontournable en Côte d\'Ivoire. Orange Money et MTN MoMo dominent le marché abidjanais. Assurez-vous que la caisse POS permet d\'enregistrer ces encaissements avec un journal de caisse clair pour le rapprochement mensuel.',
       'La conformité comptable SYSCOHADA est obligatoire pour les entreprises ivoiriennes (membre OHADA). Privilégiez un logiciel qui génère des factures numérotées, suit la TVA à 18 % et exporte les journaux pour vos déclarations à la DGI.',
       'Testez la solution avec votre connexion réelle — la 4G à Abidjan est généralement bonne, mais les coupures existent. Un bon logiciel doit fonctionner en mode dégradé et synchroniser les données dès que le réseau revient.',
       'Enfin, profitez des essais gratuits. Impliquez vos caissiers et gérants dans le test. Le meilleur logiciel est celui que votre équipe utilisera chaque jour — pas celui avec le plus de fonctionnalités inutilisées.',
@@ -97,7 +97,7 @@ export const ciBlogPosts: MarketBlogPost[] = [
     metaTitle:
       'Orange Money & Orange Money — Caisse POS Abidjan | Blog ZYVO',
     metaDescription:
-      'Guide complet pour intégrer Orange Money et MTN MoMo à votre caisse POS en Côte d\'Ivoire. Traçabilité, réconciliation et bonnes pratiques pour commerçants dakarois.',
+      'Guide complet pour intégrer Orange Money et MTN MoMo à votre caisse POS en Côte d\'Ivoire. Traçabilité, réconciliation et bonnes pratiques pour commerçants abidjanais.',
     keywords:
       'Orange Money caisse Côte d\'Ivoire, Orange Money POS Abidjan, paiement mobile boutique Côte d\'Ivoire, caisse enregistreuse Orange Money',
     author: 'Équipe ZYVO Côte d\'Ivoire',

@@ -1,5 +1,6 @@
 import type { SupportedCountry } from '../types';
 import { getCountryConfig } from '../countries';
+import { COUNTRY_LOCAL_CONTEXT, isSiteAiCountry } from '../country-labels';
 
 export interface AgentPromptConfig {
   name: string;
@@ -57,12 +58,17 @@ Réponds en JSON:
 
 export function getWriterPrompt(countryCode: SupportedCountry, topic?: string): AgentPromptConfig {
   const config = getCountryConfig(countryCode)!;
+  const local = isSiteAiCountry(countryCode) ? COUNTRY_LOCAL_CONTEXT[countryCode] : null;
   const lang =
     config.language === 'fr'
-      ? 'français professionnel pour entrepreneurs guinéens'
+      ? `français professionnel pour entrepreneurs en ${config.countryName}`
       : config.language === 'pt'
         ? 'português profissional para empresários locais'
         : 'professional English for local business owners';
+
+  const localExamples = local
+    ? `Exemples locaux concrets (${local.capital}, quartiers: ${local.districts}, paiements: ${local.payments}, devise: ${local.currency})`
+    : `Exemples locaux concrets pour ${config.countryName}`;
 
   return {
     name: 'Writer Agent',
@@ -75,12 +81,13 @@ RÈGLES ABSOLUES:
 - Utilise UNIQUEMENT les informations de la base de connaissance fournie
 - Ne JAMAIS inventer de chiffres, lois, institutions ou procédures
 - Cite les sources quand pertinent
+- Contexte fiscal local: ${local?.taxAuthority ?? 'autorités fiscales du pays'}
 
 STRUCTURE OBLIGATOIRE:
 - H1 (title)
 - Introduction
 - Contenu avec sections H2
-- Exemples locaux concrets (Conakry, commerces, PME)
+- ${localExamples}
 - FAQ (3-5 questions)
 - Conclusion
 - CTA ZYVO ERP (essai gratuit 7 jours)
@@ -107,7 +114,7 @@ Réponds en JSON:
   "keywords": "mot1, mot2, mot3",
   "schemaArticle": {"@context":"https://schema.org","@type":"Article","headline":"...","description":"..."},
   "schemaFaq": {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"...","acceptedAnswer":{"@type":"Answer","text":"..."}}]},
-  "internalLinks": [{"title":"...","url":"/gn/features"}],
+  "internalLinks": [{"title":"...","url":"/${countryCode}/features"}],
   "imageSuggestions": ["description image"]
 }`,
   };
