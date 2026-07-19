@@ -34,7 +34,7 @@ const SN_PROGRAMMATIC_SEEDS = [
       'Contrôlez vos marges en FCFA et réduisez les ruptures.',
     ],
     faq: [
-      { question: 'Petites boutiques ?', answer: 'Oui, plan Essentiel dès 23 900 FCFA/mois (annuel).' },
+      { question: 'Petites boutiques ?', answer: 'Oui, plan Essentiel dès 11 950 FCFA/mois (annuel).' },
       { question: 'Multi-magasins ?', answer: 'Oui, plan Croissance et plus.' },
     ],
     cta: 'Essai gratuit 7 jours',

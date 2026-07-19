@@ -18,7 +18,7 @@ export const staticPageMetadata = {
   pricing: buildMetadata({
     title: 'Pricing — Transparent Plans for Every Business',
     description:
-      'ZYVO pricing starts at $39/month with a 7-day free trial. Compare Starter, Growth, and Business plans for US small businesses.',
+      'ZYVO pricing starts at $20/month with a 7-day free trial. Compare Starter, Growth, and Business plans for US small businesses.',
     keywords: 'ZYVO pricing, business software cost, POS pricing USA',
     canonical: '/pricing',
   }),
@@ -32,7 +32,7 @@ export const staticPageMetadata = {
   contact: buildMetadata({
     title: 'Get a Free Quote — Websites, Custom Software & ZYVO ERP',
     description:
-      'Request a free project quote from ZYVO. Custom websites from $1,199, business systems from $7,900, maintenance from $79/mo, and ZYVO ERP from $39/mo.',
+      'Request a free project quote from ZYVO. Custom websites from $1,199, business systems from $7,900, maintenance from $79/mo, and ZYVO ERP from $20/mo.',
     keywords: 'ZYVO contact, free website quote, custom software quote',
     canonical: '/contact',
   }),

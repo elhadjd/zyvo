@@ -34,7 +34,7 @@ export function getSoftwareApplicationSchema() {
       'All-in-one business management: inventory, POS, employees, appointments, customers, accounting, and analytics.',
     offers: {
       '@type': 'Offer',
-      price: '39',
+      price: '20',
       priceCurrency: 'USD',
       description: 'Plans start with a 7-day free trial. No credit card required.',
     },

@@ -53,7 +53,7 @@ export const ciBlogPosts: MarketBlogPost[] = [
       {
         question: 'Combien coûte un logiciel de gestion en Côte d\'Ivoire ?',
         answer:
-          'ZYVO propose des plans à partir de 23 900 FCFA/mois (facturation annuelle). Essai gratuit de 7 jours sans carte bancaire internationale.',
+          'ZYVO propose des plans à partir de 11 950 FCFA/mois (facturation annuelle). Essai gratuit de 7 jours sans carte bancaire internationale.',
       },
     ],
     internalLinks: [

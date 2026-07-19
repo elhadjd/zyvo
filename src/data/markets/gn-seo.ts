@@ -74,7 +74,7 @@ export const GN_PAGE_SEO: Record<string, GnSeoPageMeta> = {
     schemaType: 'product',
   },
   pricing: {
-    title: 'Tarifs ERP Guinée — Plans en Francs Guinéens (GNF) dès 360 000 FG | ZYVO',
+    title: 'Tarifs ERP Guinée — Plans en Francs Guinéens (GNF) dès 180 000 FG | ZYVO',
     description:
       'Tarifs transparents en GNF pour PME guinéennes. Plans Essentiel, Croissance et Entreprise. Paiement Orange Money, virement local. Essai gratuit 7 jours sans carte bancaire.',
     keywords:

@@ -11,8 +11,8 @@ const PricingSection = () => {
         {
             name: "Starter",
             description: "Perfect for small businesses just getting started",
-            monthlyPrice: 49,
-            annualPrice: 39,
+            monthlyPrice: 25,
+            annualPrice: 20,
             users: "Up to 3 users",
             features: [
                 "Point of Sale",
@@ -27,8 +27,8 @@ const PricingSection = () => {
         {
             name: "Growth",
             description: "For growing businesses ready to scale",
-            monthlyPrice: 99,
-            annualPrice: 79,
+            monthlyPrice: 50,
+            annualPrice: 40,
             users: "Up to 10 users",
             features: [
                 "Everything in Starter",
@@ -44,8 +44,8 @@ const PricingSection = () => {
         {
             name: "Business",
             description: "For established businesses with complex needs",
-            monthlyPrice: 199,
-            annualPrice: 159,
+            monthlyPrice: 100,
+            annualPrice: 80,
             users: "Unlimited users",
             features: [
                 "Everything in Growth",

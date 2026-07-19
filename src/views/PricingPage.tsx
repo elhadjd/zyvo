@@ -7,7 +7,7 @@ const pricingFaqs = [
   {
     question: 'How much does ZYVO cost?',
     answer:
-      'ZYVO offers three plans: Starter at $39/month (annual), Growth at $79/month, and Business at $159/month. All plans include a 7-day free trial.',
+      'ZYVO offers three plans: Starter at $20/month (annual), Growth at $40/month, and Business at $80/month. All plans include a 7-day free trial.',
   },
   {
     question: 'Is there a free trial?',

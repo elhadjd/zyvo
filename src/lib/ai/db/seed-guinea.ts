@@ -53,7 +53,7 @@ const GN_PROGRAMMATIC_SEEDS = [
       'Contrôlez vos marges en GNF et réduisez les ruptures de stock.',
     ],
     faq: [
-      { question: 'Adapté aux petites boutiques ?', answer: 'Oui, plan Essentiel dès 360 000 GNF/mois (annuel).' },
+      { question: 'Adapté aux petites boutiques ?', answer: 'Oui, plan Essentiel dès 180 000 GNF/mois (annuel).' },
       { question: 'Multi-magasins ?', answer: 'Oui, à partir du plan Croissance.' },
     ],
     cta: 'Essai gratuit 7 jours',
