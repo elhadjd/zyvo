@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { getDb } from '../db';
 import { managedSources } from '../db/schema';
-import { COUNTRY_AI_CONFIGS } from '../countries';
+import { COUNTRY_AI_CONFIGS } from '../countries/config';
 import { logResearchEvent } from './research-logger';
 import type { ManagedSource, SourceStatus, SourceType } from './types';
 import type { SupportedCountry } from '../types';

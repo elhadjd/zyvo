@@ -67,6 +67,7 @@ export interface CountryAiSettings {
   language: string;
   locale: string;
   countryName: string;
+  enabled?: boolean;
   categories: string[];
   topics: string[];
   sources: { name: string; url: string; type: 'government' | 'institution' | 'business' | 'news' }[];

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { runWeeklyGrowthJob } from '@/lib/ai/growth-analytics';
+import { getEnabledCountryCodes } from '@/lib/ai/countries/registry';
 import type { SupportedCountry } from '@/lib/ai/types';
 
 export const dynamic = 'force-dynamic';
@@ -16,9 +17,21 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const country = (searchParams.get('country') ?? 'gn') as SupportedCountry;
+  const countryParam = searchParams.get('country');
+  const mode = searchParams.get('mode') ?? (countryParam ? 'single' : 'all');
 
   try {
+    if (mode === 'all') {
+      const countries = getEnabledCountryCodes();
+      const results = [];
+      for (const country of countries) {
+        const result = await runWeeklyGrowthJob(country);
+        results.push({ country, ...result });
+      }
+      return NextResponse.json({ mode: 'all', countries, results });
+    }
+
+    const country = (countryParam ?? 'gn') as SupportedCountry;
     const result = await runWeeklyGrowthJob(country);
     return NextResponse.json(result);
   } catch (error) {

@@ -8,6 +8,13 @@ import { runTranslationAgent } from './translation';
 import { runPublisherAgent } from './publisher';
 import { logAiEvent } from '../logger';
 import { seedDatabase } from '../db/seed';
+import { researchEngine } from '../research-engine';
+import {
+  getCountryConfig,
+  isCountryEnabled,
+  getNextTopicForCountry,
+  isConfiguredCountry,
+} from '../countries/registry';
 import type { AgentCode, AgentContext, SupportedCountry } from '../types';
 
 export interface PipelineResult {
@@ -33,22 +40,37 @@ export async function runFullPipeline(
 ): Promise<PipelineResult> {
   seedDatabase();
 
+  if (!isConfiguredCountry(countryCode)) {
+    throw new Error(`País não configurado: ${countryCode}. Adicione em src/lib/ai/countries/config.ts`);
+  }
+
+  if (!isCountryEnabled(countryCode)) {
+    throw new Error(`País desativado: ${countryCode}. Ative em /admin/ai-engine/settings`);
+  }
+
+  const config = getCountryConfig(countryCode);
+  const topic =
+    options.topic ??
+    researchEngine.getNextTopicForContent(countryCode) ??
+    getNextTopicForCountry(countryCode) ??
+    config?.topics[0];
+
   const ctx: AgentContext = {
     countryCode,
     dryRun: options.dryRun,
-    topic: options.topic,
+    topic,
     saveAsDraft: options.saveAsDraft ?? true,
   };
 
   const stagesToRun = options.stages ?? [...STAGE_ORDER, 'publisher'];
   const result: PipelineResult = {
     countryCode,
-    topic: options.topic,
+    topic,
     stages: {},
     completedAt: new Date().toISOString(),
   };
 
-  logAiEvent('research', `Pipeline iniciado para ${countryCode}`, { countryCode, metadata: { topic: options.topic } });
+  logAiEvent('research', `Pipeline iniciado para ${countryCode}`, { countryCode, metadata: { topic } });
 
   for (const stage of stagesToRun) {
     try {

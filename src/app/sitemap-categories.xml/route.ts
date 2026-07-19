@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { SITE_URL } from '@/data/site';
 import { buildSitemapXml } from '@/lib/ai/seo-engine';
-import { COUNTRY_AI_CONFIGS } from '@/lib/ai/countries';
+import { COUNTRY_AI_CONFIGS } from '@/lib/ai/countries/config';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { getDb } from './index';
 import { aiAgents, countryAiConfig } from './schema';
 import { runMigrations } from './migrate';
-import { COUNTRY_AI_CONFIGS } from '../countries';
+import { syncCountryConfigsToDatabase } from '../countries/registry';
 import { AGENT_DEFINITIONS } from '../types';
 import { AGENT_PROMPTS } from '../agents/prompts';
 import { seedManagedSources } from '../research-engine/source-manager';
@@ -14,6 +14,7 @@ function now(): string {
 
 export function seedDatabase(): void {
   runMigrations();
+  syncCountryConfigsToDatabase();
   seedManagedSources();
   const db = getDb();
   const timestamp = now();
@@ -46,32 +47,6 @@ export function seedDatabase(): void {
         })
         .where(eq(aiAgents.code, agent.code))
         .run();
-    }
-  }
-
-  for (const config of COUNTRY_AI_CONFIGS) {
-    const existing = db
-      .select()
-      .from(countryAiConfig)
-      .where(eq(countryAiConfig.countryCode, config.countryCode))
-      .get();
-
-    if (!existing) {
-      db.insert(countryAiConfig).values({
-        countryCode: config.countryCode,
-        language: config.language,
-        enabled: config.countryCode === 'gn',
-        publishFrequency: 'daily',
-        articlesPerDay: 1,
-        autoPublish: false,
-        requireApproval: true,
-        categories: config.categories,
-        sources: config.sources,
-        scheduleConfig: {},
-        deepseekTokensUsed: 0,
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      }).run();
     }
   }
 }

@@ -37,6 +37,20 @@ export default function AdminSettingsPage() {
     setSaving(false);
   }
 
+  async function enableAllCountries() {
+    setSaving(true);
+    for (const config of configs) {
+      const updated = { ...config, enabled: true };
+      await fetch('/api/admin/ai-content/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated),
+      });
+    }
+    setConfigs((prev) => prev.map((c) => ({ ...c, enabled: true })));
+    setSaving(false);
+  }
+
   function updateConfig(countryCode: string, field: string, value: unknown) {
     setConfigs((prev) =>
       prev.map((c) => (c.countryCode === countryCode ? { ...c, [field]: value } : c))
@@ -60,7 +74,17 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">Configurações por País</h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Configurações por País</h1>
+        <button
+          onClick={enableAllCountries}
+          disabled={saving}
+          className="px-4 py-2 border rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50"
+          type="button"
+        >
+          Ativar todos os países
+        </button>
+      </div>
 
       <div className="space-y-6">
         {configs.map((config) => (
@@ -147,18 +171,25 @@ export default function AdminSettingsPage() {
       </div>
 
       <div className="mt-8 bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
-        <h3 className="font-semibold mb-2">Automação (Cron)</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Configure um cron job para chamar <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">GET /api/cron/daily-pipeline?country=gn</code> com header <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">Authorization: Bearer CRON_SECRET</code>
+        <h3 className="font-semibold mb-2">Automação Multi-País (Cron)</h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Um único conjunto de agentes serve todos os países ativos. Ative/desative países acima — não é necessário criar agentes por país.
         </p>
-        <div className="mt-3 text-xs text-gray-500 space-y-1">
-          <p>06:00 — Research Agent</p>
-          <p>08:00 — Knowledge Organizer</p>
-          <p>10:00 — Content Writer</p>
-          <p>12:00 — SEO Optimizer</p>
-          <p>14:00 — Fact Checker</p>
-          <p>15:00 — Translation</p>
-          <p>16:00 — Publisher</p>
+        <div className="space-y-2 text-sm font-mono bg-gray-100 dark:bg-gray-900 p-4 rounded-lg">
+          <p className="text-gray-500"># Pipeline completo para TODOS os países ativos (recomendado)</p>
+          <p>GET /api/cron/daily-pipeline?mode=all</p>
+          <p className="text-gray-500 mt-3"># Research para todos os países</p>
+          <p>GET /api/cron/daily-pipeline?mode=research-all</p>
+          <p className="text-gray-500 mt-3"># Pipeline para um país específico</p>
+          <p>GET /api/cron/daily-pipeline?country=gn</p>
+          <p className="text-gray-500 mt-3"># Relatório growth semanal (todos)</p>
+          <p>GET /api/cron/weekly-growth?mode=all</p>
+        </div>
+        <p className="text-xs text-gray-500 mt-3">
+          Header: <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">Authorization: Bearer CRON_SECRET</code>
+        </p>
+        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-sm text-blue-800 dark:text-blue-200">
+          <strong>Adicionar novo país:</strong> edite <code>src/lib/ai/countries/config.ts</code> — categorias, tópicos, fontes e idioma. O sistema sincroniza automaticamente.
         </div>
       </div>
     </div>
