@@ -7,10 +7,14 @@ import { GN_HOME_SEO_CONTENT } from '@/data/markets/gn-seo';
 import { SN_HOME_SEO_CONTENT } from '@/data/markets/sn-seo';
 import { CI_HOME_SEO_CONTENT } from '@/data/markets/ci-seo';
 import { getLocalErpPageSeo, isLocalErpSlug } from '@/lib/markets/local-erp-seo';
+import { getPartnershipPageSeo, isPartnershipSlug } from '@/lib/partnerships/seo';
 
 export type MarketSeoPageMeta = GnSeoPageMeta;
 
 export function getMarketPageSeo(marketCode: MarketCode, slug: string[]): MarketSeoPageMeta | null {
+  if (isPartnershipSlug(slug)) {
+    return getPartnershipPageSeo(marketCode, slug);
+  }
   if (isLocalErpSlug(slug)) {
     const localSeo = getLocalErpPageSeo(marketCode, slug[1], slug[2]);
     if (localSeo) return localSeo;
@@ -86,8 +90,18 @@ export function getMarketInternalLinkGroups(marketCode: MarketCode) {
       paths: ['blog', `blog/${slugs.guide}`, `blog/${slugs.payment}`, `blog/${slugs.accounting}`],
     },
     {
+      title: 'Partenariats',
+      paths: [
+        'partnerships',
+        'partnerships/reseller',
+        'partnerships/referral',
+        'partnerships/implementation',
+        'partnerships/affiliate',
+      ],
+    },
+    {
       title: 'Découvrir ZYVO',
-      paths: ['features', 'pricing', 'faq', 'demo', 'contact'],
+      paths: ['features', 'pricing', 'faq', 'demo', 'contact', 'partnerships'],
     },
   ] as const;
 }

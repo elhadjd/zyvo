@@ -16,10 +16,13 @@ import MarketBlogIndexPage from '@/views/markets/MarketBlogIndexPage';
 import MarketBlogPostPage from '@/views/markets/MarketBlogPostPage';
 import ProgrammaticPageServer from '@/views/markets/ProgrammaticPageServer';
 import MarketLocalErpPageServer from '@/views/markets/MarketLocalErpPageServer';
+import MarketPartnershipsPage from '@/views/markets/MarketPartnershipsPage';
+import MarketPartnershipProgramPageServer from '@/views/markets/MarketPartnershipProgramPageServer';
 import { getAllMergedMarketBlogSlugs } from '@/lib/markets/blog-server';
 import { PROGRAMMATIC_INDUSTRIES } from '@/lib/ai/seo-engine/types';
 import { MARKET_SOLUTION_SLUGS } from '@/data/markets/market-modules';
 import { getAllLocalErpParams } from '@/data/markets/local-erp-pages';
+import { PARTNERSHIP_PROGRAM_SLUGS } from '@/data/partnerships/programs';
 
 export interface MarketPageDefinition {
   slug: string[];
@@ -35,6 +38,8 @@ const GN_PAGES: MarketPageDefinition[] = [
   { slug: ['contact'], pageKey: 'contact', component: MarketContactPage },
   { slug: ['faq'], pageKey: 'faq', component: MarketFaqPage },
   { slug: ['demo'], pageKey: 'demo', component: MarketDemoPage },
+  { slug: ['partnerships'], pageKey: 'partnerships', component: MarketPartnershipsPage },
+  { slug: ['partnerships', ':program'], pageKey: 'partnerships', component: MarketPartnershipProgramPageServer },
   { slug: ['getting-started'], pageKey: 'home', component: MarketGettingStartedPage },
   { slug: ['blog'], pageKey: 'blog', component: MarketBlogIndexPage },
   { slug: ['blog', ':post'], pageKey: 'blog', component: MarketBlogPostPage },
@@ -102,6 +107,10 @@ function appendDynamicMarketParams(marketCode: MarketCode, params: { slug: strin
 
   getAllLocalErpParams(marketCode).forEach(({ industry, city }) => {
     params.push({ slug: ['erp', industry, city] });
+  });
+
+  PARTNERSHIP_PROGRAM_SLUGS.forEach((program) => {
+    params.push({ slug: ['partnerships', program] });
   });
 }
 

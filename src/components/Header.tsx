@@ -53,6 +53,7 @@ const usNavigation = [
     href: '/about',
     submenu: [
       { name: 'About', href: '/about' },
+      { name: 'Partnerships', href: '/partnerships' },
       { name: 'Contact', href: '/contact' },
       { name: 'Blog', href: '/blog' },
     ],

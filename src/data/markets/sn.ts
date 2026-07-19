@@ -433,6 +433,7 @@ export const snMarket: MarketConfig = {
       href: '/about',
       submenu: [
         { label: 'À propos', href: '/about' },
+        { label: 'Partenariats', href: '/partnerships' },
         { label: 'Contact', href: '/contact' },
         { label: 'Blog', href: '/blog' },
       ],

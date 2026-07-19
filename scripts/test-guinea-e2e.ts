@@ -33,6 +33,8 @@ import { PROGRAMMATIC_INDUSTRIES } from '../src/lib/ai/seo-engine/types';
 import { MARKET_SOLUTION_SLUGS } from '../src/data/markets/market-modules';
 import { getContactFormCopy, isFrancophoneMarket } from '../src/data/markets/form-locale';
 import { getAllLocalErpParams } from '../src/data/markets/local-erp-pages';
+import { PARTNERSHIP_PROGRAM_SLUGS } from '../src/data/partnerships/programs';
+import { getPartnershipPageSeo } from '../src/lib/partnerships/seo';
 import { getLocalErpPageSeo } from '../src/lib/markets/local-erp-seo';
 import type { MarketCode } from '../src/lib/markets/types';
 
@@ -119,6 +121,15 @@ function runStructuralTests() {
     assert(`${code.toUpperCase()} signup config`, getMarket(code).signup.country.code === code);
     assert(`${code.toUpperCase()} signup currency`, getMarket(code).signup.currency.code === (code === 'gn' ? 'GNF' : 'XOF'));
 
+    const partnershipSeo = getPartnershipPageSeo(code, ['partnerships']);
+    assert(`${code.toUpperCase()} partnerships SEO`, !!partnershipSeo?.title && !!partnershipSeo.description);
+    for (const program of PARTNERSHIP_PROGRAM_SLUGS) {
+      const programSeo = getPartnershipPageSeo(code, ['partnerships', program]);
+      assert(`${code.toUpperCase()} partnership/${program} SEO`, !!programSeo?.title);
+      const resolved = resolveMarketPage(code, ['partnerships', program]);
+      assert(`${code.toUpperCase()} resolve partnerships/${program}`, !!resolved);
+    }
+
     const localParams = getAllLocalErpParams(code);
     assert(
       `${code.toUpperCase()} local ERP pages`,
@@ -190,6 +201,16 @@ async function runHttpTests() {
       gettingStarted.body.includes('Commencer avec ZYVO') || gettingStarted.body.includes('Essai gratuit 7 jours')
     );
 
+    const partnerships = await fetchStatus(`${prefix}/partnerships`);
+    assert(`GET ${prefix}/partnerships → 200`, partnerships.status === 200);
+    assert(
+      `${code.toUpperCase()} partnerships hub FR`,
+      partnerships.body.includes('partenariat') || partnerships.body.includes('Partenariat')
+    );
+
+    const reseller = await fetchStatus(`${prefix}/partnerships/reseller`);
+    assert(`GET ${prefix}/partnerships/reseller → 200`, reseller.status === 200);
+
     for (const moduleSlug of MARKET_SOLUTION_SLUGS) {
       const path = `${prefix}/solutions/${moduleSlug}`;
       const { status } = await fetchStatus(path);
@@ -235,6 +256,7 @@ async function runHttpTests() {
   assert('Sitemap referencia SN', sitemap.body.includes('/sn'));
   assert('Sitemap referencia CI', sitemap.body.includes('/ci'));
   assert('Sitemap inclui local ERP', sitemap.body.includes('/erp/restaurants/conakry') || sitemap.body.includes('/erp/restaurants/dakar') || sitemap.body.includes('/erp/restaurants/abidjan'));
+  assert('Sitemap inclui partnerships', sitemap.body.includes('/partnerships'));
 
   const sitemapCountries = await fetchStatus('/sitemap-countries.xml');
   assert('GET /sitemap-countries.xml → 200', sitemapCountries.status === 200);

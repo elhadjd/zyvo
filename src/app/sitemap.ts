@@ -7,6 +7,7 @@ import { industryLandings } from '@/data/industry-landings';
 import { solutions } from '@/data/solutions';
 import { getMarketStaticParams } from '@/lib/markets/pages';
 import { getMarket } from '@/lib/markets/registry';
+import { PARTNERSHIP_PROGRAM_SLUGS } from '@/data/partnerships/programs';
 
 const staticPaths = [
   '/',
@@ -28,6 +29,8 @@ const staticPaths = [
   '/terms-of-service',
   '/refund-policy',
   '/cookie-policy',
+  '/partnerships',
+  ...PARTNERSHIP_PROGRAM_SLUGS.map((p) => `/partnerships/${p}`),
   ...developmentServices.map((s) => s.path),
   ...industryLandings.map((l) => l.path),
   ...solutions.map((s) => `/solutions/${s.slug}`),

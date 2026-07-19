@@ -7,6 +7,9 @@ import { resolveMarketPage, getAllMarketStaticParams } from '@/lib/markets/pages
 import { buildMarketMetadata, buildMarketBreadcrumbs, buildMarketBlogPostMetadata } from '@/lib/markets/metadata';
 import { getMarketPageSeo } from '@/lib/markets/seo';
 import { isLocalErpSlug } from '@/lib/markets/local-erp-seo';
+import { isPartnershipSlug } from '@/lib/partnerships/seo';
+import { getPartnershipProgram } from '@/data/partnerships/content';
+import { isPartnershipProgramSlug } from '@/data/partnerships/programs';
 import { buildLocalErpPage } from '@/data/markets/local-erp-pages';
 import {
   getMergedMarketBlogPosts,
@@ -129,6 +132,28 @@ function buildPageSchemas(marketCode: MarketCode, slug: string[], market: Return
         schemas.push(getFAQSchema(localPage.faq));
       }
     }
+  } else if (isPartnershipSlug(slug)) {
+    if (slug.length === 2 && isPartnershipProgramSlug(slug[1])) {
+      const program = getPartnershipProgram(marketCode, slug[1]);
+      schemas.push(
+        getMarketServiceSchema(market, {
+          name: program.title,
+          description: program.description,
+          url: `${SITE_URL}${market.routePrefix}/partnerships/${program.slug}`,
+        })
+      );
+      if (program.faq.length > 0) {
+        schemas.push(getFAQSchema(program.faq));
+      }
+    } else if (slug.length === 1) {
+      schemas.push(
+        getMarketServiceSchema(market, {
+          name: pageSeo?.h1 ?? 'Programme partenariat ZYVO',
+          description: pageSeo?.description ?? market.description,
+          url: `${SITE_URL}${market.routePrefix}/partnerships`,
+        })
+      );
+    }
   }
 
   if (breadcrumbs.length > 1) {
@@ -158,6 +183,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
     countryCode?: string;
     industry?: string;
     city?: string;
+    program?: string;
     posts?: ReturnType<typeof getMergedMarketBlogPosts>;
     post?: ReturnType<typeof getMergedMarketBlogPostBySlug>;
   }>;
@@ -169,6 +195,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
     countryCode: country,
     industry: resolved.params.industry,
     city: resolved.params.city,
+    program: resolved.params.program,
   };
 
   if (slug[0] === 'blog' && slug.length === 1) {

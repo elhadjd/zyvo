@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import FloatingWhatsApp from '@/components/markets/FloatingWhatsApp';
+import PartnershipSiteBar from '@/components/partnerships/PartnershipSiteBar';
 import { useTheme } from '@/contexts/theme-context';
 
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
@@ -24,6 +25,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
       <Header />
       <main>{children}</main>
+      <PartnershipSiteBar />
       <Footer />
       <FloatingWhatsApp />
       <button

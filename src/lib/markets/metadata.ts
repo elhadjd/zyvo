@@ -237,6 +237,23 @@ export function buildMarketBreadcrumbs(
     return crumbs;
   }
 
+  if (slug[0] === 'partnerships' && slug.length === 1) {
+    crumbs.push({
+      name: pageSeo?.breadcrumb ?? 'Partenariats',
+      url: `${base}/partnerships`,
+    });
+    return crumbs;
+  }
+
+  if (slug[0] === 'partnerships' && slug.length === 2) {
+    crumbs.push({ name: 'Partenariats', url: `${base}/partnerships` });
+    crumbs.push({
+      name: pageSeo?.breadcrumb ?? slug[1],
+      url: `${base}/partnerships/${slug[1]}`,
+    });
+    return crumbs;
+  }
+
   if (pageSeo?.breadcrumb) {
     crumbs.push({ name: pageSeo.breadcrumb, url: `${SITE_URL}${pageSeo.path}` });
   }

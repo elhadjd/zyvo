@@ -25,6 +25,7 @@ const usFooterLinks: Record<string, { label: string; href: string }[]> = {
   Industries: industryLandings.map((l) => ({ label: l.industryName, href: l.path })),
   Company: [
     { label: 'About', href: '/about' },
+    { label: 'Partnerships', href: '/partnerships' },
     { label: 'Development Services', href: '/development-services' },
     { label: 'Contact', href: '/contact' },
     { label: 'Book a Demo', href: '/demo' },
@@ -61,6 +62,7 @@ const Footer = () => {
         Secteurs: market.navigation[1]?.submenu?.slice(0, 5) ?? [],
         Entreprise: [
           { label: 'À propos', href: '/about' },
+          { label: 'Partenariats', href: '/partnerships' },
           { label: 'Contact', href: '/contact' },
           { label: 'Démo', href: '/demo' },
           { label: 'Blog', href: '/blog' },
