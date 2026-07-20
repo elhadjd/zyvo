@@ -9,7 +9,7 @@ import { SN_GEO_TARGETS } from '@/data/markets/sn-seo';
 import { CI_GEO_TARGETS } from '@/data/markets/ci-seo';
 import { SITE_NAME, SITE_URL } from '@/data/site';
 import type { MarketBlogPost } from '@/data/markets/blog/types';
-import { resolvePostHeroImage } from '@/lib/ai/services/stock-image-service';
+import { resolvePostHeroImage } from '@/lib/ai/services/stock-image-library';
 
 function getMarketGeoTargets(marketCode: MarketCode): readonly string[] {
   if (marketCode === 'sn') return SN_GEO_TARGETS;

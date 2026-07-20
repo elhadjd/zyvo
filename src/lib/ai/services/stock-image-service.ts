@@ -1,312 +1,208 @@
 import type { ContentArticle } from '../db/schema';
 import type { SupportedCountry } from '../types';
-import { classifyTopicNiche, type ContentNiche } from '../research-engine/topic-niches';
+import { deepseekService } from './deepseek-service';
+import {
+  buildRuleBasedSearchQueries,
+  FALLBACK_HERO_IMAGE,
+  getTopicImageCandidates,
+  type HeroImageResult,
+} from './stock-image-library';
 
-export interface HeroImageResult {
-  url: string;
-  alt: string;
-  credit?: string;
-  source: 'curated';
-}
+export type { HeroImageResult } from './stock-image-library';
+export {
+  FALLBACK_HERO_IMAGE,
+  getHeroImageFallbackUrl,
+  resolvePostHeroImage,
+} from './stock-image-library';
 
 const IMAGE_PARAMS = 'w=1200&h=630&fit=crop&q=80';
+const PEXELS_PARAMS = 'auto=compress&cs=tinysrgb&w=1200&h=630&fit=crop';
 
-function unsplash(photoId: string): string {
-  return `https://images.unsplash.com/${photoId}?${IMAGE_PARAMS}`;
+const validatedUrlCache = new Map<string, boolean>();
+
+export async function isImageUrlAccessible(url: string): Promise<boolean> {
+  const cached = validatedUrlCache.get(url);
+  if (cached !== undefined) return cached;
+
+  try {
+    const response = await fetch(url, {
+      method: 'HEAD',
+      redirect: 'follow',
+      signal: AbortSignal.timeout(6000),
+      headers: { 'User-Agent': 'ZyvoBlogImageValidator/1.0' },
+    });
+
+    const contentType = response.headers.get('content-type') ?? '';
+    const ok = response.ok && contentType.startsWith('image/');
+    validatedUrlCache.set(url, ok);
+    return ok;
+  } catch {
+    validatedUrlCache.set(url, false);
+    return false;
+  }
 }
 
-/** Topic-specific images — objects & African business context, no corporate meetings */
-const TOPIC_IMAGE_RULES: { patterns: RegExp[]; image: HeroImageResult }[] = [
-  {
-    patterns: [
-      /\bninea\b/i,
-      /\brccm\b/i,
-      /registre.{0,20}commerce/i,
-      /création.{0,20}entreprise/i,
-      /créer.{0,15}entreprise/i,
-      /criar.{0,15}empresa/i,
-      /formaliser/i,
-      /formaliza/i,
-      /obtention/i,
-      /démarche/i,
-      /demarche/i,
-      /immatriculation/i,
-      /licence.{0,15}commerce/i,
-    ],
-    image: {
-      url: unsplash('photo-1554224154-2606cec3a9ce'),
-      alt: 'Documents administratifs pour créer une entreprise',
-      credit: 'Unsplash',
-      source: 'curated',
-    },
-  },
-  {
-    patterns: [
-      /\btva\b/i,
-      /\biva\b/i,
-      /fiscal/i,
-      /fiscalité/i,
-      /fiscalidade/i,
-      /\bdgi\b/i,
-      /\bagt\b/i,
-      /impôt/i,
-      /imposto/i,
-      /déclaration fiscale/i,
-      /syscohada/i,
-      /comptabilité/i,
-      /contabilidade/i,
-    ],
-    image: {
-      url: unsplash('photo-1554224311-beee415c201f'),
-      alt: 'Comptabilité, factures et déclarations fiscales',
-      credit: 'Unsplash',
-      source: 'curated',
-    },
-  },
-  {
-    patterns: [
-      /orange money/i,
-      /\bwave\b/i,
-      /\bmomo\b/i,
-      /mobile money/i,
-      /m-pesa/i,
-      /paiement mobile/i,
-      /pagamento móvel/i,
-    ],
-    image: {
-      url: unsplash('photo-1563986768609-322da13575f3'),
-      alt: 'Paiement mobile et transactions digitales',
-      credit: 'Unsplash',
-      source: 'curated',
-    },
-  },
-  {
-    patterns: [
-      /\bpos\b/i,
-      /caisse/i,
-      /point de vente/i,
-      /terminal/i,
-      /encaissement/i,
-    ],
-    image: {
-      url: unsplash('photo-1556740758-90de374c12ad'),
-      alt: 'Caisse et point de vente en boutique',
-      credit: 'Unsplash',
-      source: 'curated',
-    },
-  },
-  {
-    patterns: [
-      /stock/i,
-      /inventaire/i,
-      /inventário/i,
-      /entrepôt/i,
-      /warehouse/i,
-      /magasinage/i,
-    ],
-    image: {
-      url: unsplash('photo-1586525191012-0a779536d027'),
-      alt: 'Gestion de stock et inventaire en magasin',
-      credit: 'Unsplash',
-      source: 'curated',
-    },
-  },
-  {
-    patterns: [
-      /restaurant/i,
-      /maquis/i,
-      /horeca/i,
-      /menu/i,
-    ],
-    image: {
-      url: unsplash('photo-1517248135467-4c7edcad34c4'),
-      alt: 'Gestion de restaurant et service client',
-      credit: 'Unsplash',
-      source: 'curated',
-    },
-  },
-  {
-    patterns: [
-      /facebook/i,
-      /instagram/i,
-      /whatsapp/i,
-      /réseaux sociaux/i,
-      /redes sociais/i,
-      /publicité/i,
-      /publicidade/i,
-      /marketing digital/i,
-    ],
-    image: {
-      url: unsplash('photo-1611162616305-c69b3fa7fbe0'),
-      alt: 'Marketing digital et réseaux sociaux sur mobile',
-      credit: 'Unsplash',
-      source: 'curated',
-    },
-  },
-  {
-    patterns: [
-      /e-?commerce/i,
-      /vendre en ligne/i,
-      /vender online/i,
-      /boutique en ligne/i,
-      /loja online/i,
-      /marketplace/i,
-      /livraison/i,
-    ],
-    image: {
-      url: unsplash('photo-1472851294608-062f824d0963'),
-      alt: 'Colis et vente en ligne',
-      credit: 'Unsplash',
-      source: 'curated',
-    },
-  },
-  {
-    patterns: [
-      /\bia\b/i,
-      /intelligence artificielle/i,
-      /inteligência artificial/i,
-      /chatgpt/i,
-      /automatisation/i,
-    ],
-    image: {
-      url: unsplash('photo-1677442136019-21780ecad995'),
-      alt: 'Intelligence artificielle appliquée aux entreprises',
-      credit: 'Unsplash',
-      source: 'curated',
-    },
-  },
-  {
-    patterns: [
-      /erp/i,
-      /logiciel/i,
-      /software/i,
-      /digitalisation/i,
-      /digitalização/i,
-      /application/i,
-    ],
-    image: {
-      url: unsplash('photo-1460925895917-afdab827c52f'),
-      alt: 'Tableau de bord logiciel de gestion',
-      credit: 'Unsplash',
-      source: 'curated',
-    },
-  },
-  {
-    patterns: [
-      /marché/i,
-      /market/i,
-      /boutique/i,
-      /commerce/i,
-      /comércio/i,
-      /vendeur/i,
-      /commerçant/i,
-    ],
-    image: {
-      url: unsplash('photo-1545178146-98f4b6cbf8bf'),
-      alt: 'Marché local et commerce de proximité',
-      credit: 'Unsplash',
-      source: 'curated',
-    },
-  },
-  {
-    patterns: [
-      /croissance/i,
-      /crescimento/i,
-      /expansion/i,
-      /développer/i,
-      /desenvolver/i,
-    ],
-    image: {
-      url: unsplash('photo-1573497019230-3a0594dd76a9'),
-      alt: 'Entrepreneure africaine au travail',
-      credit: 'Unsplash',
-      source: 'curated',
-    },
-  },
-];
-
-const NICHE_IMAGES: Record<ContentNiche, HeroImageResult> = {
-  fiscalite: {
-    url: unsplash('photo-1554224311-beee415c201f'),
-    alt: 'Comptabilité et fiscalité des PME',
-    credit: 'Unsplash',
-    source: 'curated',
-  },
-  entrepreneuriat: {
-    url: unsplash('photo-1554224154-2606cec3a9ce'),
-    alt: 'Formalisation et création d\'entreprise',
-    credit: 'Unsplash',
-    source: 'curated',
-  },
-  gestion: {
-    url: unsplash('photo-1586525191012-0a779536d027'),
-    alt: 'Gestion de stock et organisation',
-    credit: 'Unsplash',
-    source: 'curated',
-  },
-  marketing: {
-    url: unsplash('photo-1611162616305-c69b3fa7fbe0'),
-    alt: 'Marketing digital sur mobile',
-    credit: 'Unsplash',
-    source: 'curated',
-  },
-  ventes: {
-    url: unsplash('photo-1472851294608-062f824d0963'),
-    alt: 'Vente en ligne et logistique',
-    credit: 'Unsplash',
-    source: 'curated',
-  },
-  technologie: {
-    url: unsplash('photo-1460925895917-afdab827c52f'),
-    alt: 'Logiciel de gestion et digitalisation',
-    credit: 'Unsplash',
-    source: 'curated',
-  },
-  ia: {
-    url: unsplash('photo-1677442136019-21780ecad995'),
-    alt: 'Intelligence artificielle pour PME',
-    credit: 'Unsplash',
-    source: 'curated',
-  },
-  croissance: {
-    url: unsplash('photo-1593113598132-cbb8119963e8'),
-    alt: 'Entrepreneure africaine et croissance',
-    credit: 'Unsplash',
-    source: 'curated',
-  },
-};
-
-function matchTopicImage(title: string, category: string): HeroImageResult {
-  const text = `${title} ${category}`;
-
-  for (const rule of TOPIC_IMAGE_RULES) {
-    if (rule.patterns.some((p) => p.test(text))) {
-      return { ...rule.image };
+async function firstAccessibleImage(
+  candidates: HeroImageResult[]
+): Promise<HeroImageResult | null> {
+  for (const candidate of candidates) {
+    if (await isImageUrlAccessible(candidate.url)) {
+      return candidate;
     }
   }
+  return null;
+}
 
-  const niche = classifyTopicNiche(text, category);
-  return { ...NICHE_IMAGES[niche] };
+async function generateImageSearchQueriesWithAI(
+  title: string,
+  category: string,
+  countryCode?: SupportedCountry
+): Promise<string[]> {
+  if (!process.env.DEEPSEEK_API_KEY) {
+    return buildRuleBasedSearchQueries(title, category);
+  }
+
+  try {
+    const response = await deepseekService.chat(
+      [
+        {
+          role: 'system',
+          content: `You generate English stock-photo search queries for African SME blog articles.
+Rules:
+- 2-3 short queries (3-6 words each)
+- Match the article topic literally (e.g. NINEA → business registration documents, not meetings)
+- Prefer objects, documents, shops, markets, mobile payments — not generic office meetings
+- Never suggest brand names (Square, Stripe, etc.)
+- Include "africa" or "african" only when people should appear
+Return JSON: { "queries": string[] }`,
+        },
+        {
+          role: 'user',
+          content: `Title: ${title}\nCategory: ${category}\nCountry: ${countryCode ?? 'West Africa'}`,
+        },
+      ],
+      {
+        jsonMode: true,
+        temperature: 0.3,
+        maxTokens: 200,
+        agentCode: 'image-search',
+        countryCode,
+      }
+    );
+
+    const parsed = deepseekService.parseJson<{ queries?: string[] }>(response.content);
+    const queries = (parsed.queries ?? [])
+      .map((q) => q.trim())
+      .filter((q) => q.length > 3)
+      .slice(0, 3);
+
+    if (queries.length > 0) {
+      return queries;
+    }
+  } catch {
+    // fall through to rule-based queries
+  }
+
+  return buildRuleBasedSearchQueries(title, category);
+}
+
+async function fetchFromPexels(query: string): Promise<HeroImageResult[]> {
+  const apiKey = process.env.PEXELS_API_KEY;
+  if (!apiKey) return [];
+
+  try {
+    const res = await fetch(
+      `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=8&orientation=landscape`,
+      { headers: { Authorization: apiKey }, signal: AbortSignal.timeout(8000) }
+    );
+    if (!res.ok) return [];
+
+    const data = (await res.json()) as {
+      photos?: { src: { large: string }; alt: string; photographer: string }[];
+    };
+
+    return (data.photos ?? []).map((photo) => ({
+      url: `${photo.src.large}?${PEXELS_PARAMS}`,
+      alt: photo.alt || query,
+      credit: `Photo by ${photo.photographer} on Pexels`,
+      source: 'pexels' as const,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+async function fetchFromUnsplash(query: string): Promise<HeroImageResult[]> {
+  const apiKey = process.env.UNSPLASH_ACCESS_KEY;
+  if (!apiKey) return [];
+
+  try {
+    const res = await fetch(
+      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=8&orientation=landscape`,
+      { headers: { Authorization: `Client-ID ${apiKey}` }, signal: AbortSignal.timeout(8000) }
+    );
+    if (!res.ok) return [];
+
+    const data = (await res.json()) as {
+      results?: { urls: { regular: string }; alt_description: string; user: { name: string } }[];
+    };
+
+    return (data.results ?? []).map((photo) => ({
+      url: `${photo.urls.regular}&${IMAGE_PARAMS}`,
+      alt: photo.alt_description || query,
+      credit: `Photo by ${photo.user.name} on Unsplash`,
+      source: 'unsplash' as const,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+async function searchStockImagesWithAI(
+  title: string,
+  category: string,
+  countryCode: SupportedCountry
+): Promise<HeroImageResult | null> {
+  const queries = await generateImageSearchQueriesWithAI(title, category, countryCode);
+
+  for (const query of queries) {
+    const pexelsResults = await fetchFromPexels(query);
+    const pexelsMatch = await firstAccessibleImage(pexelsResults);
+    if (pexelsMatch) return pexelsMatch;
+
+    const unsplashResults = await fetchFromUnsplash(query);
+    const unsplashMatch = await firstAccessibleImage(unsplashResults);
+    if (unsplashMatch) return unsplashMatch;
+  }
+
+  return null;
+}
+
+async function resolveValidatedTopicImage(
+  title: string,
+  category: string
+): Promise<HeroImageResult> {
+  const candidates = getTopicImageCandidates(title, category);
+  const match = await firstAccessibleImage(candidates);
+  if (match) return match;
+
+  if (await isImageUrlAccessible(FALLBACK_HERO_IMAGE.url)) {
+    return { ...FALLBACK_HERO_IMAGE };
+  }
+
+  return candidates[0] ?? { ...FALLBACK_HERO_IMAGE };
 }
 
 export async function fetchHeroImageForArticle(
   article: ContentArticle,
-  _countryCode: SupportedCountry,
+  countryCode: SupportedCountry,
   primaryKeyword?: string,
   _slug?: string
 ): Promise<HeroImageResult> {
   const title = primaryKeyword ? `${article.title} ${primaryKeyword}` : article.title;
-  return matchTopicImage(title, article.category);
-}
 
-/** Resolve hero image from title/category — always contextual */
-export function resolvePostHeroImage(post: {
-  slug: string;
-  title: string;
-  category: string;
-  heroImage?: string;
-  heroImageAlt?: string;
-}): { url: string; alt: string } {
-  const matched = matchTopicImage(post.title, post.category);
-  return { url: matched.url, alt: matched.alt };
+  const fromApi = await searchStockImagesWithAI(title, article.category, countryCode);
+  if (fromApi) return fromApi;
+
+  return resolveValidatedTopicImage(title, article.category);
 }

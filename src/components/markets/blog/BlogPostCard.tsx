@@ -2,7 +2,8 @@ import { ArrowRight, Clock, Sparkles } from 'lucide-react';
 import LocalizedLink from '@/components/markets/LocalizedLink';
 import type { MarketBlogPost } from '@/data/markets/blog/types';
 import { formatBlogDate, getBlogCategoryStyle } from './blog-utils';
-import { resolvePostHeroImage } from '@/lib/ai/services/stock-image-service';
+import { resolvePostHeroImage } from '@/lib/ai/services/stock-image-library';
+import BlogHeroImage from '@/components/markets/blog/BlogHeroImage';
 
 interface BlogPostCardProps {
   post: MarketBlogPost;
@@ -21,8 +22,7 @@ export default function BlogPostCard({ post, locale, readMoreLabel, featured }: 
         <div className={`absolute inset-0 bg-gradient-to-br ${style.gradient} opacity-[0.03] group-hover:opacity-[0.06] transition-opacity`} />
         <div className="relative grid lg:grid-cols-2 gap-0">
           <div className="relative h-48 lg:h-auto min-h-[12rem] overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <BlogHeroImage
               src={hero.url}
               alt={hero.alt}
               className="absolute inset-0 w-full h-full object-cover"
@@ -68,8 +68,7 @@ export default function BlogPostCard({ post, locale, readMoreLabel, featured }: 
   return (
     <article className="group flex flex-col h-full bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden hover:border-brand-primary/30 dark:hover:border-brand-accent/30 hover:shadow-lg transition-all duration-300">
       <div className="relative h-40 overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <BlogHeroImage
           src={hero.url}
           alt={hero.alt}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

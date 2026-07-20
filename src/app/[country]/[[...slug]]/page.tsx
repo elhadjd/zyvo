@@ -12,7 +12,7 @@ import { getPartnershipProgram } from '@/data/partnerships/content';
 import { isPartnershipProgramSlug } from '@/data/partnerships/programs';
 import { buildLocalErpPage } from '@/data/markets/local-erp-pages';
 import { getMergedMarketBlogPosts, getMergedMarketBlogPostBySlug } from '@/lib/markets/blog-server';
-import { resolvePostHeroImage } from '@/lib/ai/services/stock-image-service';
+import { resolvePostHeroImage } from '@/lib/ai/services/stock-image-library';
 import JsonLd from '@/components/JsonLd';
 import {
   getMarketOrganizationSchema,
