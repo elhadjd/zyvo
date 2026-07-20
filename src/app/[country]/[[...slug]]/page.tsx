@@ -24,7 +24,10 @@ import {
   getMarketArticleSchema,
   getFAQSchema,
   getBreadcrumbSchema,
+  getWebApplicationSchema,
 } from '@/data/structured-data';
+import { getTaxConfig, getCalculatorBySlug } from '@/data/tax-calculators/config';
+import { isTaxToolsSlug } from '@/lib/markets/tax-tools-seo';
 import { SITE_URL } from '@/data/site';
 
 interface CountryPageProps {
@@ -162,6 +165,34 @@ function buildPageSchemas(
         })
       );
     }
+  } else if (isTaxToolsSlug(slug)) {
+    const taxConfig = getTaxConfig(marketCode);
+    if (slug.length === 1) {
+      schemas.push(
+        getWebApplicationSchema({
+          name: taxConfig.content.hubTitle,
+          description: taxConfig.content.hubDescription,
+          url: `${SITE_URL}${taxConfig.toolsBasePath}`,
+          locale: taxConfig.locale,
+          offers: { price: '0', priceCurrency: taxConfig.currency },
+        }),
+        getFAQSchema(taxConfig.content.faqs)
+      );
+    } else if (slug.length === 2) {
+      const calculator = getCalculatorBySlug(marketCode, slug[1]);
+      if (calculator && pageSeo) {
+        schemas.push(
+          getWebApplicationSchema({
+            name: calculator.title,
+            description: calculator.shortDescription,
+            url: `${SITE_URL}${pageSeo.path}`,
+            locale: taxConfig.locale,
+            offers: { price: '0', priceCurrency: taxConfig.currency },
+          }),
+          getFAQSchema(taxConfig.content.faqs)
+        );
+      }
+    }
   }
 
   if (breadcrumbs.length > 1) {
@@ -192,6 +223,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
     industry?: string;
     city?: string;
     program?: string;
+    calculator?: string;
     posts?: ReturnType<typeof getMergedMarketBlogPosts>;
     post?: ReturnType<typeof getMergedMarketBlogPostBySlug>;
   }>;
@@ -204,6 +236,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
     industry: resolved.params.industry,
     city: resolved.params.city,
     program: resolved.params.program,
+    calculator: resolved.params.calculator,
   };
 
   if (slug[0] === 'blog' && slug.length === 1) {

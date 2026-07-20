@@ -357,6 +357,32 @@ export function getMarketArticleSchema(
   };
 }
 
+export function getWebApplicationSchema(options: {
+  name: string;
+  description: string;
+  url: string;
+  locale?: string;
+  offers?: { price: string; priceCurrency: string };
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: options.name,
+    description: options.description,
+    url: options.url,
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'Web',
+    inLanguage: options.locale ?? 'en',
+    offers: {
+      '@type': 'Offer',
+      price: options.offers?.price ?? '0',
+      priceCurrency: options.offers?.priceCurrency ?? 'USD',
+      description: 'Free to use — no signup required',
+    },
+    isAccessibleForFree: true,
+  };
+}
+
 export function getMarketOfferCatalogSchema(market: MarketConfig) {
   return {
     '@context': 'https://schema.org',

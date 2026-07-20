@@ -426,6 +426,7 @@ export const ciMarket: MarketConfig = {
         { label: 'Fonctionnalités', href: '/features' },
         { label: 'Tarifs', href: '/pricing' },
         { label: 'FAQ', href: '/faq' },
+        { label: 'Calculateurs fiscaux gratuits', href: '/outils' },
       ],
     },
     {

@@ -7,6 +7,7 @@ import { industryLandings } from '@/data/industry-landings';
 import { solutions } from '@/data/solutions';
 import { getMarketStaticParams } from '@/lib/markets/pages';
 import { getMarket } from '@/lib/markets/registry';
+import { getTaxConfig } from '@/data/tax-calculators/config';
 import { PARTNERSHIP_PROGRAM_SLUGS } from '@/data/partnerships/programs';
 
 const staticPaths = [
@@ -30,6 +31,8 @@ const staticPaths = [
   '/refund-policy',
   '/cookie-policy',
   '/partnerships',
+  '/tools',
+  ...getTaxConfig('us').content.calculators.map((c) => `/tools/${c.slug}`),
   ...PARTNERSHIP_PROGRAM_SLUGS.map((p) => `/partnerships/${p}`),
   ...developmentServices.map((s) => s.path),
   ...industryLandings.map((l) => l.path),

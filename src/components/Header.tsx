@@ -46,6 +46,7 @@ const usNavigation = [
       { name: 'Integrations', href: '/integrations' },
       { name: 'Pricing', href: '/pricing' },
       { name: 'FAQ', href: '/faq' },
+      { name: 'Free Tax Calculators', href: '/tools' },
     ],
   },
   {

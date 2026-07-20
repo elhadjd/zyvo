@@ -8,6 +8,7 @@ import { SN_HOME_SEO_CONTENT } from '@/data/markets/sn-seo';
 import { CI_HOME_SEO_CONTENT } from '@/data/markets/ci-seo';
 import { getLocalErpPageSeo, isLocalErpSlug } from '@/lib/markets/local-erp-seo';
 import { getPartnershipPageSeo, isPartnershipSlug } from '@/lib/partnerships/seo';
+import { getTaxToolsPageSeo, isTaxToolsSlug } from '@/lib/markets/tax-tools-seo';
 
 export type MarketSeoPageMeta = GnSeoPageMeta;
 
@@ -18,6 +19,10 @@ export function getMarketPageSeo(marketCode: MarketCode, slug: string[]): Market
   if (isLocalErpSlug(slug)) {
     const localSeo = getLocalErpPageSeo(marketCode, slug[1], slug[2]);
     if (localSeo) return localSeo;
+  }
+  if (isTaxToolsSlug(slug)) {
+    const taxSeo = getTaxToolsPageSeo(marketCode, slug);
+    if (taxSeo) return taxSeo;
   }
   if (marketCode === 'gn') return getGnPageSeo(slug);
   if (marketCode === 'sn') return getSnPageSeo(slug);
@@ -97,6 +102,16 @@ export function getMarketInternalLinkGroups(marketCode: MarketCode) {
         'partnerships/referral',
         'partnerships/implementation',
         'partnerships/affiliate',
+      ],
+    },
+    {
+      title: marketCode === 'us' ? 'Tax Tools' : 'Outils fiscaux gratuits',
+      paths: [
+        'outils',
+        'outils/calculateur-tva',
+        'outils/calculateur-impot-revenu',
+        'outils/calculateur-impot-societes',
+        'outils/calculateur-salaire-net',
       ],
     },
     {
