@@ -52,6 +52,9 @@ export interface DevelopmentHubContent {
   quoteButton: string;
   learnMoreLabel: string;
   contactButton: string;
+  promoBadge?: string;
+  seoSections?: { heading: string; body: string }[];
+  internalLinksHeading?: string;
 }
 
 export interface ServicePricingTier {

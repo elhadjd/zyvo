@@ -1,5 +1,10 @@
 import { developmentServices, portfolioProjects } from './development-services';
 
+function priceHintFor(slug: string, suffix: string): string {
+  const service = developmentServices.find((s) => s.slug === slug);
+  return service ? `${service.priceLabel}${suffix}` : suffix;
+}
+
 export type ContactServiceId =
   | 'zyvo-software'
   | 'custom-website-development'
@@ -34,7 +39,7 @@ export const contactServiceOptions: ContactServiceOption[] = [
     label: 'Custom Website',
     shortLabel: 'Website',
     description: 'SEO-ready, mobile-first sites that help local customers find you on Google.',
-    priceHint: 'From $1,199 · SEO included',
+    priceHint: `${priceHintFor('custom-website-development', '')} · SEO included`,
     deliveryHint: '2–4 weeks delivery',
     icon: 'globe',
     href: '/custom-website-development',
@@ -44,7 +49,7 @@ export const contactServiceOptions: ContactServiceOption[] = [
     label: 'Custom Business System',
     shortLabel: 'Custom System',
     description: 'Web apps, admin panels, booking platforms, and industry-specific tools.',
-    priceHint: 'From $7,900 · fixed scope',
+    priceHint: `${priceHintFor('custom-software-development', '')} · fixed scope`,
     deliveryHint: '6–12 weeks delivery',
     icon: 'code',
     href: '/custom-software-development',
@@ -54,7 +59,7 @@ export const contactServiceOptions: ContactServiceOption[] = [
     label: 'Maintenance & Support',
     shortLabel: 'Maintenance',
     description: 'Security updates, backups, monitoring, and content changes — hands off.',
-    priceHint: 'From $79/mo · no contract',
+    priceHint: `${priceHintFor('website-maintenance-services', '')} · no contract`,
     deliveryHint: 'Ongoing monthly',
     icon: 'wrench',
     href: '/website-maintenance-services',

@@ -48,12 +48,32 @@ function resolveDevMarket(code: MarketCode): DevServiceMarket {
   return code === 'ao' ? 'gn' : code;
 }
 
-const MARKET_PRICING: Record<DevServiceMarket, MarketPricing> = {
+/** 30% promotional discount applied to all development service base rates */
+const SERVICE_DISCOUNT_RATE = 0.7;
+
+function discountPrice(amount: number): number {
+  return Math.round(amount * SERVICE_DISCOUNT_RATE);
+}
+
+const BASE_MARKET_PRICING: Record<DevServiceMarket, MarketPricing> = {
   us: { websiteStarter: 1199, websiteBusiness: 2499, softwareFrom: 7900, maintenanceWebsite: 79, maintenanceSystem: 399 },
   gn: { websiteStarter: 8_500_000, websiteBusiness: 18_500_000, softwareFrom: 55_000_000, maintenanceWebsite: 450_000, maintenanceSystem: 2_800_000 },
   sn: { websiteStarter: 750_000, websiteBusiness: 1_650_000, softwareFrom: 4_900_000, maintenanceWebsite: 39_000, maintenanceSystem: 249_000 },
   ci: { websiteStarter: 750_000, websiteBusiness: 1_650_000, softwareFrom: 4_900_000, maintenanceWebsite: 39_000, maintenanceSystem: 249_000 },
 };
+
+const MARKET_PRICING: Record<DevServiceMarket, MarketPricing> = Object.fromEntries(
+  (Object.entries(BASE_MARKET_PRICING) as [DevServiceMarket, MarketPricing][]).map(([code, pricing]) => [
+    code,
+    {
+      websiteStarter: discountPrice(pricing.websiteStarter),
+      websiteBusiness: discountPrice(pricing.websiteBusiness),
+      softwareFrom: discountPrice(pricing.softwareFrom),
+      maintenanceWebsite: discountPrice(pricing.maintenanceWebsite),
+      maintenanceSystem: discountPrice(pricing.maintenanceSystem),
+    },
+  ])
+) as Record<DevServiceMarket, MarketPricing>;
 
 export const portfolioProjects: PortfolioProject[] = [
   {
@@ -102,11 +122,11 @@ function buildServicesEn(): DevelopmentService[] {
       path: '/custom-website-development',
       shortTitle: 'Websites',
       title: 'Custom Website Development',
-      metaTitle: 'Custom Website Development for US Small Businesses — From $1,199',
+      metaTitle: `Custom Website Development USA — ${formatDevPriceFrom('us', p.websiteStarter)} | SEO Included`,
       metaDescription:
-        'Professional custom website design and development for US salons, restaurants, clinics, and local businesses. SEO-optimized, mobile-first sites from $1,199 — below typical agency rates.',
+        `Professional custom website design for US salons, restaurants, clinics & local businesses. Mobile-first, Google-ready sites from ${formatDevPrice('us', p.websiteStarter)}. 30% below typical agency rates.`,
       keywords:
-        'custom website development, small business website design, professional web design USA, SEO website development, salon website design, local business website, affordable web development',
+        'custom website development USA, small business website design, affordable web design, SEO website development, salon website design, restaurant website Columbus, local business website near me, professional web developer USA',
       headline: 'Websites that feel human — and help customers find you on Google',
       subheadline:
         'We design and build fast, mobile-first websites for US small businesses. Every page is structured for search engines so local customers discover you when they need what you offer.',
@@ -123,7 +143,7 @@ function buildServicesEn(): DevelopmentService[] {
       ],
       includes: ['Up to 10 custom pages', 'Contact forms & Google Maps integration', 'On-page SEO setup (titles, descriptions, schema)', 'SSL certificate & performance optimization', '30 days post-launch support'],
       faqs: [
-        { question: 'How much does a custom small business website cost in the US?', answer: 'Most US agencies charge between $3,000 and $8,000 for a 5–10 page business website. ZYVO offers comparable custom website development starting at $1,199 for focused landing sites and from $2,499 for full multi-page business websites — with SEO optimization included.' },
+        { question: 'How much does a custom small business website cost in the US?', answer: `Most US agencies charge between $3,000 and $8,000 for a 5–10 page business website. ZYVO offers comparable custom website development starting at ${formatDevPrice('us', p.websiteStarter)} for focused landing sites and from ${formatDevPrice('us', p.websiteBusiness)} for full multi-page business websites — with SEO optimization included.` },
         { question: 'Will my website rank on Google?', answer: 'We build every site with technical SEO foundations: fast hosting-ready code, semantic structure, meta tags, Open Graph data, and JSON-LD schema. Ranking also depends on your content, location, and competition — we set you up to compete from day one.' },
         { question: 'Do you redesign existing websites?', answer: 'Yes. We can migrate your content, improve design and performance, and preserve or improve your search rankings during the transition.' },
       ],
@@ -133,11 +153,11 @@ function buildServicesEn(): DevelopmentService[] {
       path: '/custom-software-development',
       shortTitle: 'Custom Systems',
       title: 'Custom Business Software Development',
-      metaTitle: 'Custom Business Software & Web App Development — From $7,900',
+      metaTitle: `Custom Business Software Development — ${formatDevPriceFrom('us', p.softwareFrom)} | Web Apps & ERP`,
       metaDescription:
-        'Custom web applications, admin panels, and all-in-one business management systems for US companies. ERP-style platforms, booking systems, dashboards — from $7,900, below typical dev shop rates.',
+        `Custom web applications, admin panels & business management systems for US companies. Booking systems, dashboards, ERP modules from ${formatDevPrice('us', p.softwareFrom)}. Fixed-scope pricing.`,
       keywords:
-        'custom software development, business web application, custom admin panel, business management system, all-in-one business software, booking system development, SMB software development USA, custom ERP development',
+        'custom software development USA, business web application, custom admin panel, SMB software development, booking system development, custom ERP development, web app developer Ohio, all-in-one business software',
       headline: 'Custom systems built around how your business actually works',
       subheadline:
         'Off-the-shelf software forces compromises. We build web applications, admin dashboards, and all-in-one management systems tailored to your workflows — like SIGESC at sisgesc.net and the admin panels we have shipped for real clients.',
@@ -154,7 +174,7 @@ function buildServicesEn(): DevelopmentService[] {
       ],
       includes: ['Discovery & requirements workshop', 'UI/UX design for web & admin views', 'Custom database & API development', 'User roles & permissions', 'Deployment & documentation', '60 days post-launch support'],
       faqs: [
-        { question: 'How much does custom business software cost in the US?', answer: 'Custom web applications in the US typically range from $10,000 to $30,000 depending on complexity. ZYVO starts custom software projects from $7,900 for focused applications, with transparent scoping before development begins.' },
+        { question: 'How much does custom business software cost in the US?', answer: `Custom web applications in the US typically range from $10,000 to $30,000 depending on complexity. ZYVO starts custom software projects from ${formatDevPrice('us', p.softwareFrom)} for focused applications, with transparent scoping before development begins.` },
         { question: 'What types of systems do you build?', answer: 'We build all-in-one business management platforms, booking systems, customer portals, inventory dashboards, multi-location admin panels, and industry-specific tools for salons, restaurants, retail, and service businesses.' },
         { question: 'Can you integrate with ZYVO ERP?', answer: 'Yes. If you use or plan to use ZYVO for operations, we can build custom modules or integrations that connect with your existing ZYVO setup.' },
       ],
@@ -164,11 +184,11 @@ function buildServicesEn(): DevelopmentService[] {
       path: '/website-maintenance-services',
       shortTitle: 'Maintenance',
       title: 'Website & System Maintenance',
-      metaTitle: 'Website & Software Maintenance Plans — From $79/month',
+      metaTitle: `Website & Software Maintenance Plans — ${formatDevPriceFrom('us', p.maintenanceWebsite)}/mo`,
       metaDescription:
-        'Affordable website and custom software maintenance for US businesses. Security updates, backups, content changes, and monitoring from $79/mo — below typical managed hosting and agency retainers.',
+        `Affordable website and custom software maintenance for US businesses. Security updates, backups, monitoring & content changes from ${formatDevPrice('us', p.maintenanceWebsite)}/mo.`,
       keywords:
-        'website maintenance services, website maintenance cost, software maintenance plan, managed website support, small business IT maintenance, website updates monthly, system maintenance retainer',
+        'website maintenance services USA, website maintenance cost, software maintenance plan, managed website support, small business IT maintenance, WordPress maintenance, monthly website updates',
       headline: 'Peace of mind — your site and systems stay secure, fast, and up to date',
       subheadline:
         'Running a business is enough work without worrying about broken plugins, expired certificates, or outdated software. Our maintenance plans keep everything running smoothly so you can focus on customers.',
@@ -185,7 +205,7 @@ function buildServicesEn(): DevelopmentService[] {
       ],
       includes: ['Monthly security & software updates', 'Automated backups', 'Uptime monitoring', 'SSL renewal management', 'Up to 2 hours of content updates/mo', 'Priority email support'],
       faqs: [
-        { question: 'How much does website maintenance cost per month?', answer: 'US website maintenance plans typically range from $99 to $249 per month for small business sites. ZYVO maintenance starts at $79/month for websites and from $399/month for custom software systems with active development support.' },
+        { question: 'How much does website maintenance cost per month?', answer: `US website maintenance plans typically range from $99 to $249 per month for small business sites. ZYVO maintenance starts at ${formatDevPrice('us', p.maintenanceWebsite)}/month for websites and from ${formatDevPrice('us', p.maintenanceSystem)}/month for custom software systems with active development support.` },
         { question: 'What is included in a maintenance plan?', answer: 'Plans include security updates, backups, uptime monitoring, SSL management, and a set number of content change hours each month. Software maintenance plans add bug fixes, dependency updates, and priority support.' },
         { question: 'Do you maintain sites you did not build?', answer: 'Yes. We can audit your existing website or application and onboard it to a maintenance plan after a technical review.' },
       ],
@@ -209,8 +229,8 @@ function buildServicesFr(code: MarketCode): DevelopmentService[] {
       shortTitle: 'Sites web',
       title: 'Création de sites web sur mesure',
       metaTitle: `Création site web PME ${country} — À partir de ${formatDevPrice(resolved, p.websiteStarter)}`,
-      metaDescription: `Sites web professionnels pour boutiques, restaurants, salons et cliniques à ${city}. Design mobile, SEO local et formulaires de contact — tarifs transparents pour les PME en ${country}.`,
-      keywords: `création site web ${country}, site internet PME ${city}, développement web ${country}, site vitrine professionnel, référencement Google ${city}`,
+      metaDescription: `Sites web professionnels pour boutiques, restaurants, salons et cliniques à ${city}. Design mobile, SEO local Google, formulaires de contact — ${formatDevPriceFrom(resolved, p.websiteStarter)} avec −30 % sur les tarifs agence.`,
+      keywords: `création site web ${country}, site internet PME ${city}, développement web ${country}, site vitrine professionnel, référencement Google ${city}, agence web ${city}, site web pas cher ${country}, webdesign ${city}`,
       headline: `Un site web qui attire des clients à ${city} — et se positionne sur Google`,
       subheadline: `Nous concevons des sites rapides, adaptés au mobile et optimisés pour le référencement local. Vos clients vous trouvent quand ils cherchent vos services à ${city} et dans tout le pays.`,
       icon: 'globe',
@@ -237,8 +257,8 @@ function buildServicesFr(code: MarketCode): DevelopmentService[] {
       shortTitle: 'Logiciels',
       title: 'Développement de logiciels métier',
       metaTitle: `Logiciel sur mesure PME ${country} — À partir de ${formatDevPrice(resolved, p.softwareFrom)}`,
-      metaDescription: `Applications web, tableaux de bord admin et systèmes de gestion pour entreprises en ${country}. Plateformes sur mesure, réservations, ERP — livraison professionnelle à ${city}.`,
-      keywords: `développement logiciel ${country}, application web PME, logiciel gestion ${city}, ERP sur mesure ${country}, tableau de bord entreprise`,
+      metaDescription: `Applications web, tableaux de bord admin et ERP pour PME en ${country}. Réservations, gestion stock, facturation — à partir de ${formatDevPrice(resolved, p.softwareFrom)}. Livraison professionnelle à ${city}.`,
+      keywords: `développement logiciel ${country}, application web PME ${city}, logiciel gestion ${city}, ERP sur mesure ${country}, tableau de bord entreprise, logiciel boutique ${city}, système gestion stock ${country}`,
       headline: 'Des outils numériques adaptés à vos processus réels',
       subheadline: `Fini les compromis avec des logiciels génériques. Nous développons des applications web, des panneaux d'administration et des systèmes de gestion — comme SIGESC (sisgesc.net), déjà en production pour des clients réels.`,
       icon: 'code',
@@ -268,7 +288,7 @@ function buildServicesFr(code: MarketCode): DevelopmentService[] {
       title: 'Maintenance sites & logiciels',
       metaTitle: `Maintenance site web ${country} — À partir de ${formatDevPrice(resolved, p.maintenanceWebsite)}/mois`,
       metaDescription: `Plans de maintenance pour sites web et logiciels en ${country}. Mises à jour sécurité, sauvegardes, monitoring et modifications de contenu — à partir de ${formatDevPrice(resolved, p.maintenanceWebsite)}/mois.`,
-      keywords: `maintenance site web ${country}, support technique ${city}, mise à jour site internet, maintenance logiciel PME`,
+      keywords: `maintenance site web ${country}, support technique ${city}, mise à jour site internet, maintenance logiciel PME, hébergement site web ${city}, sécurité site internet ${country}`,
       headline: 'Votre site et vos systèmes restent sécurisés, rapides et à jour',
       subheadline: 'Concentrez-vous sur vos clients — nous gérons les mises à jour, sauvegardes, certificats SSL et corrections pour que votre présence en ligne ne tombe jamais en panne.',
       icon: 'wrench',
@@ -295,25 +315,42 @@ function buildServicesFr(code: MarketCode): DevelopmentService[] {
 }
 
 function buildHubEn(): DevelopmentHubContent {
+  const p = MARKET_PRICING.us;
   return {
     path: '/development-services',
-    metaTitle: 'Web Design, Custom Software & Maintenance Services for US Businesses',
+    metaTitle: `Web Design & Custom Software USA — Sites from ${formatDevPrice('us', p.websiteStarter)} | ZYVO`,
     metaDescription:
-      'ZYVO builds custom websites, business software, and admin systems for US small businesses — with SEO optimization and pricing below typical agency rates. See live portfolio: BB Salon Suites, SIGESC, and more.',
+      `ZYVO builds SEO-optimized websites, custom business software & maintenance for US small businesses. Websites from ${formatDevPrice('us', p.websiteStarter)}, systems from ${formatDevPrice('us', p.softwareFrom)}. Live portfolio: BB Salon Suites, SIGESC.`,
     keywords:
-      'web development services USA, custom website development, custom software development, website maintenance, small business web design, SEO website development, ZYVO development services',
+      'web development services USA, custom website development, custom software development, website maintenance, small business web design, SEO website development, affordable web developer USA, Columbus web design, Ohio software development',
     headline: 'We build the digital tools your business deserves',
     subheadline:
       'Beyond our ZYVO platform, we design and develop custom websites, business systems, and ongoing maintenance for owners who want technology that works as hard as they do — with SEO built in so customers can find you.',
     badge: 'Web Design · Custom Software · Maintenance',
+    promoBadge: 'Limited-time · 30% off all development services',
     servicesHeading: 'What we build for US small businesses',
-    pricingHeading: 'Development pricing — competitive & transparent',
-    pricingSubtitle: 'Our rates are typically 15–25% below comparable US agency pricing, with SEO optimization included in every website project.',
+    pricingHeading: 'Development pricing — 30% below typical agency rates',
+    pricingSubtitle: `Promotional pricing on every project. Websites from ${formatDevPrice('us', p.websiteStarter)}, business systems from ${formatDevPrice('us', p.softwareFrom)} — with SEO optimization included in every website.`,
     seoHeading: 'Why SEO matters in every project we deliver',
     seoBody: [
       'When someone in your city searches for "salon website design," "all-in-one business management software," or "website maintenance for small business," you want to appear at the top — not on page three. That is why we treat search engine optimization as a foundation, not an afterthought.',
       'Every website we build includes semantic HTML structure, optimized page titles and meta descriptions, Open Graph tags for social sharing, JSON-LD structured data for rich search results, fast-loading assets, and mobile-first responsive design.',
     ],
+    seoSections: [
+      {
+        heading: 'Custom websites that rank on Google',
+        body: 'We build small business websites for salons, restaurants, clinics, retail shops, and service companies across the United States. Each project includes keyword research, local SEO setup, Google Business Profile integration, and Core Web Vitals optimization so your site competes in local search from day one.',
+      },
+      {
+        heading: 'Custom software for real business workflows',
+        body: 'Need more than a website? We develop booking systems, inventory dashboards, customer portals, and all-in-one management platforms like SIGESC (sisgesc.net). Our team maps your processes first, then builds software your staff will actually use — with role-based admin panels and secure cloud hosting.',
+      },
+      {
+        heading: 'Ongoing maintenance so you stay secure',
+        body: `Website and software maintenance plans start at ${formatDevPrice('us', p.maintenanceWebsite)}/month. We handle security patches, SSL renewals, automated backups, uptime monitoring, and monthly content updates — so you focus on customers, not broken plugins.`,
+      },
+    ],
+    internalLinksHeading: 'Explore ZYVO',
     ctaTitle: 'Ready to start your project?',
     ctaSubtitle: 'Tell us about your business and goals. We will respond with a clear scope, timeline, and quote — no pressure.',
     ctaButton: 'Contact our team',
@@ -325,24 +362,48 @@ function buildHubEn(): DevelopmentHubContent {
 }
 
 function buildHubFr(code: MarketCode): DevelopmentHubContent {
-  const country = countryLabel(code);
-  const city = capitalCity(code);
+  const resolved = resolveDevMarket(code);
+  const country = countryLabel(resolved);
+  const city = capitalCity(resolved);
+  const p = MARKET_PRICING[resolved];
+  const localKeywords = resolved === 'gn'
+    ? `création site web Conakry, agence web Guinée, logiciel gestion Conakry, développeur web Kaloum, site vitrine Ratoma`
+    : resolved === 'sn'
+      ? `création site web Dakar, agence web Sénégal, logiciel gestion Dakar, développeur web Plateau, site vitrine Almadies`
+      : `création site web Abidjan, agence web Côte d'Ivoire, logiciel gestion Abidjan, développeur web Cocody, site vitrine Plateau`;
+
   return {
     path: getServiceHubPath(code),
-    metaTitle: `Services développement web & logiciel ${country} — Sites, ERP & maintenance`,
-    metaDescription: `ZYVO développe sites web, logiciels métier et maintenance pour PME en ${country}. SEO inclus, tarifs transparents, portfolio en ligne. Devis gratuit à ${city}.`,
-    keywords: `développement web ${country}, création site internet ${city}, logiciel sur mesure ${country}, maintenance site web ${city}, agence web ${country}`,
+    metaTitle: `Agence Web ${country} — Sites dès ${formatDevPrice(resolved, p.websiteStarter)} | ZYVO ${city}`,
+    metaDescription: `Création site web, logiciel sur mesure & maintenance pour PME à ${city} et en ${country}. SEO Google inclus, tarifs −30 %. Sites dès ${formatDevPrice(resolved, p.websiteStarter)}, logiciels dès ${formatDevPrice(resolved, p.softwareFrom)}. Devis gratuit.`,
+    keywords: `développement web ${country}, création site internet ${city}, logiciel sur mesure ${country}, maintenance site web ${city}, agence web ${country}, ${localKeywords}`,
     headline: `Sites web & logiciels sur mesure pour les PME en ${country}`,
     subheadline: `Au-delà de la plateforme ZYVO, nous concevons des sites vitrines, des applications de gestion et des contrats de maintenance pour les entrepreneurs de ${city} et de tout le pays — avec le SEO intégré dès le départ.`,
     badge: 'Sites web · Logiciels · Maintenance',
+    promoBadge: 'Offre limitée · −30 % sur tous les services',
     servicesHeading: `Ce que nous créons pour les entreprises en ${country}`,
-    pricingHeading: 'Tarifs transparents — adaptés au marché local',
-    pricingSubtitle: `Des prix compétitifs par rapport aux agences locales à ${city}, avec l'optimisation SEO incluse dans chaque projet web.`,
+    pricingHeading: 'Tarifs transparents — 30 % sous les agences locales',
+    pricingSubtitle: `Promotion en cours : sites dès ${formatDevPrice(resolved, p.websiteStarter)}, logiciels dès ${formatDevPrice(resolved, p.softwareFrom)}. SEO technique inclus dans chaque projet web.`,
     seoHeading: 'Le référencement Google intégré à chaque livraison',
     seoBody: [
       `Quand un client cherche « site web boutique ${city} » ou « logiciel gestion stock ${country} », votre entreprise doit apparaître en première page. C'est pourquoi le SEO technique fait partie de chaque projet — pas une option en supplément.`,
       'Chaque site inclut structure HTML sémantique, balises meta optimisées, Open Graph, données structurées JSON-LD, assets rapides et design responsive mobile-first.',
     ],
+    seoSections: [
+      {
+        heading: `Sites web professionnels à ${city} et en ${country}`,
+        body: `Nous créons des sites vitrines pour boutiques, restaurants, salons de coiffure, pharmacies, cabinets et PME de services. Chaque projet inclut le référencement local Google, l'intégration Google Maps, des formulaires de contact optimisés et une version mobile parfaite — essentielle quand 80 % des recherches locales se font sur smartphone en Afrique de l'Ouest.`,
+      },
+      {
+        heading: `Logiciels de gestion sur mesure pour PME en ${country}`,
+        body: `Au-delà des sites web, nous développons des applications de gestion : caisse POS, suivi de stock, réservations en ligne, tableaux de bord admin et intégrations Orange Money / Wave. Comme SIGESC (sisgesc.net), nos logiciels sont conçus autour de vos processus réels — pas l'inverse.`,
+      },
+      {
+        heading: 'Maintenance et support technique continu',
+        body: `Nos plans de maintenance démarrent à ${formatDevPrice(resolved, p.maintenanceWebsite)}/mois pour les sites web. Nous gérons les mises à jour de sécurité, sauvegardes, certificats SSL et modifications de contenu — pour que votre présence en ligne reste fiable même avec une connexion mobile limitée.`,
+      },
+    ],
+    internalLinksHeading: 'Découvrir ZYVO',
     ctaTitle: 'Prêt à lancer votre projet ?',
     ctaSubtitle: 'Décrivez votre activité et vos objectifs. Nous vous répondons avec un devis clair, un planning et zéro pression commerciale.',
     ctaButton: 'Contacter notre équipe',
