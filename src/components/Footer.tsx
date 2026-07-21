@@ -63,9 +63,16 @@ const Footer = () => {
         Entreprise: [
           { label: 'À propos', href: '/about' },
           { label: 'Partenariats', href: '/partnerships' },
+          { label: 'Services web & logiciel', href: '/services' },
           { label: 'Contact', href: '/contact' },
           { label: 'Démo', href: '/demo' },
           { label: 'Blog', href: '/blog' },
+        ],
+        Services: [
+          { label: 'Sites web sur mesure', href: '/services/custom-website-development' },
+          { label: 'Logiciels métier', href: '/services/custom-software-development' },
+          { label: 'Maintenance', href: '/services/website-maintenance-services' },
+          { label: 'Voir le portfolio', href: '/services#portfolio' },
         ],
       };
 
@@ -135,7 +142,7 @@ const Footer = () => {
             </div>
           </div>
 
-          <div className={`grid grid-cols-2 ${isDefaultMarket ? 'md:grid-cols-3 lg:grid-cols-5' : 'md:grid-cols-2 lg:grid-cols-4'} gap-8`}>
+          <div className={`grid grid-cols-2 ${isDefaultMarket ? 'md:grid-cols-3 lg:grid-cols-5' : 'md:grid-cols-2 lg:grid-cols-5'} gap-8`}>
             {Object.entries(footerLinks).map(([category, links]) => (
               <div key={category}>
                 <h4 className="font-semibold text-base mb-4">{category}</h4>

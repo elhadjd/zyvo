@@ -8,6 +8,7 @@ import { SN_HOME_SEO_CONTENT } from '@/data/markets/sn-seo';
 import { CI_HOME_SEO_CONTENT } from '@/data/markets/ci-seo';
 import { getLocalErpPageSeo, isLocalErpSlug } from '@/lib/markets/local-erp-seo';
 import { getPartnershipPageSeo, isPartnershipSlug } from '@/lib/partnerships/seo';
+import { getDevelopmentServicesPageSeo, isDevelopmentServicesSlug } from '@/lib/development-services/seo';
 import { getTaxToolsPageSeo, isTaxToolsSlug } from '@/lib/markets/tax-tools-seo';
 import { getCodeToolsPageSeo } from '@/lib/markets/code-tools-seo';
 import { getInvoiceToolsSeo } from '@/lib/markets/invoice-tools-seo';
@@ -18,6 +19,9 @@ export type MarketSeoPageMeta = GnSeoPageMeta;
 export function getMarketPageSeo(marketCode: MarketCode, slug: string[]): MarketSeoPageMeta | null {
   if (isPartnershipSlug(slug)) {
     return getPartnershipPageSeo(marketCode, slug);
+  }
+  if (isDevelopmentServicesSlug(slug)) {
+    return getDevelopmentServicesPageSeo(marketCode, slug);
   }
   if (isLocalErpSlug(slug)) {
     const localSeo = getLocalErpPageSeo(marketCode, slug[1], slug[2]);
@@ -111,6 +115,15 @@ export function getMarketInternalLinkGroups(marketCode: MarketCode) {
         'partnerships/referral',
         'partnerships/implementation',
         'partnerships/affiliate',
+      ],
+    },
+    {
+      title: 'Services développement',
+      paths: [
+        'services',
+        'services/custom-website-development',
+        'services/custom-software-development',
+        'services/website-maintenance-services',
       ],
     },
     {

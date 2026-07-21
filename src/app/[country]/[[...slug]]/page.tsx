@@ -10,6 +10,9 @@ import { isLocalErpSlug } from '@/lib/markets/local-erp-seo';
 import { isPartnershipSlug } from '@/lib/partnerships/seo';
 import { getPartnershipProgram } from '@/data/partnerships/content';
 import { isPartnershipProgramSlug } from '@/data/partnerships/programs';
+import { isDevelopmentServicesSlug } from '@/lib/development-services/seo';
+import { getDevelopmentService } from '@/data/development-services/content';
+import { isDevelopmentServiceSlug } from '@/data/development-services/programs';
 import { buildLocalErpPage } from '@/data/markets/local-erp-pages';
 import { getMergedMarketBlogPosts, getMergedMarketBlogPostBySlug } from '@/lib/markets/blog-server';
 import { resolvePostHeroImage } from '@/lib/ai/services/stock-image-library';
@@ -165,6 +168,30 @@ function buildPageSchemas(
           name: pageSeo?.h1 ?? 'Programme partenariat ZYVO',
           description: pageSeo?.description ?? market.description,
           url: `${SITE_URL}${market.routePrefix}/partnerships`,
+        })
+      );
+    }
+  } else if (isDevelopmentServicesSlug(slug)) {
+    if (slug.length === 2 && isDevelopmentServiceSlug(slug[1])) {
+      const service = getDevelopmentService(marketCode, slug[1]);
+      if (service) {
+        schemas.push(
+          getMarketServiceSchema(market, {
+            name: service.title,
+            description: service.metaDescription,
+            url: `${SITE_URL}${market.routePrefix}${service.path}`,
+          })
+        );
+        if (service.faqs.length > 0) {
+          schemas.push(getFAQSchema(service.faqs));
+        }
+      }
+    } else if (slug.length === 1) {
+      schemas.push(
+        getMarketServiceSchema(market, {
+          name: pageSeo?.h1 ?? 'Services développement ZYVO',
+          description: pageSeo?.description ?? market.description,
+          url: `${SITE_URL}${market.routePrefix}/services`,
         })
       );
     }

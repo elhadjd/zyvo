@@ -259,6 +259,23 @@ export function buildMarketBreadcrumbs(
     return crumbs;
   }
 
+  if (slug[0] === 'services' && slug.length === 1) {
+    crumbs.push({
+      name: pageSeo?.breadcrumb ?? 'Services',
+      url: `${base}/services`,
+    });
+    return crumbs;
+  }
+
+  if (slug[0] === 'services' && slug.length === 2) {
+    crumbs.push({ name: 'Services', url: `${base}/services` });
+    crumbs.push({
+      name: pageSeo?.breadcrumb ?? slug[1],
+      url: `${base}/services/${slug[1]}`,
+    });
+    return crumbs;
+  }
+
   if (slug[0] === 'outils' && slug.length === 1) {
     crumbs.push({
       name: pageSeo?.breadcrumb ?? 'Outils gratuits',
