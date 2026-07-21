@@ -224,6 +224,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
     city?: string;
     program?: string;
     calculator?: string;
+    calculatorSlug?: string;
     posts?: ReturnType<typeof getMergedMarketBlogPosts>;
     post?: ReturnType<typeof getMergedMarketBlogPostBySlug>;
   }>;
@@ -236,7 +237,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
     industry: resolved.params.industry,
     city: resolved.params.city,
     program: resolved.params.program,
-    calculator: resolved.params.calculator,
+    calculatorSlug: resolved.params.calculator,
   };
 
   if (slug[0] === 'blog' && slug.length === 1) {

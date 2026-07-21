@@ -8,27 +8,32 @@ import { getTaxConfig, getCalculatorBySlug } from '@/data/tax-calculators/config
 
 interface MarketTaxCalculatorPageProps {
   calculatorSlug?: string;
+  calculator?: string;
 }
 
-export default function MarketTaxCalculatorPage({ calculatorSlug }: MarketTaxCalculatorPageProps) {
+export default function MarketTaxCalculatorPage({
+  calculatorSlug,
+  calculator,
+}: MarketTaxCalculatorPageProps) {
   const { marketCode } = useMarket();
+  const slug = calculatorSlug ?? calculator;
 
-  if (!calculatorSlug) notFound();
+  if (!slug) notFound();
 
   const config = getTaxConfig(marketCode);
-  const calculator = getCalculatorBySlug(marketCode, calculatorSlug);
+  const calc = getCalculatorBySlug(marketCode, slug);
 
-  if (!calculator) notFound();
+  if (!calc) notFound();
 
   return (
     <>
-      <MarketBreadcrumbs lastLabel={calculator.title} />
+      <MarketBreadcrumbs lastLabel={calc.title} />
       <div className="container mx-auto px-4 lg:px-8 py-10 lg:py-14">
         <TaxCalculatorPageContent
           config={config}
-          calculatorId={calculator.id}
-          calculatorTitle={calculator.title}
-          calculatorDescription={calculator.shortDescription}
+          calculatorId={calc.id}
+          calculatorTitle={calc.title}
+          calculatorDescription={calc.shortDescription}
           basePath={config.toolsBasePath}
           hubLabel="← Outils fiscaux gratuits"
         />
