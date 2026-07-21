@@ -1,7 +1,5 @@
 import type { TaxCalculatorId, TaxCountryConfig, TaxMarketCode } from './types';
 import {
-  CI_IRPP_BRACKETS,
-  GN_IRPP_BRACKETS,
   SN_IRPP_BRACKETS,
   US_FEDERAL_BRACKETS_2024,
   US_STANDARD_DEDUCTION_2024,
@@ -110,7 +108,7 @@ const SN_CONFIG: TaxCountryConfig = {
   taxAuthority: 'DGI Sénégal',
   corporateTaxRate: 30,
   incomeTaxBrackets: SN_IRPP_BRACKETS,
-  socialSecurityRate: 7,
+  socialSecurityRate: 5.6,
   content: {
     freeBadge: FR_FREE_BADGE,
     freeNotice: FR_FREE_NOTICE,
@@ -130,7 +128,14 @@ const SN_CONFIG: TaxCountryConfig = {
     relatedTools: 'Autres calculateurs',
     faqTitle: 'Questions fréquentes',
     calculators: frCalculators('Sénégal', 'Dakar'),
-    faqs: frFaqs('Sénégal', 'DGI'),
+    faqs: [
+      ...frFaqs('Sénégal', 'DGI'),
+      {
+        question: 'Comment est calculé l\'IRPP au Sénégal ?',
+        answer:
+          'L\'IRPP utilise un barème annuel progressif (7 tranches, 0 % à 43 %), après abattement forfaitaire de 30 % plafonné à 900 000 FCFA. Les salariés paient aussi l\'IPRES (5,6 %, plafond 432 000 FCFA/mois) et la TRIMF.',
+      },
+    ],
     seoSections: [
       {
         heading: 'Calculateur TVA Sénégal — HT, TTC et montant de taxe',
@@ -138,7 +143,7 @@ const SN_CONFIG: TaxCountryConfig = {
       },
       {
         heading: 'Simulateur IRPP et salaire net au Sénégal',
-        body: 'L\'impôt sur le revenu des personnes physiques (IRPP) au Sénégal suit un barème progressif de 0 % à 43 %. Notre calculateur estime votre impôt annuel et votre salaire net mensuel en tenant compte des cotisations sociales simplifiées. Outil 100 % gratuit pour salariés, freelancers et entrepreneurs.',
+        body: 'L\'IRPP au Sénégal suit un barème annuel progressif (0 % à 43 %), avec abattement 30 % (plafond 900 000 FCFA), cotisation IPRES salarié (5,6 %, plafond 432 000 FCFA/mois) et TRIMF. Notre calculateur estime impôt annuel et salaire net mensuel selon ces règles officielles.',
       },
       {
         heading: 'Impôt sur les sociétés (IS) — 30 % au Sénégal',
@@ -159,7 +164,7 @@ const GN_CONFIG: TaxCountryConfig = {
   vatLabel: 'TVA',
   taxAuthority: 'DGI Guinée',
   corporateTaxRate: 25,
-  incomeTaxBrackets: GN_IRPP_BRACKETS,
+  incomeTaxBrackets: [],
   socialSecurityRate: 5,
   content: {
     freeBadge: FR_FREE_BADGE,
@@ -180,15 +185,22 @@ const GN_CONFIG: TaxCountryConfig = {
     relatedTools: 'Autres calculateurs',
     faqTitle: 'Questions fréquentes',
     calculators: frCalculators('Guinée', 'Conakry'),
-    faqs: frFaqs('Guinée', 'DGI'),
+    faqs: [
+      ...frFaqs('Guinée', 'DGI'),
+      {
+        question: 'Comment fonctionne la RTS en Guinée ?',
+        answer:
+          'La retenue à la source sur salaires (RTS) utilise un barème mensuel progressif : 0 % jusqu\'à 1 000 000 GNF, puis 5 %, 10 %, 15 % et 20 %. Ce n\'est pas un barème annuel comme au Sénégal.',
+      },
+    ],
     seoSections: [
       {
         heading: 'Calculateur TVA Guinée — HT et TTC en GNF',
         body: 'La TVA standard en Guinée est de 18 %. Notre calculateur gratuit convertit vos montants HT en TTC pour vos factures et devis à Conakry et dans tout le pays. Conforme aux pratiques de la Direction Générale des Impôts (DGI).',
       },
       {
-        heading: 'IRPP et salaire net en Guinée',
-        body: 'Estimez votre impôt sur le revenu et votre salaire net mensuel en francs guinéens (GNF) avec notre simulateur gratuit basé sur le barème progressif guinéen.',
+        heading: 'RTS et salaire net en Guinée',
+        body: 'La retenue à la source sur salaires (RTS) en Guinée s\'applique sur une base mensuelle (0 % à 20 %), après cotisation sociale salarié de 5 %. Notre simulateur estime votre impôt et salaire net mensuel selon ce barème — distinct du Sénégal et de la Côte d\'Ivoire.',
       },
       {
         heading: 'Impôt sur les sociétés — 25 % en Guinée',
@@ -209,7 +221,7 @@ const CI_CONFIG: TaxCountryConfig = {
   vatLabel: 'TVA',
   taxAuthority: 'DGI Côte d\'Ivoire',
   corporateTaxRate: 25,
-  incomeTaxBrackets: CI_IRPP_BRACKETS,
+  incomeTaxBrackets: [],
   socialSecurityRate: 6.3,
   content: {
     freeBadge: FR_FREE_BADGE,
@@ -230,15 +242,22 @@ const CI_CONFIG: TaxCountryConfig = {
     relatedTools: 'Autres calculateurs',
     faqTitle: 'Questions fréquentes',
     calculators: frCalculators('Côte d\'Ivoire', 'Abidjan'),
-    faqs: frFaqs('Côte d\'Ivoire', 'DGI'),
+    faqs: [
+      ...frFaqs('Côte d\'Ivoire', 'DGI'),
+      {
+        question: 'Comment est calculé l\'ITS en Côte d\'Ivoire ?',
+        answer:
+          'Depuis 2024, l\'impôt sur les traitements et salaires (ITS) utilise un barème mensuel unifié (0 % à 32 %), plus la CNPS salarié (6,3 %) et le RICF (5 500 FCFA par demi-part de charge familiale).',
+      },
+    ],
     seoSections: [
       {
         heading: 'Calculateur TVA Côte d\'Ivoire — 18 % en FCFA',
         body: 'Le taux de TVA en Côte d\'Ivoire est de 18 %. Notre calculateur gratuit convertit HT en TTC pour les commerçants d\'Abidjan, Bouaké et partout en CI. Conforme aux exigences de la DGI.',
       },
       {
-        heading: 'Simulateur IRPP et salaire net en Côte d\'Ivoire',
-        body: 'Calculez gratuitement votre impôt sur le revenu et votre salaire net mensuel en FCFA selon le barème progressif ivoirien.',
+        heading: 'Simulateur ITS et salaire net en Côte d\'Ivoire',
+        body: 'Depuis la réforme 2024, l\'ITS s\'applique sur une base mensuelle (0 % à 32 %), avec CNPS salarié (6,3 %) et RICF. Calculez gratuitement votre impôt et salaire net mensuel en FCFA selon ce barème officiel.',
       },
       {
         heading: 'Impôt sur les sociétés — 25 % en Côte d\'Ivoire',

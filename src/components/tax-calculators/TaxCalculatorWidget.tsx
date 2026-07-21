@@ -8,8 +8,11 @@ import {
   calculateSalesTax,
   calculateUsPaycheck,
   calculateVat,
-  calculateWaemuSalary,
 } from '@/data/tax-calculators/calculations';
+import {
+  calculateCountryAnnualIncomeTax,
+  calculateCountrySalary,
+} from '@/data/tax-calculators/country-calculations';
 import { formatTaxAmount } from '@/data/tax-calculators/config';
 
 interface TaxCalculatorWidgetProps {
@@ -22,6 +25,9 @@ type SalesMode = 'excl-to-incl' | 'incl-to-excl';
 
 export default function TaxCalculatorWidget({ calculatorId, config }: TaxCalculatorWidgetProps) {
   const isUs = config.code === 'us';
+  const isWestAfrica = config.code === 'sn' || config.code === 'gn' || config.code === 'ci';
+  const incomeTaxLabel =
+    config.code === 'gn' ? 'RTS' : config.code === 'ci' ? 'ITS' : config.code === 'us' ? 'Federal tax' : 'Impôt (IRPP)';
   const labels = isUs
     ? {
         amount: 'Amount',
@@ -84,6 +90,13 @@ export default function TaxCalculatorWidget({ calculatorId, config }: TaxCalcula
       case 'vat':
         return calculateVat(parsedAmount, config.vatRate, vatMode, config.decimalPlaces);
       case 'income':
+        if (isWestAfrica) {
+          return calculateCountryAnnualIncomeTax(
+            config.code as 'sn' | 'gn' | 'ci',
+            parsedAmount,
+            config.decimalPlaces
+          );
+        }
         return calculateProgressiveIncomeTax(
           parsedAmount,
           config.incomeTaxBrackets,
@@ -108,12 +121,14 @@ export default function TaxCalculatorWidget({ calculatorId, config }: TaxCalcula
             config.decimalPlaces
           );
         }
-        return calculateWaemuSalary(
-          parsedAmount,
-          config.incomeTaxBrackets,
-          config.socialSecurityRate ?? 5,
-          config.decimalPlaces
-        );
+        if (isWestAfrica) {
+          return calculateCountrySalary(
+            config.code as 'sn' | 'gn' | 'ci',
+            parsedAmount,
+            config.decimalPlaces
+          );
+        }
+        return null;
       case 'sales-tax':
         if (!state) return null;
         return calculateSalesTax(parsedAmount, state, salesMode, config.decimalPlaces);
@@ -137,9 +152,10 @@ export default function TaxCalculatorWidget({ calculatorId, config }: TaxCalcula
   const paycheckResult = calculatorId === 'paycheck' && results && 'grossPay' in results
     ? (results as import('@/data/tax-calculators/types').PaycheckResult)
     : null;
-  const waemuSalaryResult = calculatorId === 'paycheck' && results && 'grossIncome' in results && !('grossPay' in results)
-    ? (results as import('@/data/tax-calculators/types').IncomeTaxResult)
-    : null;
+  const countrySalaryResult =
+    calculatorId === 'paycheck' && results && 'breakdown' in results && !('grossPay' in results)
+      ? (results as import('@/data/tax-calculators/types').IncomeTaxResult)
+      : null;
   const salesResult = calculatorId === 'sales-tax' ? (results as import('@/data/tax-calculators/types').SalesTaxResult | null) : null;
 
   const fmt = (v: number) => formatTaxAmount(v, config);
@@ -277,7 +293,7 @@ export default function TaxCalculatorWidget({ calculatorId, config }: TaxCalcula
               <>
                 <ResultRow label={labels.gross} value={fmt(incomeResult.grossIncome)} />
                 <ResultRow label={labels.taxableIncome} value={fmt(incomeResult.taxableIncome)} />
-                <ResultRow label={isUs ? 'Federal tax' : 'Impôt (IRPP)'} value={fmt(incomeResult.totalTax)} />
+                <ResultRow label={incomeTaxLabel} value={fmt(incomeResult.totalTax)} />
                 <ResultRow label={labels.net} value={fmt(incomeResult.netIncome)} highlight />
                 <ResultRow label={labels.effectiveRate} value={`${incomeResult.effectiveRate}%`} />
                 <ResultRow label={labels.marginalRate} value={`${incomeResult.marginalRate}%`} />
@@ -304,12 +320,16 @@ export default function TaxCalculatorWidget({ calculatorId, config }: TaxCalcula
               </>
             )}
 
-            {waemuSalaryResult && (
+            {countrySalaryResult && (
               <>
-                <ResultRow label={labels.gross} value={fmt(waemuSalaryResult.grossIncome / 12)} />
-                <ResultRow label="Impôt (IRPP)" value={fmt(waemuSalaryResult.totalTax / 12)} />
-                <ResultRow label="Salaire net mensuel" value={fmt(waemuSalaryResult.netIncome / 12)} highlight />
-                <ResultRow label="Salaire net annuel" value={fmt(waemuSalaryResult.netIncome)} />
+                {countrySalaryResult.breakdown.map((item) => (
+                  <ResultRow
+                    key={item.label}
+                    label={item.label}
+                    value={fmt(Math.abs(item.amount))}
+                    highlight={item.label.toLowerCase().includes('net')}
+                  />
+                ))}
               </>
             )}
           </div>
