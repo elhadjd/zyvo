@@ -244,6 +244,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
     industry?: string;
     city?: string;
     program?: string;
+    service?: string;
     calculator?: string;
     calculatorSlug?: string;
     posts?: ReturnType<typeof getMergedMarketBlogPosts>;
@@ -258,6 +259,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
     industry: resolved.params.industry,
     city: resolved.params.city,
     program: resolved.params.program,
+    service: resolved.params.service,
     calculatorSlug: resolved.params.calculator,
   };
 
