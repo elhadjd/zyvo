@@ -64,6 +64,7 @@ export default function ProductScreenshot({
           <Image
             src={src}
             alt={alt}
+            title={alt}
             fill
             sizes={
               variant === 'hero'
