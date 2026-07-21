@@ -90,3 +90,25 @@ export function getPublishedDbArticleBySlug(
 export function getAllPublishedDbSlugs(marketCode: string): string[] {
   return getPublishedDbArticles(marketCode).map((p) => p.slug);
 }
+
+/** Recently used hero image URLs for a market — avoids duplicate blog images */
+export function getRecentHeroImageUrls(marketCode: string, limit = 30): string[] {
+  if (!isDatabaseAvailable()) return [];
+
+  try {
+    const db = getDb();
+    const articles = db
+      .select({ heroImageUrl: contentArticles.heroImageUrl })
+      .from(contentArticles)
+      .where(eq(contentArticles.countryCode, marketCode))
+      .orderBy(desc(contentArticles.publishedAt))
+      .limit(limit)
+      .all();
+
+    return articles
+      .map((a) => a.heroImageUrl)
+      .filter((url): url is string => Boolean(url));
+  } catch {
+    return [];
+  }
+}

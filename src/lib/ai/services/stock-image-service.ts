@@ -1,5 +1,6 @@
 import type { ContentArticle } from '../db/schema';
 import type { SupportedCountry } from '../types';
+import { getRecentHeroImageUrls } from '../blog-repository';
 import { deepseekService } from './deepseek-service';
 import {
   buildRuleBasedSearchQueries,
@@ -7,6 +8,7 @@ import {
   getTopicImageCandidates,
   type HeroImageResult,
 } from './stock-image-library';
+import { isBlockedBlogImageUrl, pickImageFromLibrary } from './blog-image-picker';
 
 export type { HeroImageResult } from './stock-image-library';
 export {
@@ -21,6 +23,8 @@ const PEXELS_PARAMS = 'auto=compress&cs=tinysrgb&w=1200&h=630&fit=crop';
 const validatedUrlCache = new Map<string, boolean>();
 
 export async function isImageUrlAccessible(url: string): Promise<boolean> {
+  if (isBlockedBlogImageUrl(url)) return false;
+
   const cached = validatedUrlCache.get(url);
   if (cached !== undefined) return cached;
 
@@ -46,6 +50,7 @@ async function firstAccessibleImage(
   candidates: HeroImageResult[]
 ): Promise<HeroImageResult | null> {
   for (const candidate of candidates) {
+    if (isBlockedBlogImageUrl(candidate.url)) continue;
     if (await isImageUrlAccessible(candidate.url)) {
       return candidate;
     }
@@ -72,7 +77,8 @@ Rules:
 - 2-3 short queries (3-6 words each)
 - Match the article topic literally (e.g. NINEA → business registration documents, not meetings)
 - Prefer objects, documents, shops, markets, mobile payments — not generic office meetings
-- Never suggest brand names (Square, Stripe, etc.)
+- Never suggest brand names (Square, Stripe, Shopify, ZYVO, etc.)
+- Never suggest software UI screenshots or app interfaces
 - Include "africa" or "african" only when people should appear
 Return JSON: { "queries": string[] }`,
         },
@@ -161,16 +167,21 @@ async function fetchFromUnsplash(query: string): Promise<HeroImageResult[]> {
 async function searchStockImagesWithAI(
   title: string,
   category: string,
-  countryCode: SupportedCountry
+  countryCode: SupportedCountry,
+  excludeUrls: Set<string>
 ): Promise<HeroImageResult | null> {
   const queries = await generateImageSearchQueriesWithAI(title, category, countryCode);
 
   for (const query of queries) {
-    const pexelsResults = await fetchFromPexels(query);
+    const pexelsResults = await fetchFromPexels(query).then((r) =>
+      r.filter((img) => !excludeUrls.has(img.url) && !isBlockedBlogImageUrl(img.url))
+    );
     const pexelsMatch = await firstAccessibleImage(pexelsResults);
     if (pexelsMatch) return pexelsMatch;
 
-    const unsplashResults = await fetchFromUnsplash(query);
+    const unsplashResults = await fetchFromUnsplash(query).then((r) =>
+      r.filter((img) => !excludeUrls.has(img.url) && !isBlockedBlogImageUrl(img.url))
+    );
     const unsplashMatch = await firstAccessibleImage(unsplashResults);
     if (unsplashMatch) return unsplashMatch;
   }
@@ -178,31 +189,49 @@ async function searchStockImagesWithAI(
   return null;
 }
 
-async function resolveValidatedTopicImage(
+async function resolveFromLibrary(
   title: string,
-  category: string
+  category: string,
+  slug: string,
+  excludeUrls: Set<string>
 ): Promise<HeroImageResult> {
-  const candidates = getTopicImageCandidates(title, category);
+  const picked = pickImageFromLibrary({ title, category, slug, excludeUrls });
+  if (await isImageUrlAccessible(picked.url)) return picked;
+
+  const candidates = getTopicImageCandidates(title, category, slug).filter(
+    (c) => !excludeUrls.has(c.url)
+  );
   const match = await firstAccessibleImage(candidates);
   if (match) return match;
 
-  if (await isImageUrlAccessible(FALLBACK_HERO_IMAGE.url)) {
-    return { ...FALLBACK_HERO_IMAGE };
-  }
-
-  return candidates[0] ?? { ...FALLBACK_HERO_IMAGE };
+  return { ...FALLBACK_HERO_IMAGE };
 }
 
 export async function fetchHeroImageForArticle(
   article: ContentArticle,
   countryCode: SupportedCountry,
   primaryKeyword?: string,
-  _slug?: string
+  slug?: string
 ): Promise<HeroImageResult> {
   const title = primaryKeyword ? `${article.title} ${primaryKeyword}` : article.title;
+  const postSlug = slug ?? article.slug;
+  const recentUrls = getRecentHeroImageUrls(countryCode, 40);
+  const excludeUrls = new Set(recentUrls);
 
-  const fromApi = await searchStockImagesWithAI(title, article.category, countryCode);
+  // Re-use stored image if valid and not a brand screenshot
+  if (article.heroImageUrl && !isBlockedBlogImageUrl(article.heroImageUrl)) {
+    if (!excludeUrls.has(article.heroImageUrl) && (await isImageUrlAccessible(article.heroImageUrl))) {
+      return {
+        url: article.heroImageUrl,
+        alt: article.heroImageAlt ?? title,
+        credit: article.heroImageCredit ?? undefined,
+        source: 'curated',
+      };
+    }
+  }
+
+  const fromApi = await searchStockImagesWithAI(title, article.category, countryCode, excludeUrls);
   if (fromApi) return fromApi;
 
-  return resolveValidatedTopicImage(title, article.category);
+  return resolveFromLibrary(title, article.category, postSlug, excludeUrls);
 }
