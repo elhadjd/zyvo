@@ -58,7 +58,8 @@ export type JobType =
   | 'optimize_seo'
   | 'fact_check'
   | 'edit_article'
-  | 'publish_article';
+  | 'publish_article'
+  | 'full_pipeline';
 
 export type JobStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'retrying';
 

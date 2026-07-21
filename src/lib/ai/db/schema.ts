@@ -91,6 +91,7 @@ export const contentArticles = sqliteTable('content_articles', {
   heroImageUrl: text('hero_image_url'),
   heroImageAlt: text('hero_image_alt'),
   heroImageCredit: text('hero_image_credit'),
+  sourceTopic: text('source_topic'),
 });
 
 export const seoMetadata = sqliteTable('seo_metadata', {
@@ -361,10 +362,28 @@ export const countryAiConfig = sqliteTable('country_ai_config', {
   updatedAt: text('updated_at').notNull(),
 });
 
+export const aiBatchRuns = sqliteTable('ai_batch_runs', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  status: text('status').notNull().default('pending'),
+  phase: text('phase').notNull().default('prepare'),
+  config: text('config', { mode: 'json' }).$type<Record<string, unknown>>(),
+  preparedCountries: text('prepared_countries', { mode: 'json' }).$type<string[]>().notNull().default([]),
+  totalJobs: integer('total_jobs').notNull().default(0),
+  completedJobs: integer('completed_jobs').notNull().default(0),
+  succeededJobs: integer('succeeded_jobs').notNull().default(0),
+  failedJobs: integer('failed_jobs').notNull().default(0),
+  error: text('error'),
+  createdAt: text('created_at').notNull(),
+  startedAt: text('started_at'),
+  completedAt: text('completed_at'),
+});
+
 export const aiJobs = sqliteTable('ai_jobs', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   type: text('type').notNull(),
   countryCode: text('country_code').notNull(),
+  batchId: integer('batch_id').references(() => aiBatchRuns.id),
+  idempotencyKey: text('idempotency_key'),
   status: text('status').notNull().default('pending'),
   payload: text('payload', { mode: 'json' }).$type<Record<string, unknown>>(),
   result: text('result', { mode: 'json' }).$type<Record<string, unknown>>(),
@@ -467,6 +486,7 @@ export type SeoMeta = typeof seoMetadata.$inferSelect;
 export type FactCheck = typeof factChecks.$inferSelect;
 export type AiLog = typeof aiLogs.$inferSelect;
 export type CountryAiConfig = typeof countryAiConfig.$inferSelect;
+export type AiBatchRun = typeof aiBatchRuns.$inferSelect;
 export type AiJob = typeof aiJobs.$inferSelect;
 export type DeepseekRequest = typeof deepseekRequests.$inferSelect;
 export type ManagedSourceRow = typeof managedSources.$inferSelect;
