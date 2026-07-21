@@ -178,7 +178,7 @@ async function fetchGoogleSuggestions(query: string, geo?: string, language = 'f
         'User-Agent': 'Mozilla/5.0 (compatible; ZYVO-TopicResolver/1.0)',
         Accept: 'application/json',
       },
-      signal: AbortSignal.timeout(12_000),
+      signal: AbortSignal.timeout(6_000),
     });
 
     if (!response.ok) return [];
@@ -205,11 +205,21 @@ export async function fetchGoogleTrendingQueries(countryCode: SupportedCountry):
 
   const suggestions = new Set<string>();
 
-  for (const seed of seeds.slice(0, 12)) {
-    const results = await fetchGoogleSuggestions(seed, geo, language);
-    for (const item of results) {
-      if (item.length >= 8 && item.length <= 120) {
-        suggestions.add(item);
+  const seedBatch = seeds.slice(0, 12);
+  const batches: string[][] = [];
+  for (let i = 0; i < seedBatch.length; i += 4) {
+    batches.push(seedBatch.slice(i, i + 4));
+  }
+
+  for (const batch of batches) {
+    const batchResults = await Promise.all(
+      batch.map((seed) => fetchGoogleSuggestions(seed, geo, language))
+    );
+    for (const results of batchResults) {
+      for (const item of results) {
+        if (item.length >= 8 && item.length <= 120) {
+          suggestions.add(item);
+        }
       }
     }
   }

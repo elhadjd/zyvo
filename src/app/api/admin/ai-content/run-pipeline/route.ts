@@ -6,6 +6,7 @@ import { aiLogs } from '@/lib/ai/db/schema';
 import { runFullPipeline, runSingleAgent, runCountryTestPipeline } from '@/lib/ai/agents/orchestrator';
 import { runBatchPipeline } from '@/lib/ai/jobs/batch-pipeline';
 import { parseArticlesPerCountry } from '@/lib/ai/jobs/article-count';
+import { resolveBatchTopics } from '@/lib/ai/research-engine/topic-resolver';
 import { runMultiCountryPipeline } from '@/lib/ai/jobs/multi-country-pipeline';
 import { enqueueTestPipeline } from '@/lib/ai/jobs/processor';
 import { processAllPendingJobs } from '@/lib/ai/jobs/processor';
@@ -21,6 +22,14 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { action, countryCode = 'gn', agent, dryRun = false, publishNow = false } = body;
 
+    if (action === 'resolve_topics') {
+      const topics = await resolveBatchTopics(countryCode as SupportedCountry, parseArticlesPerCountry(body.articlesPerCountry), {
+        recentDays: Number(body.recentDays ?? 14),
+        fixedTopic: body.topic?.trim() || undefined,
+      });
+      return NextResponse.json({ topics });
+    }
+
     if (action === 'pipeline') {
       const result = await runFullPipeline(countryCode as SupportedCountry, {
         dryRun,
@@ -28,6 +37,8 @@ export async function POST(request: Request) {
         saveAsDraft: publishNow ? false : (body.saveAsDraft ?? true),
         publishNow,
         stages: body.stages,
+        skipTopicDiscovery: body.skipTopicDiscovery === true,
+        targetCategory: body.targetCategory,
       });
       return NextResponse.json(result);
     }
