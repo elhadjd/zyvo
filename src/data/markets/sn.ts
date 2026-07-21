@@ -435,8 +435,18 @@ export const snMarket: MarketConfig = {
       submenu: [
         { label: 'À propos', href: '/about' },
         { label: 'Partenariats', href: '/partnerships' },
+        { label: 'Services web & logiciel', href: '/services' },
         { label: 'Contact', href: '/contact' },
         { label: 'Blog', href: '/blog' },
+      ],
+    },
+    {
+      label: 'Services',
+      href: '/services',
+      submenu: [
+        { label: 'Sites web sur mesure', href: '/services/custom-website-development' },
+        { label: 'Logiciels métier', href: '/services/custom-software-development' },
+        { label: 'Maintenance', href: '/services/website-maintenance-services' },
       ],
     },
   ],

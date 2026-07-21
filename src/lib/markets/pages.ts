@@ -18,6 +18,8 @@ import ProgrammaticPageServer from '@/views/markets/ProgrammaticPageServer';
 import MarketLocalErpPageServer from '@/views/markets/MarketLocalErpPageServer';
 import MarketPartnershipsPage from '@/views/markets/MarketPartnershipsPage';
 import MarketPartnershipProgramPageServer from '@/views/markets/MarketPartnershipProgramPageServer';
+import MarketDevelopmentServicesPage from '@/views/markets/MarketDevelopmentServicesPage';
+import MarketDevelopmentServiceDetailPageServer from '@/views/markets/MarketDevelopmentServiceDetailPageServer';
 import MarketTaxToolsHubPage from '@/views/markets/MarketTaxToolsHubPage';
 import MarketToolPage from '@/views/markets/MarketToolPage';
 import { getAllMergedMarketBlogSlugs } from '@/lib/markets/blog-server';
@@ -29,6 +31,7 @@ import { PROGRAMMATIC_INDUSTRIES } from '@/lib/ai/seo-engine/types';
 import { MARKET_SOLUTION_SLUGS } from '@/data/markets/market-modules';
 import { getAllLocalErpParams } from '@/data/markets/local-erp-pages';
 import { PARTNERSHIP_PROGRAM_SLUGS } from '@/data/partnerships/programs';
+import { DEVELOPMENT_SERVICE_SLUGS } from '@/data/development-services/programs';
 
 export interface MarketPageDefinition {
   slug: string[];
@@ -47,6 +50,8 @@ const GN_PAGES: MarketPageDefinition[] = [
   { slug: ['demo'], pageKey: 'demo', component: MarketDemoPage },
   { slug: ['partnerships'], pageKey: 'partnerships', component: MarketPartnershipsPage },
   { slug: ['partnerships', ':program'], pageKey: 'partnerships', component: MarketPartnershipProgramPageServer },
+  { slug: ['services'], pageKey: 'services', component: MarketDevelopmentServicesPage },
+  { slug: ['services', ':service'], pageKey: 'services', component: MarketDevelopmentServiceDetailPageServer },
   { slug: ['getting-started'], pageKey: 'home', component: MarketGettingStartedPage },
   { slug: ['blog'], pageKey: 'blog', component: MarketBlogIndexPage },
   { slug: ['blog', ':post'], pageKey: 'blog', component: MarketBlogPostPage },
@@ -120,6 +125,10 @@ function appendDynamicMarketParams(marketCode: MarketCode, params: { slug: strin
 
   PARTNERSHIP_PROGRAM_SLUGS.forEach((program) => {
     params.push({ slug: ['partnerships', program] });
+  });
+
+  DEVELOPMENT_SERVICE_SLUGS.forEach((service) => {
+    params.push({ slug: ['services', service] });
   });
 
   getTaxConfig(marketCode).content.calculators.forEach((calc) => {
