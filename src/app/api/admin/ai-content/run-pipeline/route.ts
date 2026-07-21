@@ -5,6 +5,7 @@ import { getDb } from '@/lib/ai/db';
 import { aiLogs } from '@/lib/ai/db/schema';
 import { runFullPipeline, runSingleAgent, runCountryTestPipeline } from '@/lib/ai/agents/orchestrator';
 import { runBatchPipeline } from '@/lib/ai/jobs/batch-pipeline';
+import { parseArticlesPerCountry } from '@/lib/ai/jobs/article-count';
 import { runMultiCountryPipeline } from '@/lib/ai/jobs/multi-country-pipeline';
 import { enqueueTestPipeline } from '@/lib/ai/jobs/processor';
 import { processAllPendingJobs } from '@/lib/ai/jobs/processor';
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
 
       const result = await runBatchPipeline({
         countryCodes: allCountries ? [...SITE_AI_COUNTRIES] : countryCodes,
-        articlesPerCountry: Number(body.articlesPerCountry ?? 1),
+        articlesPerCountry: parseArticlesPerCountry(body.articlesPerCountry),
         topic: body.topic,
         publishNow,
         dryRun,
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
     if (action === 'multi_country') {
       const result = await runMultiCountryPipeline({
         countryCodes: body.countryCodes,
-        articlesPerCountry: Number(body.articlesPerCountry ?? 1),
+        articlesPerCountry: parseArticlesPerCountry(body.articlesPerCountry),
         publishNow,
         dryRun,
         saveAsDraft: publishNow ? false : (body.saveAsDraft ?? true),

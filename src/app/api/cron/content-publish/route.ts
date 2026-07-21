@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { runMultiCountryPipeline } from '@/lib/ai/jobs/multi-country-pipeline';
+import { parseArticlesPerCountry } from '@/lib/ai/jobs/article-count';
 import { getMaxArticlesPerDay } from '@/lib/ai/countries/registry';
 import { DEFAULT_RECENT_DAYS } from '@/lib/ai/research-engine/topic-dedup';
 import { syncAllSitemaps } from '@/lib/ai/seo-engine/sitemap-manager';
@@ -31,7 +32,7 @@ export async function GET(request: Request) {
   const notifyIndexNow = searchParams.get('indexnow') !== 'false';
 
   try {
-    const articlesPerCountry = getMaxArticlesPerDay(TRAFFIC_COUNTRIES);
+    const articlesPerCountry = parseArticlesPerCountry(getMaxArticlesPerDay(TRAFFIC_COUNTRIES));
 
     const pipeline = await runMultiCountryPipeline({
       countryCodes: TRAFFIC_COUNTRIES,

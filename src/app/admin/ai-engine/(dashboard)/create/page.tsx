@@ -53,6 +53,7 @@ export default function CreateArticlePage() {
 
   async function runPipeline() {
     const countries = allCountries ? SITE_AI_COUNTRY_OPTIONS.map((c) => c.code) : selectedCountries;
+    const perCountry = Math.max(1, Math.min(5, articlesPerCountry));
 
     if (countries.length === 0) {
       setSummary('Seleccione pelo menos um país.');
@@ -63,20 +64,15 @@ export default function CreateArticlePage() {
     setSummary(null);
     setBatchResults([]);
 
-    const isBatch = countries.length > 1 || articlesPerCountry > 1 || !topic.trim();
-    const action = isBatch ? 'pipeline_batch' : 'pipeline';
-    const singleCountry = countries[0];
-
     const res = await fetch('/api/admin/ai-content/run-pipeline', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        action,
+        action: 'pipeline_batch',
         allCountries,
         countryCodes: countries,
-        countryCode: singleCountry,
         topic: topic.trim() || undefined,
-        articlesPerCountry: topic.trim() ? 1 : articlesPerCountry,
+        articlesPerCountry: perCountry,
         publishNow,
         saveAsDraft: !publishNow,
         stages: [...PIPELINE_STEPS],
@@ -93,35 +89,13 @@ export default function CreateArticlePage() {
       return;
     }
 
-    if (action === 'pipeline_batch') {
-      const jobs = (data.jobs ?? []) as BatchJobResult[];
-      setBatchResults(jobs);
-      const published = jobs.filter((j) => j.success).length;
-      setSummary(
-        `${published}/${jobs.length} artigo(s) gerado(s) — ${countries.map((c) => COUNTRY_LABELS[c] ?? c).join(', ')}`
-      );
-    } else {
-      const id = data.articleId as number | undefined;
-      const label = COUNTRY_LABELS[singleCountry] ?? singleCountry.toUpperCase();
-      const published = data.stages?.publisher?.success;
-      setBatchResults([
-        {
-          countryCode: singleCountry,
-          topic: data.topic ?? topic,
-          success: Boolean(published ?? id),
-          result: data,
-        },
-      ]);
-      setSummary(
-        publishNow && id
-          ? published
-            ? `Artigo #${id} publicado em /${singleCountry}/blog — ${label}`
-            : `Artigo #${id} criado. Verifique o estágio Publisher.`
-          : id
-            ? `Rascunho #${id} criado — ${label}`
-            : 'Pipeline concluído.'
-      );
-    }
+    const jobs = (data.jobs ?? []) as BatchJobResult[];
+    setBatchResults(jobs);
+    const published = jobs.filter((j) => j.success).length;
+    const expected = countries.length * perCountry;
+    setSummary(
+      `${published}/${jobs.length} artigo(s) gerado(s) (pedido: ${expected}) — ${countries.map((c) => COUNTRY_LABELS[c] ?? c).join(', ')}`
+    );
 
     setRunning(false);
   }
@@ -130,7 +104,7 @@ export default function CreateArticlePage() {
     ? SITE_AI_COUNTRY_OPTIONS.map((c) => c.code)
     : selectedCountries;
 
-  const totalArticles = activeCountries.length * (topic.trim() ? 1 : articlesPerCountry);
+  const totalArticles = activeCountries.length * Math.max(1, Math.min(5, articlesPerCountry));
 
   return (
     <div className="p-8 max-w-4xl">
@@ -187,13 +161,10 @@ export default function CreateArticlePage() {
               max={5}
               value={articlesPerCountry}
               onChange={(e) => setArticlesPerCountry(Math.min(5, Math.max(1, Number(e.target.value) || 1)))}
-              disabled={Boolean(topic.trim())}
-              className="w-full px-3 py-2 border rounded-lg dark:bg-gray-950 dark:border-gray-700 disabled:opacity-50"
+              className="w-full px-3 py-2 border rounded-lg dark:bg-gray-950 dark:border-gray-700"
             />
             <p className="text-xs text-gray-500 mt-1">
-              {topic.trim()
-                ? 'Com tema fixo: 1 artigo por país'
-                : 'Cada artigo usa um nicho diferente: fiscalité, marketing, IA, ventes, gestion… (máx. 5)'}
+              Cada artigo usa um nicho diferente: fiscalité, marketing, IA, ventes, gestion… (máx. 5 por país)
             </p>
           </div>
           <div className="flex items-end">
