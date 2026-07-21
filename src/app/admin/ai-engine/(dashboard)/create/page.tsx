@@ -31,25 +31,53 @@ interface BatchJobResult {
   };
 }
 
-async function postPipeline(body: Record<string, unknown>) {
-  const res = await fetch('/api/admin/ai-content/run-pipeline', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+async function postPipeline(body: Record<string, unknown>, retries = 2) {
+  let lastError: Error | null = null;
 
-  let data: Record<string, unknown> = {};
-  try {
-    data = await res.json();
-  } catch {
-    throw new Error(res.ok ? 'Resposta inválida do servidor' : `Erro HTTP ${res.status}`);
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch('/api/admin/ai-content/run-pipeline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      let data: Record<string, unknown> = {};
+      try {
+        data = await res.json();
+      } catch {
+        if (res.status === 504 || res.status === 502 || res.status === 503) {
+          lastError = new Error(`Erro HTTP ${res.status} — servidor demorou demasiado. A tentar novamente…`);
+          if (attempt < retries) {
+            await new Promise((resolve) => setTimeout(resolve, 2000 * (attempt + 1)));
+            continue;
+          }
+          throw lastError;
+        }
+        throw new Error(res.ok ? 'Resposta inválida do servidor' : `Erro HTTP ${res.status}`);
+      }
+
+      if (!res.ok) {
+        if ((res.status === 504 || res.status === 502 || res.status === 503) && attempt < retries) {
+          lastError = new Error(String(data.error ?? `Erro HTTP ${res.status}`));
+          await new Promise((resolve) => setTimeout(resolve, 2000 * (attempt + 1)));
+          continue;
+        }
+        throw new Error(String(data.error ?? `Erro HTTP ${res.status}`));
+      }
+
+      return data;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      if (attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, 2000 * (attempt + 1)));
+        continue;
+      }
+      throw lastError;
+    }
   }
 
-  if (!res.ok) {
-    throw new Error(String(data.error ?? `Erro HTTP ${res.status}`));
-  }
-
-  return data;
+  throw lastError ?? new Error('Falha no pedido');
 }
 
 function pipelineSucceeded(result: BatchJobResult['result']): boolean {

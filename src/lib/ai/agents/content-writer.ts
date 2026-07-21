@@ -116,7 +116,12 @@ export async function runContentWriterAgent(ctx: AgentContext): Promise<number |
     const knowledgeIds = entries.map((e) => e.id);
     const category = ctx.targetCategory || article.category;
 
-    const duplicate = findSimilarPublishedArticle(ctx.countryCode, article.title, slug);
+    const duplicate = findSimilarPublishedArticle(
+      ctx.countryCode,
+      ctx.topic?.trim() || article.title,
+      slug,
+      { titleOnly: true }
+    );
     if (duplicate) {
       throw new Error(
         `Artigo duplicado: "${article.title}" é semelhante a "${duplicate.title}" (id ${duplicate.slug}). Tópico já coberto.`
