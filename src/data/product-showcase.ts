@@ -27,6 +27,7 @@ export const productModules: ProductModule[] = [
     description: 'Fast checkout, payments, receipts, and customer lookup at the counter or on mobile.',
     icon: ShoppingCart,
     imageAlt: 'ZYVO point of sale checkout screen',
+    image: '/images/modules/pos/82-pos-main.png',
   },
   {
     id: 'inventory',
