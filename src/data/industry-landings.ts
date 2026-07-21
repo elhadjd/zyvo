@@ -29,8 +29,8 @@ export const industryLandings: IndustryLanding[] = [
     metaDescription:
       'Manage appointments, customer queues, SMS notifications, inventory, and POS for your salon. ZYVO helps US salons run smoother every day.',
     keywords: 'salon management software, salon POS, salon appointment software, salon queue SMS USA',
-    heroImage: '/images/modules/appointment/zyvo-appointment-customer-queue-sms-salon.png',
-    heroImageAlt: 'ZYVO salon management software — customer queue with SMS notifications',
+    heroImage: '/images/modules/appointment/zyvo-appointment-scheduling-calendar.png',
+    heroImageAlt: 'ZYVO salon management software — appointment scheduling and customer queue',
     features: [
       { title: 'Appointment scheduling', description: 'Online booking, reminders, and calendar views for every stylist.' },
       { title: 'Walk-in queue & SMS', description: 'Digital queue with automatic text updates on wait time and service progress.' },
@@ -62,8 +62,8 @@ export const industryLandings: IndustryLanding[] = [
     metaDescription:
       'Walk-in queues, SMS wait-time alerts, appointments, and POS for US barbershops. Keep clients informed and your team organized.',
     keywords: 'barbershop software, barbershop POS, barbershop queue management, barbershop appointment app USA',
-    heroImage: '/images/modules/appointment/zyvo-appointment-customer-queue-sms-salon.png',
-    heroImageAlt: 'ZYVO barbershop software — walk-in queue and appointment management',
+    heroImage: '/images/modules/appointment/zyvo-appointment-scheduling-calendar.png',
+    heroImageAlt: 'ZYVO barbershop software — appointment scheduling and walk-in queue management',
     features: [
       { title: 'Walk-in queue display', description: 'Show live wait times on screen and send SMS when a client is up next.' },
       { title: 'Quick POS checkout', description: 'Process cuts, add-ons, and product sales in seconds.' },
