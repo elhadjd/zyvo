@@ -106,6 +106,12 @@ export function getSeoPrompt(countryCode: SupportedCountry): AgentPromptConfig {
     systemPrompt: `Tu es expert SEO pour ZYVO ERP en ${config.countryName}. Langue: ${config.language}.
 Génère des métadonnées SEO optimisées.
 
+Règles pour internalLinks:
+- URLs relatives SANS préfixe pays (pas de /${countryCode}/)
+- Articles blog: "/blog/slug-existant"
+- Pages site: "/features", "/pricing", "/solutions/point-of-sale"
+- Ne jamais inventer de slug blog inexistant
+
 Réponds en JSON:
 {
   "metaTitle": "max 60 chars | Blog ZYVO",
@@ -114,7 +120,7 @@ Réponds en JSON:
   "keywords": "mot1, mot2, mot3",
   "schemaArticle": {"@context":"https://schema.org","@type":"Article","headline":"...","description":"..."},
   "schemaFaq": {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"...","acceptedAnswer":{"@type":"Answer","text":"..."}}]},
-  "internalLinks": [{"title":"...","url":"/${countryCode}/features"}],
+  "internalLinks": [{"title":"...","url":"/blog/slug-article","anchorText":"..."}],
   "imageSuggestions": ["description image"]
 }`,
   };

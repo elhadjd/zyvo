@@ -2,17 +2,20 @@ import type { MarketCode } from '@/lib/markets/types';
 import type { MarketBlogPost } from '@/data/markets/blog/types';
 import {
   getMarketBlogPosts,
-  getMarketBlogPostBySlug,
   getAllMarketBlogSlugs,
 } from '@/data/markets/blog';
 import {
   getPublishedDbArticles,
-  getPublishedDbArticleBySlug,
   getAllPublishedDbSlugs,
 } from '@/lib/ai/blog-repository';
 import { withResolvedHeroImage } from '@/lib/markets/blog-images';
+import { sanitizePostInternalLinks } from '@/lib/markets/internal-links';
 
-function mergePosts(staticPosts: MarketBlogPost[], dbPosts: MarketBlogPost[]): MarketBlogPost[] {
+function mergePosts(
+  staticPosts: MarketBlogPost[],
+  dbPosts: MarketBlogPost[],
+  marketCode: MarketCode
+): MarketBlogPost[] {
   const slugSet = new Set<string>();
   const merged: MarketBlogPost[] = [];
 
@@ -30,23 +33,22 @@ function mergePosts(staticPosts: MarketBlogPost[], dbPosts: MarketBlogPost[]): M
     }
   }
 
-  return merged.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const sorted = merged.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  return sorted.map((post) => sanitizePostInternalLinks(post, marketCode, sorted));
 }
 
 export function getMergedMarketBlogPosts(marketCode: MarketCode): MarketBlogPost[] {
   const staticPosts = getMarketBlogPosts(marketCode);
   const dbPosts = getPublishedDbArticles(marketCode);
-  return mergePosts(staticPosts, dbPosts);
+  return mergePosts(staticPosts, dbPosts, marketCode);
 }
 
 export function getMergedMarketBlogPostBySlug(
   marketCode: MarketCode,
   slug: string
 ): MarketBlogPost | undefined {
-  const dbPost = getPublishedDbArticleBySlug(marketCode, slug);
-  if (dbPost) return withResolvedHeroImage(dbPost);
-  const staticPost = getMarketBlogPostBySlug(marketCode, slug);
-  return staticPost ? withResolvedHeroImage(staticPost) : undefined;
+  return getMergedMarketBlogPosts(marketCode).find((post) => post.slug === slug);
 }
 
 export function getAllMergedMarketBlogSlugs(marketCode: MarketCode): string[] {

@@ -44,7 +44,7 @@ export async function suggestInternalLinks(
     title: c.title,
     category: c.category,
     slug: c.slug,
-    url: `/${countryCode}/blog/${c.slug}`,
+    url: `/blog/${c.slug}`,
   }));
 
   const prompt = `Select up to 4 most relevant internal links for this article. Rules:
@@ -70,7 +70,7 @@ Candidates: ${JSON.stringify(candidateList)}`;
   } catch {
     return candidates.slice(0, 3).map((c) => ({
       targetArticleId: c.id,
-      targetUrl: `/${countryCode}/blog/${c.slug}`,
+      targetUrl: `/blog/${c.slug}`,
       anchorText: c.title.split(' ').slice(0, 4).join(' '),
       title: c.title,
       relevanceScore: 0.7,
