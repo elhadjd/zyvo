@@ -58,7 +58,6 @@ const GLOBAL_PATH_PREFIXES = [
   '/terms-of-service',
   '/refund-policy',
   '/cookie-policy',
-  '/getting-started',
   '/development-services',
   '/custom-website-development',
   '/custom-software-development',
