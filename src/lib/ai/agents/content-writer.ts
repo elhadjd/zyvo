@@ -79,8 +79,9 @@ export async function runContentWriterAgent(ctx: AgentContext): Promise<number |
     }
 
     if (entries.length === 0) {
-      completeTask(taskId, 'content_writer', { articleCreated: false });
-      return null;
+      throw new Error(
+        'Sem conhecimento base para este país/tópico. Execute npm run db:seed ou verifique as fontes de pesquisa.'
+      );
     }
 
     const knowledgeData = entries.map((e) => ({

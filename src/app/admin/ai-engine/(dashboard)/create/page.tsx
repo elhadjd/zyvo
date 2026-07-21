@@ -15,6 +15,12 @@ const PIPELINE_STEPS = [
   'publisher',
 ] as const;
 
+interface TopicItem {
+  topic: string;
+  category?: string;
+  niche?: string;
+}
+
 interface BatchJobResult {
   countryCode: string;
   topic: string;
@@ -25,6 +31,32 @@ interface BatchJobResult {
   };
 }
 
+async function postPipeline(body: Record<string, unknown>) {
+  const res = await fetch('/api/admin/ai-content/run-pipeline', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  let data: Record<string, unknown> = {};
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error(res.ok ? 'Resposta inválida do servidor' : `Erro HTTP ${res.status}`);
+  }
+
+  if (!res.ok) {
+    throw new Error(String(data.error ?? `Erro HTTP ${res.status}`));
+  }
+
+  return data;
+}
+
+function pipelineSucceeded(result: BatchJobResult['result']): boolean {
+  const stages = result.stages ?? {};
+  return Object.values(stages).every((stage) => !stage || stage.success);
+}
+
 export default function CreateArticlePage() {
   const [selectedCountries, setSelectedCountries] = useState<string[]>(['gn', 'sn', 'ci']);
   const [allCountries, setAllCountries] = useState(true);
@@ -32,6 +64,7 @@ export default function CreateArticlePage() {
   const [articlesPerCountry, setArticlesPerCountry] = useState(1);
   const [publishNow, setPublishNow] = useState(true);
   const [running, setRunning] = useState(false);
+  const [progressLabel, setProgressLabel] = useState<string | null>(null);
   const [summary, setSummary] = useState<string | null>(null);
   const [batchResults, setBatchResults] = useState<BatchJobResult[]>([]);
 
@@ -54,6 +87,7 @@ export default function CreateArticlePage() {
   async function runPipeline() {
     const countries = allCountries ? SITE_AI_COUNTRY_OPTIONS.map((c) => c.code) : selectedCountries;
     const perCountry = Math.max(1, Math.min(5, articlesPerCountry));
+    const totalArticles = countries.length * perCountry;
 
     if (countries.length === 0) {
       setSummary('Seleccione pelo menos um país.');
@@ -63,41 +97,77 @@ export default function CreateArticlePage() {
     setRunning(true);
     setSummary(null);
     setBatchResults([]);
+    setProgressLabel('A preparar geração…');
 
-    const res = await fetch('/api/admin/ai-content/run-pipeline', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'pipeline_batch',
-        allCountries,
-        countryCodes: countries,
-        topic: topic.trim() || undefined,
-        articlesPerCountry: perCountry,
-        publishNow,
-        saveAsDraft: !publishNow,
-        stages: [...PIPELINE_STEPS],
-        recentDays: 14,
-        concurrency: 3,
-      }),
-    });
+    const results: BatchJobResult[] = [];
+    let completed = 0;
 
-    const data = await res.json();
+    try {
+      for (const countryCode of countries) {
+        const label = COUNTRY_LABELS[countryCode] ?? countryCode.toUpperCase();
+        setProgressLabel(`A pesquisar tópicos para ${label}…`);
 
-    if (!res.ok) {
-      setSummary(`Erro: ${data.error ?? 'Falha no pipeline'}`);
+        const topicData = await postPipeline({
+          action: 'resolve_topics',
+          countryCode,
+          articlesPerCountry: perCountry,
+          topic: topic.trim() || undefined,
+          recentDays: 14,
+        });
+
+        const topics = (topicData.topics ?? []) as TopicItem[];
+        if (topics.length === 0) {
+          throw new Error(`Nenhum tópico encontrado para ${label}. Tente um tema manual.`);
+        }
+
+        for (const item of topics) {
+          completed += 1;
+          setProgressLabel(
+            `A gerar artigo ${completed}/${totalArticles} (${label}): ${item.topic.slice(0, 60)}${item.topic.length > 60 ? '…' : ''}`
+          );
+
+          const pipelineResult = (await postPipeline({
+            action: 'pipeline',
+            countryCode,
+            topic: item.topic,
+            targetCategory: item.category,
+            skipTopicDiscovery: true,
+            publishNow,
+            saveAsDraft: !publishNow,
+            stages: [...PIPELINE_STEPS],
+          })) as BatchJobResult['result'];
+
+          const job: BatchJobResult = {
+            countryCode,
+            topic: item.topic,
+            result: pipelineResult,
+            success: pipelineSucceeded(pipelineResult),
+          };
+
+          results.push(job);
+          setBatchResults([...results]);
+        }
+      }
+
+      const published = results.filter((job) => job.success).length;
+      setSummary(
+        `${published}/${results.length} artigo(s) gerado(s) (pedido: ${totalArticles}) — ${countries.map((c) => COUNTRY_LABELS[c] ?? c).join(', ')}`
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Falha no pipeline';
+      const partial = results.filter((job) => job.success).length;
+      setSummary(
+        results.length > 0
+          ? `Erro após ${partial}/${results.length} artigo(s): ${message}`
+          : `Erro: ${message}`
+      );
+      if (results.length > 0) {
+        setBatchResults([...results]);
+      }
+    } finally {
       setRunning(false);
-      return;
+      setProgressLabel(null);
     }
-
-    const jobs = (data.jobs ?? []) as BatchJobResult[];
-    setBatchResults(jobs);
-    const published = jobs.filter((j) => j.success).length;
-    const expected = countries.length * perCountry;
-    setSummary(
-      `${published}/${jobs.length} artigo(s) gerado(s) (pedido: ${expected}) — ${countries.map((c) => COUNTRY_LABELS[c] ?? c).join(', ')}`
-    );
-
-    setRunning(false);
   }
 
   const activeCountries = allCountries
@@ -113,7 +183,7 @@ export default function CreateArticlePage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Criar artigos reais</h1>
           <p className="text-gray-500">
-            Um ou vários países em paralelo — tópicos do Google quando o campo está vazio
+            Um ou vários países — tópicos do Google quando o campo está vazio
           </p>
         </div>
       </div>
@@ -169,7 +239,7 @@ export default function CreateArticlePage() {
           </div>
           <div className="flex items-end">
             <p className="text-sm text-gray-600 dark:text-gray-400 pb-2">
-              Total: <strong>{totalArticles}</strong> artigo(s) em paralelo
+              Total: <strong>{totalArticles}</strong> artigo(s), um de cada vez
             </p>
           </div>
         </div>
@@ -205,25 +275,35 @@ export default function CreateArticlePage() {
         onClick={runPipeline}
         disabled={running || activeCountries.length === 0}
         type="button"
-        className="flex items-center gap-2 px-6 py-3 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover disabled:opacity-50 mb-8"
+        className="flex items-center gap-2 px-6 py-3 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover disabled:opacity-50 mb-4"
       >
         {running ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5" />}
         {running
-          ? `A gerar ${totalArticles} artigo(s)…`
+          ? progressLabel ?? `A gerar ${totalArticles} artigo(s)…`
           : publishNow
             ? `Gerar e publicar ${totalArticles} artigo(s)`
             : `Gerar ${totalArticles} rascunho(s)`}
       </button>
 
+      {running && progressLabel && (
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-8">{progressLabel}</p>
+      )}
+
       {summary && (
-        <div className="mb-8 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 rounded-lg text-green-800 dark:text-green-200 text-sm">
+        <div
+          className={`mb-8 p-4 border rounded-lg text-sm ${
+            summary.startsWith('Erro')
+              ? 'bg-red-50 dark:bg-red-900/20 border-red-200 text-red-800 dark:text-red-200'
+              : 'bg-green-50 dark:bg-green-900/20 border-green-200 text-green-800 dark:text-green-200'
+          }`}
+        >
           {summary}
         </div>
       )}
 
       {batchResults.length > 0 && (
         <div className="space-y-3 mb-8">
-          <h2 className="font-semibold">Resultados</h2>
+          <h2 className="font-semibold">Resultados ({batchResults.length})</h2>
           {batchResults.map((job, index) => {
             const label = COUNTRY_LABELS[job.countryCode] ?? job.countryCode.toUpperCase();
             const articleId = job.result.articleId;
@@ -240,6 +320,14 @@ export default function CreateArticlePage() {
                       {label} · {job.success ? '✓' : '✗'}
                     </p>
                     <p className="text-xs text-gray-500 mt-1 line-clamp-2">{job.topic}</p>
+                    {!job.success && job.result.stages && (
+                      <p className="text-xs text-red-600 mt-1">
+                        {Object.entries(job.result.stages)
+                          .filter(([, stage]) => stage && !stage.success)
+                          .map(([name, stage]) => `${name}: ${stage?.error ?? 'falhou'}`)
+                          .join(' · ')}
+                      </p>
+                    )}
                   </div>
                   <div className="flex gap-2 shrink-0">
                     {articleId && (
@@ -272,7 +360,7 @@ export default function CreateArticlePage() {
         <p className="font-medium mb-2">Como funciona:</p>
         <ul className="list-disc list-inside space-y-1">
           <li>Sem tema: consulta Google Suggest por país e ignora tópicos já publicados (14 dias)</li>
-          <li>Vários países e vários artigos por país correm em paralelo (até 3 de cada vez)</li>
+          <li>Cada artigo é gerado num pedido separado — evita timeouts e mostra progresso em tempo real</li>
           <li><code>DEEPSEEK_API_KEY</code> obrigatório no ambiente</li>
         </ul>
       </div>
