@@ -10,6 +10,7 @@ import { getLocalErpPageSeo, isLocalErpSlug } from '@/lib/markets/local-erp-seo'
 import { getPartnershipPageSeo, isPartnershipSlug } from '@/lib/partnerships/seo';
 import { getTaxToolsPageSeo, isTaxToolsSlug } from '@/lib/markets/tax-tools-seo';
 import { getCodeToolsPageSeo } from '@/lib/markets/code-tools-seo';
+import { getInvoiceToolsSeo } from '@/lib/markets/invoice-tools-seo';
 
 export type MarketSeoPageMeta = GnSeoPageMeta;
 
@@ -22,6 +23,8 @@ export function getMarketPageSeo(marketCode: MarketCode, slug: string[]): Market
     if (localSeo) return localSeo;
   }
   if (isTaxToolsSlug(slug)) {
+    const invoiceSeo = getInvoiceToolsSeo(marketCode, slug);
+    if (invoiceSeo) return invoiceSeo;
     const codeSeo = getCodeToolsPageSeo(marketCode, slug);
     if (codeSeo) return codeSeo;
     const taxSeo = getTaxToolsPageSeo(marketCode, slug);
@@ -113,6 +116,7 @@ export function getMarketInternalLinkGroups(marketCode: MarketCode) {
         'outils',
         'outils/generateur-qr-code',
         'outils/generateur-code-barres',
+        'outils/facture-gratuite',
         'outils/calculateur-tva',
         'outils/calculateur-impot-revenu',
         'outils/calculateur-impot-societes',

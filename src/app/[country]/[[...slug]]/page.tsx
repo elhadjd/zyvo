@@ -28,6 +28,7 @@ import {
 } from '@/data/structured-data';
 import { getTaxConfig, getCalculatorBySlug } from '@/data/tax-calculators/config';
 import { getCodeConfig, getCodeGeneratorBySlug } from '@/data/code-generators/config';
+import { getInvoiceConfig, isInvoiceSlug } from '@/data/invoice-generator/config';
 import { isTaxToolsSlug } from '@/lib/markets/tax-tools-seo';
 import { SITE_URL } from '@/data/site';
 
@@ -184,7 +185,8 @@ function buildPageSchemas(
       const toolSlug = slug[1];
       const calculator = getCalculatorBySlug(marketCode, toolSlug);
       const generator = getCodeGeneratorBySlug(marketCode, toolSlug);
-      const tool = calculator ?? generator;
+      const invoiceTool = isInvoiceSlug(marketCode, toolSlug) ? getInvoiceConfig(marketCode) : null;
+      const tool = calculator ?? generator ?? (invoiceTool ? { title: invoiceTool.title, shortDescription: invoiceTool.shortDescription } : null);
       if (tool && pageSeo) {
         schemas.push(
           getWebApplicationSchema({
@@ -194,7 +196,9 @@ function buildPageSchemas(
             locale: codeConfig.locale,
             offers: { price: '0', priceCurrency: taxConfig.currency },
           }),
-          getFAQSchema(calculator ? taxConfig.content.faqs : codeConfig.content.faqs)
+          getFAQSchema(
+            calculator ? taxConfig.content.faqs : invoiceTool ? invoiceTool.faqs : codeConfig.content.faqs
+          )
         );
       }
     }

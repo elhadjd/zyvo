@@ -7,12 +7,15 @@ import { getTaxConfig, getCalculatorBySlug } from '@/data/tax-calculators/config
 import { getCodeConfig, getCodeGeneratorBySlug } from '@/data/code-generators/config';
 import { getUsTaxToolsSeo } from '@/lib/markets/tax-tools-seo';
 import { getUsCodeToolsSeo } from '@/lib/markets/code-tools-seo';
+import { getInvoiceConfig, isInvoiceSlug } from '@/data/invoice-generator/config';
+import { getUsInvoiceSeo } from '@/lib/markets/invoice-tools-seo';
 import { buildMetadata } from '@/lib/seo';
 import { SITE_URL } from '@/data/site';
 
 const TAX_SLUGS = getTaxConfig('us').content.calculators.map((c) => c.slug);
 const CODE_SLUGS = getCodeConfig('us').content.generators.map((g) => g.slug);
-const VALID_SLUGS = [...TAX_SLUGS, ...CODE_SLUGS];
+const INVOICE_SLUG = getInvoiceConfig('us').slug;
+const VALID_SLUGS = [...TAX_SLUGS, ...CODE_SLUGS, INVOICE_SLUG];
 
 interface ToolsCalculatorPageProps {
   params: Promise<{ calculator: string }>;
@@ -23,6 +26,9 @@ export function generateStaticParams() {
 }
 
 function getToolSeo(slug: string) {
+  if (isInvoiceSlug('us', slug)) {
+    return getUsInvoiceSeo();
+  }
   if (CODE_SLUGS.includes(slug)) {
     return getUsCodeToolsSeo(slug);
   }
@@ -51,12 +57,19 @@ export default async function ToolsCalculatorPage({ params }: ToolsCalculatorPag
   const seo = getToolSeo(calculator);
   const taxCalc = getCalculatorBySlug('us', calculator);
   const codeGen = getCodeGeneratorBySlug('us', calculator);
-  const tool = taxCalc ?? codeGen;
+  const invoiceConfig = isInvoiceSlug('us', calculator) ? getInvoiceConfig('us') : null;
+  const tool = taxCalc ?? codeGen ?? (invoiceConfig ? { title: invoiceConfig.title, shortDescription: invoiceConfig.shortDescription } : null);
 
   if (!tool) notFound();
 
   const codeConfig = getCodeConfig('us');
   const taxConfig = getTaxConfig('us');
+
+  const faqs = taxCalc
+    ? taxConfig.content.faqs
+    : invoiceConfig
+      ? invoiceConfig.faqs
+      : codeConfig.content.faqs;
 
   return (
     <>
@@ -69,7 +82,7 @@ export default async function ToolsCalculatorPage({ params }: ToolsCalculatorPag
             locale: 'en-US',
             offers: { price: '0', priceCurrency: 'USD' },
           }),
-          getFAQSchema(taxCalc ? taxConfig.content.faqs : codeConfig.content.faqs),
+          getFAQSchema(faqs),
         ]}
       />
       <UsToolPage calculatorSlug={calculator} />

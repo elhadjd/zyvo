@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, QrCode, Barcode, Percent, Wallet, Building2, Calculator, Sparkles } from 'lucide-react';
+import { ArrowRight, QrCode, Barcode, Percent, Wallet, Building2, Calculator, Sparkles, FileSpreadsheet } from 'lucide-react';
 import type { CodeCountryConfig } from '@/data/code-generators/types';
 import type { TaxCountryConfig } from '@/data/tax-calculators/types';
+import { getInvoiceConfig } from '@/data/invoice-generator/config';
 
 const TAX_ICONS = {
   percent: Percent,
@@ -22,6 +23,7 @@ interface FreeToolsHubProps {
 export default function FreeToolsHub({ codeConfig, taxConfig, basePath }: FreeToolsHubProps) {
   const { content } = codeConfig;
   const isUs = codeConfig.code === 'us';
+  const invoiceConfig = getInvoiceConfig(codeConfig.code);
 
   return (
     <div className="space-y-12">
@@ -63,6 +65,37 @@ export default function FreeToolsHub({ codeConfig, taxConfig, basePath }: FreeTo
         icon={Barcode}
         ctaLabel={isUs ? 'Open generator' : 'Ouvrir le générateur'}
       />
+
+      <section>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          {isUs ? 'Free Invoicing' : 'Facturation gratuite'}
+        </h2>
+        <div className="grid sm:grid-cols-2 gap-6">
+          <Link
+            href={`${basePath}/${invoiceConfig.slug}`}
+            className="group flex flex-col rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 hover:border-brand-primary/40 hover:shadow-lg transition-all"
+          >
+            <div className="flex items-start gap-4 mb-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-brand-primary/10 flex items-center justify-center">
+                <FileSpreadsheet className="w-6 h-6 text-brand-primary dark:text-brand-accent" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-brand-primary transition-colors">
+                  {invoiceConfig.title}
+                </h3>
+                <span className="text-xs font-medium text-green-600 dark:text-green-400">
+                  {invoiceConfig.freeBadge}
+                </span>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400 flex-1 mb-4">{invoiceConfig.shortDescription}</p>
+            <span className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary dark:text-brand-accent">
+              {isUs ? 'Create invoice' : 'Créer une facture'}
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </span>
+          </Link>
+        </div>
+      </section>
 
       <section>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">

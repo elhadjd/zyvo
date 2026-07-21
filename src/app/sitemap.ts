@@ -9,6 +9,7 @@ import { getMarketStaticParams } from '@/lib/markets/pages';
 import { getMarket } from '@/lib/markets/registry';
 import { getTaxConfig } from '@/data/tax-calculators/config';
 import { getCodeConfig } from '@/data/code-generators/config';
+import { getInvoiceConfig } from '@/data/invoice-generator/config';
 import { PARTNERSHIP_PROGRAM_SLUGS } from '@/data/partnerships/programs';
 
 const staticPaths = [
@@ -35,6 +36,7 @@ const staticPaths = [
   '/tools',
   ...getTaxConfig('us').content.calculators.map((c) => `/tools/${c.slug}`),
   ...getCodeConfig('us').content.generators.map((g) => `/tools/${g.slug}`),
+  `/tools/${getInvoiceConfig('us').slug}`,
   ...PARTNERSHIP_PROGRAM_SLUGS.map((p) => `/partnerships/${p}`),
   ...developmentServices.map((s) => s.path),
   ...industryLandings.map((l) => l.path),

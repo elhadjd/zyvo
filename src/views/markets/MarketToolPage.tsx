@@ -5,8 +5,10 @@ import { useMarket } from '@/contexts/market-context';
 import MarketBreadcrumbs from '@/components/markets/MarketBreadcrumbs';
 import TaxCalculatorPageContent from '@/components/tax-calculators/TaxCalculatorPageContent';
 import MarketCodeGeneratorPage from '@/views/markets/MarketCodeGeneratorPage';
+import MarketInvoicePage from '@/views/markets/MarketInvoicePage';
 import { getTaxConfig, getCalculatorBySlug } from '@/data/tax-calculators/config';
 import { getCodeGeneratorBySlug } from '@/data/code-generators/config';
+import { isInvoiceSlug } from '@/data/invoice-generator/config';
 
 interface MarketToolPageProps {
   calculatorSlug?: string;
@@ -42,6 +44,10 @@ export default function MarketToolPage({ calculatorSlug, calculator }: MarketToo
   const codeGen = getCodeGeneratorBySlug(marketCode, slug);
   if (codeGen) {
     return <MarketCodeGeneratorPage calculatorSlug={slug} />;
+  }
+
+  if (isInvoiceSlug(marketCode, slug)) {
+    return <MarketInvoicePage calculatorSlug={slug} />;
   }
 
   notFound();
