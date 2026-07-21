@@ -1,6 +1,7 @@
 import { desc, eq } from 'drizzle-orm';
 import { deepseekService } from '../services/deepseek-service';
 import { getWriterPrompt } from './prompts';
+import { findSimilarPublishedArticle } from '../research-engine/topic-dedup';
 import { searchKnowledge } from '../research-engine/knowledge-storage';
 import { getCountryConfig } from '../countries';
 import { logAiEvent } from '../logger';
@@ -113,6 +114,13 @@ export async function runContentWriterAgent(ctx: AgentContext): Promise<number |
     const slug = slugify(article.title);
     const knowledgeIds = entries.map((e) => e.id);
     const category = ctx.targetCategory || article.category;
+
+    const duplicate = findSimilarPublishedArticle(ctx.countryCode, article.title, slug);
+    if (duplicate) {
+      throw new Error(
+        `Artigo duplicado: "${article.title}" é semelhante a "${duplicate.title}" (id ${duplicate.slug}). Tópico já coberto.`
+      );
+    }
 
     let articleId: number | null = null;
 

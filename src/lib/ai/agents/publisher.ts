@@ -7,6 +7,7 @@ import { getDb } from '../db';
 import { contentArticles, countryAiConfig } from '../db/schema';
 import { syncAllSitemaps } from '../seo-engine/sitemap-manager';
 import { notifySearchConsoleOfArticle } from '../seo-engine/google-publish-notify';
+import { markOpportunityUsed } from '../research-engine/opportunity-finder';
 import type { AgentContext } from '../types';
 
 function now(): string {
@@ -100,6 +101,8 @@ export async function runPublisherAgent(ctx: AgentContext): Promise<number | nul
           metadata: { slug: article.slug },
         });
       }
+
+      markOpportunityUsed(ctx.countryCode, ctx.topic ?? article.title);
     }
 
     completeTask(taskId, 'publisher', {

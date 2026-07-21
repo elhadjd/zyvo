@@ -135,7 +135,7 @@ export default function MarketBlogPostPage({
                   {post.internalLinks.map((link, i) => (
                     <li key={i}>
                       <a
-                        href={link.url.startsWith('/') ? `${market.routePrefix}${link.url}` : link.url}
+                        href={link.url}
                         className="text-brand-primary dark:text-brand-accent font-medium hover:underline inline-flex items-center gap-1"
                       >
                         {link.anchorText || link.title}
