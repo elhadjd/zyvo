@@ -2,6 +2,7 @@
 
 import MarketBreadcrumbs, { useMarketPageSeo } from '@/components/markets/MarketBreadcrumbs';
 import { MarketFeaturesGrid } from '@/components/markets/MarketPricingSection';
+import MarketModulesShowcase from '@/components/modules/MarketModulesShowcase';
 import MarketMobileMoneySection from '@/components/markets/MarketMobileMoneySection';
 import MarketFAQSection from '@/components/markets/MarketFAQSection';
 import MarketCTA from '@/components/markets/MarketCTA';
@@ -25,6 +26,7 @@ export default function MarketFeaturesPage() {
         </div>
       </section>
       <MarketFeaturesGrid />
+      <MarketModulesShowcase />
       <MarketMobileMoneySection />
       <MarketFAQSection className="bg-white dark:bg-gray-900" />
       <MarketInternalLinks />

@@ -3,7 +3,10 @@
 import Link from 'next/link';
 import { CheckCircle, ArrowRight } from 'lucide-react';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { ModuleDetailShowcase, ModuleHeroScreenshot } from '../components/modules/ModuleDetailShowcase';
 import { getSolutionBySlug } from '../data/solutions';
+import { getModuleImages } from '../data/module-images';
+import type { MarketModuleSlug } from '../data/markets/market-modules';
 
 interface Props {
   slug: string;
@@ -14,6 +17,7 @@ export default function SolutionPage({ slug }: Props) {
   if (!solution) return null;
 
   const Icon = solution.icon;
+  const images = getModuleImages(slug as MarketModuleSlug);
 
   return (
     <>
@@ -25,28 +29,44 @@ export default function SolutionPage({ slug }: Props) {
       />
       <article className="py-16 lg:py-24 bg-white dark:bg-gray-900">
         <div className="container mx-auto px-4 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-xl bg-brand-primary-light dark:bg-brand-primary/20 flex items-center justify-center">
-                <Icon className="w-7 h-7 text-brand-primary dark:text-brand-accent" />
+          <div className="max-w-6xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center mb-16">
+              <div>
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-14 h-14 rounded-xl bg-brand-primary-light dark:bg-brand-primary/20 flex items-center justify-center">
+                    <Icon className="w-7 h-7 text-brand-primary dark:text-brand-accent" />
+                  </div>
+                  <span className="text-sm font-medium px-3 py-1 bg-brand-primary-light dark:bg-brand-primary/20 text-brand-primary dark:text-brand-accent rounded-full">
+                    {solution.category}
+                  </span>
+                </div>
+
+                <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+                  {solution.title}
+                </h1>
+                <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">{solution.description}</p>
+
+                <Link
+                  href="/getting-started"
+                  className="inline-flex items-center px-6 py-3 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors"
+                >
+                  Start Free Trial
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Link>
               </div>
-              <span className="text-sm font-medium px-3 py-1 bg-brand-primary-light dark:bg-brand-primary/20 text-brand-primary dark:text-brand-accent rounded-full">
-                {solution.category}
-              </span>
+
+              <ModuleHeroScreenshot images={images} />
             </div>
 
-            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-              {solution.title}
-            </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">{solution.description}</p>
-
-            {solution.image && (
-              <img
-                src={solution.image}
-                alt={solution.imageAlt ?? solution.title}
-                className="w-full rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 mb-12 object-cover max-h-96"
+            <div className="mb-16">
+              <ModuleDetailShowcase
+                title="Built for real business workflows"
+                subtitle={`Explore the ${solution.shortTitle} module with the same interface your team will use every day.`}
+                benefits={solution.benefits}
+                images={images}
+                imagePosition="left"
               />
-            )}
+            </div>
 
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               <div>

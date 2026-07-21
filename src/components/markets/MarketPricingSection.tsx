@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { Check, Store, Utensils, Scissors, Pill, Truck, Building2 } from 'lucide-react';
 import { useMarket } from '@/contexts/market-context';
 import LocalizedLink from '@/components/markets/LocalizedLink';
+import ProductScreenshot from '@/components/modules/ProductScreenshot';
+import { getFeatureModuleSlug, getModuleImages } from '@/data/module-images';
 
 const industryIcons = {
   store: Store,
@@ -189,20 +191,45 @@ export function MarketFeaturesGrid() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {market.features.map((feature) => (
-            <div
-              key={feature.title}
-              className="p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-brand-surface/30 dark:bg-gray-800/30"
-            >
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                {feature.title}
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                {feature.description}
-              </p>
-            </div>
-          ))}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {market.features.map((feature, index) => {
+            const slug = getFeatureModuleSlug(feature.title);
+            const images = slug ? getModuleImages(slug) : undefined;
+
+            return (
+              <div
+                key={feature.title}
+                className="flex flex-col rounded-2xl border border-gray-200 dark:border-gray-700 bg-brand-surface/30 dark:bg-gray-800/30 overflow-hidden hover:shadow-lg transition-shadow"
+              >
+                {images && (
+                  <div className="p-3 pb-0">
+                    <ProductScreenshot
+                      src={images.hero}
+                      alt={images.alt}
+                      variant="compact"
+                      priority={index < 3}
+                    />
+                  </div>
+                )}
+                <div className="p-6 flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    {feature.description}
+                  </p>
+                  {slug && (
+                    <LocalizedLink
+                      href={`/solutions/${slug}`}
+                      className="inline-block mt-4 text-sm font-medium text-brand-primary dark:text-brand-accent hover:underline"
+                    >
+                      Voir le module →
+                    </LocalizedLink>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

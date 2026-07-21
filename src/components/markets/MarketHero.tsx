@@ -15,6 +15,8 @@ import { useMarket } from '@/contexts/market-context';
 import LocalizedLink from '@/components/markets/LocalizedLink';
 import WhatsAppButton from '@/components/markets/WhatsAppButton';
 import { useMarketPageSeo } from '@/components/markets/MarketBreadcrumbs';
+import ProductScreenshot from '@/components/modules/ProductScreenshot';
+import { HOMEPAGE_HERO_IMAGE } from '@/data/module-images';
 
 const featureIcons = [Smartphone, Wifi, Building2, Receipt, Users, BarChart3];
 
@@ -84,13 +86,11 @@ export default function MarketHero() {
           </div>
 
           <div className="relative">
-            <img
-              src="/images/hero-dashboard.png"
+            <ProductScreenshot
+              src={HOMEPAGE_HERO_IMAGE}
               alt={hero.imageAlt}
-              className="rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 w-full"
-              width={640}
-              height={480}
-              fetchPriority="high"
+              variant="hero"
+              priority
             />
           </div>
         </div>

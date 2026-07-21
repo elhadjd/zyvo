@@ -1,20 +1,19 @@
 'use client';
 
-import Link from 'next/link'
+import Link from 'next/link';
 import { ArrowRight, MessageSquare, Users } from 'lucide-react';
+import ProductScreenshot from './modules/ProductScreenshot';
+import { getModuleImages } from '../data/module-images';
 
 export default function QueueShowcase() {
+  const images = getModuleImages('customer-queue-management');
+
   return (
     <section className="py-20 lg:py-32 bg-white dark:bg-gray-900">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="order-2 lg:order-1">
-            <img
-              src="/images/salon-queue.png"
-              alt="Salon customer queue with SMS notifications on mobile phone"
-              className="rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full"
-              loading="lazy"
-            />
+            <ProductScreenshot src={images.hero} alt={images.alt} variant="hero" />
           </div>
           <div className="order-1 lg:order-2">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-brand-primary-light dark:bg-brand-primary/20 border border-brand-primary/20 dark:border-brand-primary/30 mb-6">

@@ -8,12 +8,14 @@ import MarketFAQSection from '@/components/markets/MarketFAQSection';
 import MarketCTA from '@/components/markets/MarketCTA';
 import MarketSEOContent from '@/components/markets/MarketSEOContent';
 import MarketInternalLinks from '@/components/markets/MarketInternalLinks';
+import MarketModulesShowcase from '@/components/modules/MarketModulesShowcase';
 
 export default function MarketHomePage() {
   return (
     <>
       <MarketHero />
       <MarketStats />
+      <MarketModulesShowcase />
       <MarketWhySection />
       <MarketMobileMoneySection />
       <MarketFeaturesGrid />

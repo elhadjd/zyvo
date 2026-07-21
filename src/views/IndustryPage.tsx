@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import Breadcrumbs from '../components/Breadcrumbs';
+import ProductScreenshot from '../components/modules/ProductScreenshot';
 import { getIndustryBySlug } from '../data/industries';
 import { getSolutionBySlug } from '../data/solutions';
 
@@ -39,11 +40,9 @@ export default function IndustryPage({ slug }: Props) {
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">{industry.description}</p>
 
-            <img
-              src={industry.image}
-              alt={industry.imageAlt}
-              className="w-full rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 mb-12 object-cover max-h-96"
-            />
+            <div className="mb-12">
+              <ProductScreenshot src={industry.image} alt={industry.imageAlt} variant="hero" />
+            </div>
 
             <div className="grid grid-cols-3 gap-6 mb-16">
               {industry.stats.map((stat) => (

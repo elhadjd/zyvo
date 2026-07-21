@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import { Store, Factory, Scissors, Briefcase, ShoppingBag } from 'lucide-react';
+import { getModuleHeroImage, getModuleHeroAlt } from './module-images';
 
 export interface Industry {
   slug: string;
@@ -23,8 +24,8 @@ export const industries: Industry[] = [
     description:
       'From single boutiques to multi-location chains, ZYVO gives US retailers the tools to sell smarter, manage inventory, and grow revenue.',
     icon: Store,
-    image: '/images/hero-dashboard.png',
-    imageAlt: 'ZYVO retail management dashboard on laptop',
+    image: getModuleHeroImage('point-of-sale'),
+    imageAlt: getModuleHeroAlt('point-of-sale'),
     metaTitle: 'Retail Management Software for US Stores | ZYVO',
     metaDescription:
       'All-in-one retail management: POS, inventory, e-commerce, and analytics for US retail businesses. Trusted by 800+ retailers.',
@@ -48,8 +49,8 @@ export const industries: Industry[] = [
     description:
       'Streamline production, manage raw materials, and optimize your supply chain with ZYVO manufacturing management tools.',
     icon: Factory,
-    image: '/images/hero-dashboard.png',
-    imageAlt: 'Manufacturing operations dashboard in ZYVO',
+    image: getModuleHeroImage('inventory-management'),
+    imageAlt: getModuleHeroAlt('inventory-management'),
     metaTitle: 'Manufacturing ERP Software for US Companies | ZYVO',
     metaDescription:
       'Production planning, inventory control, and supply chain management for US manufacturers. ZYVO manufacturing ERP.',
@@ -73,8 +74,8 @@ export const industries: Industry[] = [
     description:
       'Manage walk-in queues, appointment scheduling, and SMS customer updates for salons, barbershops, spas, and beauty studios across the US.',
     icon: Scissors,
-    image: '/images/salon-queue.png',
-    imageAlt: 'Salon with digital customer queue and SMS notifications',
+    image: getModuleHeroImage('customer-queue-management'),
+    imageAlt: getModuleHeroAlt('customer-queue-management'),
     metaTitle: 'Salon & Barbershop Management Software | ZYVO',
     metaDescription:
       'Customer queue management with SMS notifications, scheduling, and POS for US salons and barbershops. Keep clients informed in real time.',
@@ -99,8 +100,8 @@ export const industries: Industry[] = [
     description:
       'Project tracking, time billing, invoicing, and client management for consultants, agencies, and professional firms.',
     icon: Briefcase,
-    image: '/images/hero-dashboard.png',
-    imageAlt: 'Professional services business dashboard',
+    image: getModuleHeroImage('invoicing'),
+    imageAlt: getModuleHeroAlt('invoicing'),
     metaTitle: 'Professional Services Software for US Firms | ZYVO',
     metaDescription:
       'Time tracking, project management, and invoicing for US consulting firms and professional services. ZYVO Pro Services.',
@@ -125,8 +126,8 @@ export const industries: Industry[] = [
     description:
       'Run your online business with integrated inventory, order fulfillment, marketing analytics, and financial reporting.',
     icon: ShoppingBag,
-    image: '/images/integrations-hub.png',
-    imageAlt: 'E-commerce integrations and order management',
+    image: getModuleHeroImage('online-store'),
+    imageAlt: getModuleHeroAlt('online-store'),
     metaTitle: 'E-Commerce Management Platform for US Brands | ZYVO',
     metaDescription:
       'Online store, inventory sync, order management, and marketing analytics for US e-commerce brands. Scale with ZYVO.',

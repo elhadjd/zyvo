@@ -1,3 +1,4 @@
+import ProductScreenshot from './modules/ProductScreenshot';
 import { productModules } from '../data/product-showcase';
 
 export default function ProductShowcase() {
@@ -5,6 +6,9 @@ export default function ProductShowcase() {
     <section className="py-16 lg:py-24 bg-white dark:bg-gray-900" aria-labelledby="product-showcase-heading">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-12 lg:mb-16">
+          <p className="text-sm font-semibold uppercase tracking-wider text-brand-primary dark:text-brand-accent mb-3">
+            Real product screenshots
+          </p>
           <h2 id="product-showcase-heading" className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
             See ZYVO in Action
           </h2>
@@ -13,30 +17,29 @@ export default function ProductShowcase() {
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {productModules.map((module) => {
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {productModules.map((module, index) => {
             const Icon = module.icon;
             return (
               <article
                 key={module.id}
-                className="group flex flex-col bg-brand-surface dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-brand-primary/40 dark:hover:border-brand-accent/40 transition-colors"
+                className="group flex flex-col bg-brand-surface dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-brand-primary/40 dark:hover:border-brand-accent/40 hover:shadow-xl transition-all duration-300"
               >
-                <div className="aspect-video bg-gradient-to-br from-brand-primary-light to-white dark:from-gray-700 dark:to-gray-800 flex items-center justify-center relative overflow-hidden">
+                <div className="p-4 pb-0">
                   {module.image ? (
-                    <img
+                    <ProductScreenshot
                       src={module.image}
                       alt={module.imageAlt}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
+                      variant="card"
+                      priority={index < 3}
                     />
                   ) : (
-                    <div className="flex flex-col items-center justify-center p-6 text-center">
-                      <div className="w-14 h-14 rounded-xl bg-brand-primary/10 dark:bg-brand-accent/10 flex items-center justify-center mb-3">
-                        <Icon className="w-7 h-7 text-brand-primary dark:text-brand-accent" aria-hidden="true" />
+                    <div className="aspect-video bg-gradient-to-br from-brand-primary-light to-white dark:from-gray-700 dark:to-gray-800 flex items-center justify-center rounded-xl">
+                      <div className="flex flex-col items-center justify-center p-6 text-center">
+                        <div className="w-14 h-14 rounded-xl bg-brand-primary/10 dark:bg-brand-accent/10 flex items-center justify-center mb-3">
+                          <Icon className="w-7 h-7 text-brand-primary dark:text-brand-accent" aria-hidden="true" />
+                        </div>
                       </div>
-                      <span className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
-                        Screenshot placeholder
-                      </span>
                     </div>
                   )}
                 </div>

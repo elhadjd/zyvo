@@ -10,6 +10,7 @@ import {
   BarChart3,
   Smartphone,
 } from 'lucide-react';
+import { getProductModuleImage } from './module-images';
 
 export interface ProductModule {
   id: string;
@@ -20,71 +21,79 @@ export interface ProductModule {
   imageAlt: string;
 }
 
+function withImage(id: string, base: Omit<ProductModule, 'image'>): ProductModule {
+  const set = getProductModuleImage(id);
+  return {
+    ...base,
+    image: set?.hero,
+    imageAlt: set?.alt ?? base.imageAlt,
+  };
+}
+
 export const productModules: ProductModule[] = [
-  {
+  withImage('pos', {
     id: 'pos',
     title: 'Point of Sale (POS)',
     description: 'Fast checkout, payments, receipts, and customer lookup at the counter or on mobile.',
     icon: ShoppingCart,
     imageAlt: 'ZYVO point of sale checkout screen',
-    image: '/images/modules/pos/82-pos-main.png',
-  },
-  {
+  }),
+  withImage('inventory', {
     id: 'inventory',
     title: 'Inventory Management',
     description: 'Track stock levels, set reorder alerts, and manage products across locations.',
     icon: Package,
     imageAlt: 'ZYVO inventory management dashboard',
-  },
-  {
+  }),
+  withImage('employees', {
     id: 'employees',
     title: 'Employee Management',
     description: 'Schedules, time tracking, roles, and team communication in one place.',
     icon: Users,
     imageAlt: 'ZYVO employee scheduling interface',
-  },
-  {
+  }),
+  withImage('queues', {
     id: 'queues',
     title: 'Appointments & Queues',
     description: 'Walk-in queues, appointments, and SMS updates so customers always know their status.',
     icon: ListOrdered,
     imageAlt: 'ZYVO appointment and queue management',
-  },
-  {
+  }),
+  withImage('restaurant', {
     id: 'restaurant',
     title: 'Restaurant Table Management',
     description: 'Table layout, order flow, and kitchen coordination for dine-in service.',
     icon: UtensilsCrossed,
     imageAlt: 'ZYVO restaurant table management view',
-  },
-  {
+  }),
+  withImage('crm', {
     id: 'crm',
     title: 'Customer CRM',
     description: 'Customer profiles, purchase history, notes, and follow-up in a simple CRM.',
     icon: Contact,
     imageAlt: 'ZYVO customer relationship management',
-  },
-  {
+  }),
+  withImage('finance', {
     id: 'finance',
     title: 'Financial Dashboard',
     description: 'Revenue, expenses, invoices, and cash flow visibility without spreadsheet chaos.',
     icon: CreditCard,
     imageAlt: 'ZYVO financial dashboard overview',
-  },
-  {
+  }),
+  withImage('reports', {
     id: 'reports',
     title: 'Reports & Analytics',
     description: 'Sales, inventory, and team performance reports you can act on quickly.',
     icon: BarChart3,
     imageAlt: 'ZYVO reports and analytics charts',
-  },
-  {
+  }),
+  withImage('mobile', {
     id: 'mobile',
     title: 'Mobile Access',
     description: 'Run key workflows from any phone or tablet—perfect for floor and field teams.',
     icon: Smartphone,
     imageAlt: 'ZYVO mobile app on smartphone',
-  },
+  }),
 ];
 
 export const trustCards = [

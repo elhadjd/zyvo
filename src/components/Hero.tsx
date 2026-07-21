@@ -1,8 +1,10 @@
 'use client';
 
-import Link from 'next/link'
+import Link from 'next/link';
 import { ArrowRight, Calendar, CheckCircle2 } from 'lucide-react';
 import { AUDIENCES, TRUST_MESSAGE, VALUE_PROPOSITION } from '../data/site';
+import ProductScreenshot from './modules/ProductScreenshot';
+import { HOMEPAGE_HERO_IMAGE, HOMEPAGE_HERO_ALT } from '../data/module-images';
 
 export default function Hero() {
   return (
@@ -70,13 +72,11 @@ export default function Hero() {
           </div>
 
           <div className="relative">
-            <img
-              src="/images/hero-dashboard.png"
-              alt="ZYVO business management dashboard showing sales, inventory, and team overview"
-              className="rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 w-full"
-              width={640}
-              height={480}
-              fetchPriority="high"
+            <ProductScreenshot
+              src={HOMEPAGE_HERO_IMAGE}
+              alt={HOMEPAGE_HERO_ALT}
+              variant="hero"
+              priority
             />
           </div>
         </div>

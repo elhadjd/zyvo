@@ -4,11 +4,13 @@ import { MarketIndustriesSection } from '@/components/markets/MarketPricingSecti
 import MarketCTA from '@/components/markets/MarketCTA';
 import LocalizedLink from '@/components/markets/LocalizedLink';
 import MarketBreadcrumbs, { useMarketPageSeo } from '@/components/markets/MarketBreadcrumbs';
+import ProductScreenshot from '@/components/modules/ProductScreenshot';
 import {
   getMarketModuleLabels,
   MODULE_CATEGORY_LABELS,
   type MarketModuleLabel,
 } from '@/data/markets/market-modules';
+import { getModuleImages } from '@/data/module-images';
 import { ArrowRight } from 'lucide-react';
 
 function groupModulesByCategory(modules: MarketModuleLabel[]) {
@@ -60,22 +62,36 @@ export default function MarketSolutionsPage() {
                   {MODULE_CATEGORY_LABELS[category]}
                 </h2>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {items.map((mod) => (
-                    <LocalizedLink
-                      key={mod.slug}
-                      href={`/solutions/${mod.slug}`}
-                      className="group p-6 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-brand-primary/30 dark:hover:border-brand-accent/30 hover:shadow-lg transition-all"
-                    >
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-brand-primary dark:group-hover:text-brand-accent transition-colors">
-                        {mod.title}
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{mod.shortDescription}</p>
-                      <span className="inline-flex items-center gap-1 text-sm font-medium text-brand-primary dark:text-brand-accent">
-                        En savoir plus
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                      </span>
-                    </LocalizedLink>
-                  ))}
+                  {items.map((mod) => {
+                    const images = getModuleImages(mod.slug);
+                    return (
+                      <LocalizedLink
+                        key={mod.slug}
+                        href={`/solutions/${mod.slug}`}
+                        className="group flex flex-col rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden hover:border-brand-primary/30 dark:hover:border-brand-accent/30 hover:shadow-xl transition-all bg-brand-surface/20 dark:bg-gray-800/20"
+                      >
+                        <div className="p-3 pb-0">
+                          <ProductScreenshot
+                            src={images.hero}
+                            alt={images.alt}
+                            variant="compact"
+                          />
+                        </div>
+                        <div className="p-5 flex-1 flex flex-col">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-brand-primary dark:group-hover:text-brand-accent transition-colors">
+                            {mod.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 flex-1">
+                            {mod.shortDescription}
+                          </p>
+                          <span className="inline-flex items-center gap-1 text-sm font-medium text-brand-primary dark:text-brand-accent">
+                            En savoir plus
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                          </span>
+                        </div>
+                      </LocalizedLink>
+                    );
+                  })}
                 </div>
               </div>
             );

@@ -6,9 +6,11 @@ import { solutions } from '@/data/solutions';
 import MarketBreadcrumbs, { useMarketPageSeo } from '@/components/markets/MarketBreadcrumbs';
 import LocalizedLink from '@/components/markets/LocalizedLink';
 import MarketCTA from '@/components/markets/MarketCTA';
-import { ArrowRight, Check } from 'lucide-react';
-
+import { ModuleDetailShowcase, ModuleHeroScreenshot } from '@/components/modules/ModuleDetailShowcase';
 import { getMarketSolutionContent } from '@/data/markets/solution-content';
+import { getModuleImages } from '@/data/module-images';
+import type { MarketModuleSlug } from '@/data/markets/market-modules';
+import { ArrowRight, Check } from 'lucide-react';
 
 interface MarketSolutionDetailPageProps {
   solutionSlug?: string;
@@ -24,34 +26,52 @@ export default function MarketSolutionDetailPage({
   const solution = solutions.find((s) => s.slug === solutionSlug);
   const content = solutionSlug ? getMarketSolutionContent(marketCode, solutionSlug) : undefined;
   const pageSeo = useMarketPageSeo();
+  const images = solutionSlug ? getModuleImages(solutionSlug as MarketModuleSlug) : undefined;
 
-  if (!solution || !content) {
+  if (!solution || !content || !images) {
     notFound();
   }
 
   return (
     <>
       <MarketBreadcrumbs />
-      <section className="pt-8 pb-12 lg:pt-12 bg-brand-surface dark:bg-gray-900">
-        <div className="container mx-auto px-4 lg:px-8 max-w-3xl">
-          <p className="text-sm font-medium text-brand-primary dark:text-brand-accent mb-3">
-            Solution · {market.countryNameLocal}
-          </p>
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            {pageSeo?.h1 ?? content.title}
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">{content.subtitle}</p>
-          <LocalizedLink
-            href="/getting-started"
-            className="inline-flex items-center px-6 py-3 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors"
-          >
-            Essai gratuit 7 jours
-            <ArrowRight className="ml-2 w-5 h-5" aria-hidden="true" />
-          </LocalizedLink>
+      <section className="pt-8 pb-12 lg:pt-12 lg:pb-16 bg-brand-surface dark:bg-gray-900 overflow-hidden">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center max-w-6xl mx-auto">
+            <div>
+              <p className="text-sm font-medium text-brand-primary dark:text-brand-accent mb-3">
+                Solution · {market.countryNameLocal}
+              </p>
+              <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                {pageSeo?.h1 ?? content.title}
+              </h1>
+              <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">{content.subtitle}</p>
+              <LocalizedLink
+                href="/getting-started"
+                className="inline-flex items-center px-6 py-3 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors"
+              >
+                Essai gratuit 7 jours
+                <ArrowRight className="ml-2 w-5 h-5" aria-hidden="true" />
+              </LocalizedLink>
+            </div>
+            <ModuleHeroScreenshot images={images} />
+          </div>
         </div>
       </section>
 
       <section className="py-16 lg:py-24 bg-white dark:bg-gray-900">
+        <div className="container mx-auto px-4 lg:px-8 max-w-6xl">
+          <ModuleDetailShowcase
+            title="Interface intuitive, pensée pour le terrain"
+            subtitle={`Découvrez le module ${content.title} tel qu'utilisé par les PME en ${market.countryNameLocal}. Navigation fluide, données en temps réel et design adapté aux équipes sur le terrain.`}
+            benefits={content.benefits}
+            images={images}
+            imagePosition="right"
+          />
+        </div>
+      </section>
+
+      <section className="py-16 lg:py-24 bg-brand-surface dark:bg-gray-800/50">
         <div className="container mx-auto px-4 lg:px-8 max-w-3xl">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Avantages clés</h2>
           <ul className="space-y-3">

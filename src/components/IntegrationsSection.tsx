@@ -1,7 +1,9 @@
 'use client';
 
-import Link from 'next/link'
+import Link from 'next/link';
 import { ArrowRight, CheckCircle, Clock } from 'lucide-react';
+import ProductScreenshot from './modules/ProductScreenshot';
+import { INTEGRATIONS_HERO_ALT, INTEGRATIONS_HERO_IMAGE } from '../data/module-images';
 import { metaIntegrations, deliveryIntegrations } from '../data/integrations';
 
 export default function IntegrationsSection() {
@@ -29,11 +31,10 @@ export default function IntegrationsSection() {
             </Link>
           </div>
           <div className="relative">
-            <img
-              src="/images/integrations-hub.png"
-              alt="ZYVO integrations with Meta and delivery platforms"
-              className="rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full"
-              loading="lazy"
+            <ProductScreenshot
+              src={INTEGRATIONS_HERO_IMAGE}
+              alt={INTEGRATIONS_HERO_ALT}
+              variant="hero"
             />
           </div>
         </div>
