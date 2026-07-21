@@ -1,4 +1,5 @@
 import type { FAQItem } from './faqs';
+import { getModuleHeroImage } from './module-images';
 
 export interface IndustryLanding {
   slug: string;
@@ -28,8 +29,8 @@ export const industryLandings: IndustryLanding[] = [
     metaDescription:
       'Manage appointments, customer queues, SMS notifications, inventory, and POS for your salon. ZYVO helps US salons run smoother every day.',
     keywords: 'salon management software, salon POS, salon appointment software, salon queue SMS USA',
-    heroImage: '/images/salon-queue.png',
-    heroImageAlt: 'Salon management with appointments and customer queue',
+    heroImage: '/images/modules/appointment/zyvo-appointment-customer-queue-sms-salon.png',
+    heroImageAlt: 'ZYVO salon management software — customer queue with SMS notifications',
     features: [
       { title: 'Appointment scheduling', description: 'Online booking, reminders, and calendar views for every stylist.' },
       { title: 'Walk-in queue & SMS', description: 'Digital queue with automatic text updates on wait time and service progress.' },
@@ -61,8 +62,8 @@ export const industryLandings: IndustryLanding[] = [
     metaDescription:
       'Walk-in queues, SMS wait-time alerts, appointments, and POS for US barbershops. Keep clients informed and your team organized.',
     keywords: 'barbershop software, barbershop POS, barbershop queue management, barbershop appointment app USA',
-    heroImage: '/images/salon-queue.png',
-    heroImageAlt: 'Barbershop queue and appointment management',
+    heroImage: '/images/modules/appointment/zyvo-appointment-customer-queue-sms-salon.png',
+    heroImageAlt: 'ZYVO barbershop software — walk-in queue and appointment management',
     features: [
       { title: 'Walk-in queue display', description: 'Show live wait times on screen and send SMS when a client is up next.' },
       { title: 'Quick POS checkout', description: 'Process cuts, add-ons, and product sales in seconds.' },
@@ -94,8 +95,8 @@ export const industryLandings: IndustryLanding[] = [
     metaDescription:
       'Restaurant POS with table management, order flow, inventory, and staff scheduling. Built for US restaurants and cafés.',
     keywords: 'restaurant POS system, restaurant management software, table management POS USA',
-    heroImage: '/images/hero-dashboard.png',
-    heroImageAlt: 'Restaurant POS and table management dashboard',
+    heroImage: getModuleHeroImage('point-of-sale'),
+    heroImageAlt: 'ZYVO restaurant POS system — table management and order flow',
     features: [
       { title: 'Table management', description: 'Floor plans, table status, and turn-time tracking for dine-in.' },
       { title: 'Order & kitchen flow', description: 'Send orders to the kitchen and track preparation status.' },
@@ -127,8 +128,8 @@ export const industryLandings: IndustryLanding[] = [
     metaDescription:
       'Retail POS, inventory management, customer CRM, and reporting for US boutiques and retail stores. Simple, cloud-based, mobile-ready.',
     keywords: 'retail management software, retail POS, boutique software, inventory retail USA',
-    heroImage: '/images/hero-dashboard.png',
-    heroImageAlt: 'Retail store management dashboard',
+    heroImage: getModuleHeroImage('point-of-sale'),
+    heroImageAlt: 'ZYVO retail management software — POS and inventory dashboard',
     features: [
       { title: 'Retail POS', description: 'Fast checkout with barcode scanning, discounts, and returns.' },
       { title: 'Inventory control', description: 'Real-time stock levels, variants, and low-stock alerts.' },
@@ -160,8 +161,8 @@ export const industryLandings: IndustryLanding[] = [
     metaDescription:
       'Appointment scheduling, patient management, invoicing, and staff tools for US clinics and medical offices. Cloud-based and easy to use.',
     keywords: 'clinic management software, medical office software, clinic scheduling USA, small clinic software',
-    heroImage: '/images/hero-dashboard.png',
-    heroImageAlt: 'Clinic appointment and patient management',
+    heroImage: '/images/modules/appointment/zyvo-appointment-scheduling-calendar.png',
+    heroImageAlt: 'ZYVO clinic management software — appointment scheduling calendar',
     features: [
       { title: 'Appointment scheduling', description: 'Book visits, manage provider calendars, and reduce no-shows with reminders.' },
       { title: 'Patient records', description: 'Store contact info, visit notes, and history in organized profiles.' },
@@ -193,8 +194,8 @@ export const industryLandings: IndustryLanding[] = [
     metaDescription:
       'Inventory, POS, customer management, and reporting for US independent pharmacies. Cloud-based pharmacy management software.',
     keywords: 'pharmacy management software, independent pharmacy POS, pharmacy inventory USA',
-    heroImage: '/images/hero-dashboard.png',
-    heroImageAlt: 'Pharmacy inventory and POS management',
+    heroImage: getModuleHeroImage('inventory-management'),
+    heroImageAlt: 'ZYVO pharmacy management software — inventory and POS tracking',
     features: [
       { title: 'Inventory management', description: 'Track products, expiry awareness, and reorder points.' },
       { title: 'Pharmacy POS', description: 'Fast checkout for OTC products and front-store sales.' },
