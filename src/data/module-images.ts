@@ -6,114 +6,126 @@ export interface ModuleImageSet {
   gallery: string[];
 }
 
+const P = '/images/modules';
+
 const MODULE_IMAGE_REGISTRY: Record<MarketModuleSlug, ModuleImageSet> = {
   'point-of-sale': {
-    hero: '/images/modules/pos/82-pos-main.png',
-    alt: 'Interface caisse POS ZYVO — catalogue produits et encaissement',
+    hero: `${P}/pos/zyvo-pos-checkout-main-interface.png`,
+    alt: 'ZYVO POS software — point of sale checkout interface with product catalog and payment screen',
     gallery: [
-      '/images/modules/pos/82-pos-main.png',
-      '/images/modules/pos/83-pos-products.png',
-      '/images/modules/pos/84-pos-favorites.png',
-      '/images/modules/pos/85-pos-clients.png',
-      '/images/modules/pos/86-pos-orders-panel.png',
-      '/images/modules/pos/87-pos-payment.png',
-      '/images/modules/pos/80-pos-cash-list.png',
-      '/images/modules/pos/81-pos-pin-lock.png',
-      '/images/modules/pos/14-orders-pos.png',
-      '/images/modules/pos/15-pos-operations.png',
-      '/images/modules/pos/16-pdv-report.png',
+      `${P}/pos/zyvo-pos-checkout-main-interface.png`,
+      `${P}/pos/zyvo-pos-product-catalog-grid.png`,
+      `${P}/pos/zyvo-pos-favorite-products-shortcut.png`,
+      `${P}/pos/zyvo-pos-customer-lookup-screen.png`,
+      `${P}/pos/zyvo-pos-orders-panel-active.png`,
+      `${P}/pos/zyvo-pos-payment-checkout-screen.png`,
+      `${P}/pos/zyvo-pos-cash-register-list.png`,
+      `${P}/pos/zyvo-pos-pin-security-lock-screen.png`,
+      `${P}/pos/zyvo-pos-orders-history-list.png`,
+      `${P}/pos/zyvo-pos-daily-operations-dashboard.png`,
+      `${P}/pos/zyvo-pos-sales-report-analytics.png`,
     ],
   },
   'inventory-management': {
-    hero: '/images/modules/stock-management/24-stock-summary.png',
-    alt: 'Tableau de bord gestion de stock ZYVO — inventaire temps réel',
+    hero: `${P}/stock-management/zyvo-inventory-stock-summary-dashboard.png`,
+    alt: 'ZYVO inventory management — real-time stock summary dashboard for retail and wholesale',
     gallery: [
-      '/images/modules/stock-management/24-stock-summary.png',
-      '/images/modules/stock-management/23-articles.png',
-      '/images/modules/stock-management/25-stock-transfers.png',
-      '/images/modules/stock-management/26-stock-movements.png',
-      '/images/modules/stock-management/27-composite-products.png',
-      '/images/modules/stock-management/28-variants.png',
-      '/images/modules/stock-management/34-movements.png',
+      `${P}/stock-management/zyvo-inventory-stock-summary-dashboard.png`,
+      `${P}/stock-management/zyvo-inventory-product-articles-list.png`,
+      `${P}/stock-management/zyvo-inventory-stock-transfers-between-stores.png`,
+      `${P}/stock-management/zyvo-inventory-stock-movements-tracking.png`,
+      `${P}/stock-management/zyvo-inventory-composite-products-bundles.png`,
+      `${P}/stock-management/zyvo-inventory-product-variants-options.png`,
+      `${P}/stock-management/zyvo-inventory-movements-log-history.png`,
     ],
   },
   'employee-management': {
-    hero: '/images/modules/employee/29-employees.png',
-    alt: 'Gestion des employés ZYVO — équipe, rôles et permissions',
+    hero: `${P}/employee/zyvo-hr-employee-management-team.png`,
+    alt: 'ZYVO HR module — employee management, roles and team permissions for SMEs',
     gallery: [
-      '/images/modules/employee/29-employees.png',
-      '/images/modules/employee/30-employee-time.png',
-      '/images/modules/employee/31-employee-departments.png',
+      `${P}/employee/zyvo-hr-employee-management-team.png`,
+      `${P}/employee/zyvo-hr-employee-time-attendance.png`,
+      `${P}/employee/zyvo-hr-employee-departments-organisation.png`,
     ],
   },
   logistics: {
-    hero: '/images/modules/stock-management/25-stock-transfers.png',
-    alt: 'Logistique ZYVO — transferts de stock et livraisons',
+    hero: `${P}/stock-management/zyvo-inventory-stock-transfers-between-stores.png`,
+    alt: 'ZYVO logistics module — stock transfers between stores and delivery tracking',
     gallery: [
-      '/images/modules/stock-management/25-stock-transfers.png',
-      '/images/modules/stock-management/26-stock-movements.png',
-      '/images/modules/stock-management/34-movements.png',
+      `${P}/stock-management/zyvo-inventory-stock-transfers-between-stores.png`,
+      `${P}/stock-management/zyvo-inventory-stock-movements-tracking.png`,
+      `${P}/stock-management/zyvo-inventory-movements-log-history.png`,
     ],
   },
   scheduling: {
-    hero: '/images/modules/employee/30-employee-time.png',
-    alt: 'Planning et rendez-vous ZYVO — horaires et agenda',
-    gallery: ['/images/modules/employee/30-employee-time.png'],
+    hero: `${P}/appointment/zyvo-appointment-scheduling-calendar.png`,
+    alt: 'ZYVO appointment scheduling — online calendar, staff planning and booking management',
+    gallery: [
+      `${P}/appointment/zyvo-appointment-scheduling-calendar.png`,
+      `${P}/appointment/zyvo-appointment-online-booking.png`,
+      `${P}/appointment/zyvo-appointment-customer-queue-sms-salon.png`,
+    ],
   },
   'customer-queue-management': {
-    hero: '/images/salon-queue.png',
-    alt: 'File d\'attente ZYVO — notifications SMS pour salons',
-    gallery: ['/images/salon-queue.png'],
+    hero: `${P}/appointment/zyvo-appointment-customer-queue-sms-salon.png`,
+    alt: 'ZYVO customer queue management — digital walk-in queue with SMS notifications for salons',
+    gallery: [
+      `${P}/appointment/zyvo-appointment-customer-queue-sms-salon.png`,
+      `${P}/appointment/zyvo-appointment-scheduling-calendar.png`,
+      `${P}/appointment/zyvo-appointment-online-booking.png`,
+    ],
   },
   'marketing-analytics': {
-    hero: '/images/modules/marketing/37-marketing-google.png',
-    alt: 'Marketing ZYVO — intégration Google Ads et analyses',
+    hero: `${P}/marketing/zyvo-marketing-google-ads-integration.png`,
+    alt: 'ZYVO marketing analytics — Google Ads integration and campaign performance dashboard',
     gallery: [
-      '/images/modules/marketing/37-marketing-google.png',
-      '/images/modules/marketing/38-marketing-meta.png',
-      '/images/modules/marketing/40-marketing-emails.png',
+      `${P}/marketing/zyvo-marketing-google-ads-integration.png`,
+      `${P}/marketing/zyvo-marketing-meta-facebook-instagram.png`,
+      `${P}/marketing/zyvo-marketing-email-campaigns-automation.png`,
     ],
   },
   'online-store': {
-    hero: '/images/modules/e-commerce/41-public-orders.png',
-    alt: 'Boutique en ligne ZYVO — commandes publiques e-commerce',
+    hero: `${P}/virtual-store/zyvo-virtual-store-public-orders-catalog.png`,
+    alt: 'ZYVO virtual store — online shop catalog with public orders and e-commerce for African SMEs',
     gallery: [
-      '/images/modules/e-commerce/41-public-orders.png',
-      '/images/modules/e-commerce/20-cj-dropshipping.png',
-      '/images/modules/e-commerce/21-aliexpress.png',
+      `${P}/virtual-store/zyvo-virtual-store-public-orders-catalog.png`,
+      `${P}/virtual-store/zyvo-virtual-store-cj-dropshipping-integration.png`,
+      `${P}/virtual-store/zyvo-virtual-store-aliexpress-dropshipping.png`,
+      `${P}/virtual-store/mobile/zyvo-virtual-store-mobile-catalog.png`,
+      `${P}/virtual-store/mobile/zyvo-virtual-store-mobile-shopping-app.png`,
     ],
   },
   'financial-management': {
-    hero: '/images/modules/finance/02-dashboard.png',
-    alt: 'Tableau de bord financier ZYVO — trésorerie et rapports',
+    hero: `${P}/finance/zyvo-finance-dashboard-overview.png`,
+    alt: 'ZYVO financial management — business dashboard with revenue, expenses and cash flow reports',
     gallery: [
-      '/images/modules/finance/02-dashboard.png',
-      '/images/modules/finance/09-billing-report.png',
-      '/images/modules/finance/16-pdv-report.png',
+      `${P}/finance/zyvo-finance-dashboard-overview.png`,
+      `${P}/finance/zyvo-finance-billing-report-summary.png`,
+      `${P}/finance/zyvo-finance-pos-sales-report.png`,
     ],
   },
   invoicing: {
-    hero: '/images/modules/invoicing/08-billing-payments.png',
-    alt: 'Facturation ZYVO — paiements et suivi des factures',
+    hero: `${P}/invoicing/zyvo-invoicing-billing-payments-tracking.png`,
+    alt: 'ZYVO invoicing software — billing, payments tracking and VAT-compliant invoices for SMEs',
     gallery: [
-      '/images/modules/invoicing/08-billing-payments.png',
-      '/images/modules/invoicing/06-price-lists.png',
-      '/images/modules/invoicing/09-billing-report.png',
-      '/images/modules/invoicing/10-credit-notes.png',
-      '/images/modules/invoicing/12-installments.png',
-      '/images/modules/invoicing/13-billing-notes.png',
+      `${P}/invoicing/zyvo-invoicing-billing-payments-tracking.png`,
+      `${P}/invoicing/zyvo-invoicing-price-lists-catalog.png`,
+      `${P}/invoicing/zyvo-invoicing-billing-report-summary.png`,
+      `${P}/invoicing/zyvo-invoicing-credit-notes-refunds.png`,
+      `${P}/invoicing/zyvo-invoicing-installment-payment-plans.png`,
+      `${P}/invoicing/zyvo-invoicing-billing-notes-documents.png`,
     ],
   },
   purchasing: {
-    hero: '/images/modules/purchases/08-billing-payments.png',
-    alt: 'Achats ZYVO — commandes fournisseurs et approvisionnement',
+    hero: `${P}/purchases/zyvo-purchasing-orders-payments-tracking.png`,
+    alt: 'ZYVO purchasing module — supplier orders, procurement and payment tracking',
     gallery: [
-      '/images/modules/purchases/08-billing-payments.png',
-      '/images/modules/purchases/06-price-lists.png',
-      '/images/modules/purchases/09-billing-report.png',
-      '/images/modules/purchases/10-credit-notes.png',
-      '/images/modules/purchases/12-installments.png',
-      '/images/modules/purchases/13-billing-notes.png',
+      `${P}/purchases/zyvo-purchasing-orders-payments-tracking.png`,
+      `${P}/purchases/zyvo-purchasing-supplier-price-lists.png`,
+      `${P}/purchases/zyvo-purchasing-billing-report-summary.png`,
+      `${P}/purchases/zyvo-purchasing-credit-notes-supplier.png`,
+      `${P}/purchases/zyvo-purchasing-installment-purchase-orders.png`,
+      `${P}/purchases/zyvo-purchasing-billing-notes-receipts.png`,
     ],
   },
 };
@@ -121,11 +133,16 @@ const MODULE_IMAGE_REGISTRY: Record<MarketModuleSlug, ModuleImageSet> = {
 /** Homepage hero — flagship POS screenshot */
 export const HOMEPAGE_HERO_IMAGE = MODULE_IMAGE_REGISTRY['point-of-sale'].hero;
 export const HOMEPAGE_HERO_ALT =
-  'Interface caisse POS ZYVO — encaissement rapide, catalogue produits et paiements';
+  'ZYVO ERP point of sale software — fast checkout, product catalog and mobile payments for SMEs';
 
-export const INTEGRATIONS_HERO_IMAGE = '/images/modules/marketing/38-marketing-meta.png';
+export const INTEGRATIONS_HERO_IMAGE = `${P}/marketing/zyvo-marketing-meta-facebook-instagram.png`;
 export const INTEGRATIONS_HERO_ALT =
-  'Intégrations ZYVO — Meta, WhatsApp Business et plateformes marketing';
+  'ZYVO integrations — Meta Facebook Instagram WhatsApp Business marketing platform';
+
+/** Virtual store mobile — for mobile product showcase */
+export const MOBILE_APP_HERO_IMAGE = `${P}/virtual-store/mobile/zyvo-virtual-store-mobile-shopping-app.png`;
+export const MOBILE_APP_HERO_ALT =
+  'ZYVO mobile app — virtual store shopping catalog on smartphone for e-commerce';
 
 export function getModuleImages(slug: MarketModuleSlug): ModuleImageSet {
   return MODULE_IMAGE_REGISTRY[slug];
@@ -140,7 +157,7 @@ export function getModuleHeroAlt(slug: MarketModuleSlug): string {
 }
 
 /** Map US product-showcase ids to module image sets */
-const PRODUCT_ID_TO_SLUG: Record<string, MarketModuleSlug> = {
+const PRODUCT_ID_TO_SLUG: Record<string, MarketModuleSlug | 'mobile-app'> = {
   pos: 'point-of-sale',
   inventory: 'inventory-management',
   employees: 'employee-management',
@@ -149,12 +166,23 @@ const PRODUCT_ID_TO_SLUG: Record<string, MarketModuleSlug> = {
   crm: 'marketing-analytics',
   finance: 'financial-management',
   reports: 'financial-management',
-  mobile: 'point-of-sale',
+  mobile: 'mobile-app',
 };
 
 export function getProductModuleImage(productId: string): ModuleImageSet | undefined {
-  const slug = PRODUCT_ID_TO_SLUG[productId];
-  return slug ? MODULE_IMAGE_REGISTRY[slug] : undefined;
+  const mapping = PRODUCT_ID_TO_SLUG[productId];
+  if (mapping === 'mobile-app') {
+    return {
+      hero: MOBILE_APP_HERO_IMAGE,
+      alt: MOBILE_APP_HERO_ALT,
+      gallery: [
+        MOBILE_APP_HERO_IMAGE,
+        `${P}/virtual-store/mobile/zyvo-virtual-store-mobile-catalog.png`,
+        `${P}/pos/zyvo-pos-pin-security-lock-screen.png`,
+      ],
+    };
+  }
+  return mapping ? MODULE_IMAGE_REGISTRY[mapping] : undefined;
 }
 
 /** Map market feature titles (FR) to module slugs for localized pages */
@@ -163,7 +191,7 @@ const FEATURE_TITLE_SLUGS: Record<string, MarketModuleSlug> = {
   'inventaire & stock': 'inventory-management',
   'clients & fidélité': 'marketing-analytics',
   'employés & permissions': 'employee-management',
-  "rendez-vous & file d'attente": 'customer-queue-management',
+  "rendez-vous & file d'attente": 'scheduling',
   'comptabilité & rapports': 'financial-management',
 };
 
@@ -174,9 +202,9 @@ export function getFeatureModuleSlug(title: string): MarketModuleSlug | undefine
 /** Curated highlights for homepage module bento grid */
 export const HOMEPAGE_MODULE_HIGHLIGHTS: MarketModuleSlug[] = [
   'point-of-sale',
-  'inventory-management',
-  'financial-management',
-  'employee-management',
   'online-store',
+  'inventory-management',
+  'scheduling',
+  'financial-management',
   'marketing-analytics',
 ];

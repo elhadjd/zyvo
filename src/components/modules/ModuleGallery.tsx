@@ -38,7 +38,13 @@ export default function ModuleGallery({ images, priority = false }: ModuleGaller
               aria-label={`Screenshot ${index + 1}`}
               aria-current={index === activeIndex ? 'true' : undefined}
             >
-              <img src={src} alt="" className="w-full h-full object-cover object-top" loading="lazy" />
+              <img
+                src={src}
+                alt={`${images.alt} — preview ${index + 1}`}
+                title={`${images.alt} — preview ${index + 1}`}
+                className="w-full h-full object-cover object-top"
+                loading="lazy"
+              />
             </button>
           ))}
         </div>

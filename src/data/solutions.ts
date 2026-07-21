@@ -208,8 +208,8 @@ export const solutions: Solution[] = [
       'Manage walk-in customer queues and automatically notify clients via SMS about wait times, service progress, product availability, and promotional actions.',
     category: 'Service',
     icon: ListOrdered,
-    image: '/images/salon-queue.png',
-    imageAlt: 'Salon customer queue with SMS progress notifications',
+    image: '/images/modules/appointment/zyvo-appointment-customer-queue-sms-salon.png',
+    imageAlt: 'ZYVO customer queue management — salon walk-in queue with SMS notifications',
     metaTitle: 'Customer Queue Management with SMS for Salons | ZYVO',
     metaDescription:
       'Digital walk-in queue with SMS notifications for salons, barbershops, and service businesses. Update customers on wait time, service progress, and offers.',
