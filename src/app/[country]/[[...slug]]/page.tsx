@@ -29,6 +29,7 @@ import {
 import { getTaxConfig, getCalculatorBySlug } from '@/data/tax-calculators/config';
 import { getCodeConfig, getCodeGeneratorBySlug } from '@/data/code-generators/config';
 import { getInvoiceConfig, isInvoiceSlug } from '@/data/invoice-generator/config';
+import { getTemplateLibraryConfig, isTemplateLibrarySlug } from '@/data/invoice-templates/config';
 import { isTaxToolsSlug } from '@/lib/markets/tax-tools-seo';
 import { SITE_URL } from '@/data/site';
 
@@ -186,7 +187,8 @@ function buildPageSchemas(
       const calculator = getCalculatorBySlug(marketCode, toolSlug);
       const generator = getCodeGeneratorBySlug(marketCode, toolSlug);
       const invoiceTool = isInvoiceSlug(marketCode, toolSlug) ? getInvoiceConfig(marketCode) : null;
-      const tool = calculator ?? generator ?? (invoiceTool ? { title: invoiceTool.title, shortDescription: invoiceTool.shortDescription } : null);
+      const templateTool = isTemplateLibrarySlug(marketCode, toolSlug) ? getTemplateLibraryConfig(marketCode) : null;
+      const tool = calculator ?? generator ?? (invoiceTool ? { title: invoiceTool.title, shortDescription: invoiceTool.shortDescription } : null) ?? (templateTool ? { title: templateTool.title, shortDescription: templateTool.shortDescription } : null);
       if (tool && pageSeo) {
         schemas.push(
           getWebApplicationSchema({
@@ -197,7 +199,7 @@ function buildPageSchemas(
             offers: { price: '0', priceCurrency: taxConfig.currency },
           }),
           getFAQSchema(
-            calculator ? taxConfig.content.faqs : invoiceTool ? invoiceTool.faqs : codeConfig.content.faqs
+            calculator ? taxConfig.content.faqs : invoiceTool ? invoiceTool.faqs : templateTool ? templateTool.faqs : codeConfig.content.faqs
           )
         );
       }

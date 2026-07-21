@@ -8,14 +8,17 @@ import { getCodeConfig, getCodeGeneratorBySlug } from '@/data/code-generators/co
 import { getUsTaxToolsSeo } from '@/lib/markets/tax-tools-seo';
 import { getUsCodeToolsSeo } from '@/lib/markets/code-tools-seo';
 import { getInvoiceConfig, isInvoiceSlug } from '@/data/invoice-generator/config';
+import { getTemplateLibraryConfig, isTemplateLibrarySlug } from '@/data/invoice-templates/config';
 import { getUsInvoiceSeo } from '@/lib/markets/invoice-tools-seo';
+import { getUsTemplateLibrarySeo } from '@/lib/markets/invoice-template-seo';
 import { buildMetadata } from '@/lib/seo';
 import { SITE_URL } from '@/data/site';
 
 const TAX_SLUGS = getTaxConfig('us').content.calculators.map((c) => c.slug);
 const CODE_SLUGS = getCodeConfig('us').content.generators.map((g) => g.slug);
 const INVOICE_SLUG = getInvoiceConfig('us').slug;
-const VALID_SLUGS = [...TAX_SLUGS, ...CODE_SLUGS, INVOICE_SLUG];
+const TEMPLATE_SLUG = getTemplateLibraryConfig('us').slug;
+const VALID_SLUGS = [...TAX_SLUGS, ...CODE_SLUGS, INVOICE_SLUG, TEMPLATE_SLUG];
 
 interface ToolsCalculatorPageProps {
   params: Promise<{ calculator: string }>;
@@ -26,6 +29,9 @@ export function generateStaticParams() {
 }
 
 function getToolSeo(slug: string) {
+  if (isTemplateLibrarySlug('us', slug)) {
+    return getUsTemplateLibrarySeo();
+  }
   if (isInvoiceSlug('us', slug)) {
     return getUsInvoiceSeo();
   }
@@ -58,7 +64,8 @@ export default async function ToolsCalculatorPage({ params }: ToolsCalculatorPag
   const taxCalc = getCalculatorBySlug('us', calculator);
   const codeGen = getCodeGeneratorBySlug('us', calculator);
   const invoiceConfig = isInvoiceSlug('us', calculator) ? getInvoiceConfig('us') : null;
-  const tool = taxCalc ?? codeGen ?? (invoiceConfig ? { title: invoiceConfig.title, shortDescription: invoiceConfig.shortDescription } : null);
+  const templateConfig = isTemplateLibrarySlug('us', calculator) ? getTemplateLibraryConfig('us') : null;
+  const tool = taxCalc ?? codeGen ?? (invoiceConfig ? { title: invoiceConfig.title, shortDescription: invoiceConfig.shortDescription } : null) ?? (templateConfig ? { title: templateConfig.title, shortDescription: templateConfig.shortDescription } : null);
 
   if (!tool) notFound();
 
@@ -69,7 +76,9 @@ export default async function ToolsCalculatorPage({ params }: ToolsCalculatorPag
     ? taxConfig.content.faqs
     : invoiceConfig
       ? invoiceConfig.faqs
-      : codeConfig.content.faqs;
+      : templateConfig
+        ? templateConfig.faqs
+        : codeConfig.content.faqs;
 
   return (
     <>

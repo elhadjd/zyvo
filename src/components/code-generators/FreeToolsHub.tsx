@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, QrCode, Barcode, Percent, Wallet, Building2, Calculator, Sparkles, FileSpreadsheet } from 'lucide-react';
+import { ArrowRight, QrCode, Barcode, Percent, Wallet, Building2, Calculator, Sparkles, FileSpreadsheet, LayoutTemplate } from 'lucide-react';
 import type { CodeCountryConfig } from '@/data/code-generators/types';
 import type { TaxCountryConfig } from '@/data/tax-calculators/types';
 import { getInvoiceConfig } from '@/data/invoice-generator/config';
+import { getTemplateLibraryConfig } from '@/data/invoice-templates/config';
 
 const TAX_ICONS = {
   percent: Percent,
@@ -24,6 +25,7 @@ export default function FreeToolsHub({ codeConfig, taxConfig, basePath }: FreeTo
   const { content } = codeConfig;
   const isUs = codeConfig.code === 'us';
   const invoiceConfig = getInvoiceConfig(codeConfig.code);
+  const templateConfig = getTemplateLibraryConfig(codeConfig.code);
 
   return (
     <div className="space-y-12">
@@ -91,6 +93,29 @@ export default function FreeToolsHub({ codeConfig, taxConfig, basePath }: FreeTo
             <p className="text-sm text-gray-600 dark:text-gray-400 flex-1 mb-4">{invoiceConfig.shortDescription}</p>
             <span className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary dark:text-brand-accent">
               {isUs ? 'Create invoice' : 'Créer une facture'}
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </span>
+          </Link>
+          <Link
+            href={`${basePath}/${templateConfig.slug}`}
+            className="group flex flex-col rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 hover:border-brand-primary/40 hover:shadow-lg transition-all"
+          >
+            <div className="flex items-start gap-4 mb-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-brand-primary/10 flex items-center justify-center">
+                <LayoutTemplate className="w-6 h-6 text-brand-primary dark:text-brand-accent" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-brand-primary transition-colors">
+                  {templateConfig.title}
+                </h3>
+                <span className="text-xs font-medium text-green-600 dark:text-green-400">
+                  {templateConfig.freeBadge}
+                </span>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400 flex-1 mb-4">{templateConfig.shortDescription}</p>
+            <span className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary dark:text-brand-accent">
+              {isUs ? 'Browse templates' : 'Voir les modèles'}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </span>
           </Link>

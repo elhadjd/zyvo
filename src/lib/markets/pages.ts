@@ -23,6 +23,7 @@ import MarketToolPage from '@/views/markets/MarketToolPage';
 import { getAllMergedMarketBlogSlugs } from '@/lib/markets/blog-server';
 import { getAllCodeGeneratorSlugs } from '@/data/code-generators/config';
 import { getInvoiceSlug } from '@/data/invoice-generator/config';
+import { getTemplateLibrarySlug } from '@/data/invoice-templates/config';
 import { getTaxConfig } from '@/data/tax-calculators/config';
 import { PROGRAMMATIC_INDUSTRIES } from '@/lib/ai/seo-engine/types';
 import { MARKET_SOLUTION_SLUGS } from '@/data/markets/market-modules';
@@ -130,6 +131,7 @@ function appendDynamicMarketParams(marketCode: MarketCode, params: { slug: strin
   });
 
   params.push({ slug: ['outils', getInvoiceSlug(marketCode)] });
+  params.push({ slug: ['outils', getTemplateLibrarySlug(marketCode)] });
 }
 
 export function getMarketStaticParams(marketCode: MarketCode): { slug: string[] }[] {
