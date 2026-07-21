@@ -6,6 +6,7 @@ import {
   runMultiCountryResearch,
 } from '@/lib/ai/jobs/multi-country-pipeline';
 import { getEnabledCountryCodes, isConfiguredCountry } from '@/lib/ai/countries/registry';
+import { parseArticlesPerCountry } from '@/lib/ai/jobs/article-count';
 import type { AgentCode, SupportedCountry } from '@/lib/ai/types';
 
 export const dynamic = 'force-dynamic';
@@ -42,7 +43,7 @@ export async function GET(request: Request) {
       const result = await runMultiCountryPipeline({
         saveAsDraft: searchParams.get('publish') !== 'true',
         publishNow: searchParams.get('publish') === 'true',
-        articlesPerCountry: Number(searchParams.get('perCountry') ?? 1),
+        articlesPerCountry: parseArticlesPerCountry(searchParams.get('perCountry') ?? 1),
         recentDays: Number(searchParams.get('recentDays') ?? 14),
       });
       return NextResponse.json(result);

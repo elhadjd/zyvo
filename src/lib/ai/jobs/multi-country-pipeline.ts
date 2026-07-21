@@ -1,8 +1,9 @@
 import { runFullPipeline, type PipelineResult } from '../agents/orchestrator';
-import { resolveFreshTopics, resolveDiverseTopics } from '../research-engine/topic-resolver';
+import { resolveBatchTopics, resolveFreshTopics } from '../research-engine/topic-resolver';
 import { DEFAULT_RECENT_DAYS } from '../research-engine/topic-dedup';
 import { getEnabledCountryCodes, isCountryEnabled } from '../countries/registry';
 import { logAiEvent } from '../logger';
+import { parseArticlesPerCountry } from './article-count';
 import type { AgentCode, SupportedCountry } from '../types';
 
 export interface MultiCountryPipelineResult {
@@ -53,7 +54,7 @@ export async function runMultiCountryPipeline(
     throw new Error('Nenhum país ativo na configuração. Ative países em /admin/ai-engine/settings');
   }
 
-  const articlesPerCountry = Math.max(1, Math.min(options.articlesPerCountry ?? 1, 5));
+  const articlesPerCountry = parseArticlesPerCountry(options.articlesPerCountry);
   const recentDays = options.recentDays ?? DEFAULT_RECENT_DAYS;
   const concurrency = Math.max(1, Math.min(options.concurrency ?? 3, 6));
 
@@ -65,24 +66,15 @@ export async function runMultiCountryPipeline(
   const jobs: Job[] = [];
 
   for (const countryCode of countries) {
-    const useDiverse = articlesPerCountry > 1;
-
-    if (useDiverse) {
-      const diverse = await resolveDiverseTopics(countryCode, articlesPerCountry, {
-        recentDays,
-      });
-      for (const item of diverse) {
-        jobs.push({ countryCode, topic: item.topic, targetCategory: item.category });
-      }
-    } else {
-      const topics = await resolveFreshTopics(countryCode, articlesPerCountry, {
-        recentDays,
-      });
-      for (const topic of topics) {
-        jobs.push({ countryCode, topic });
-      }
+    const topics = await resolveBatchTopics(countryCode, articlesPerCountry, { recentDays });
+    for (const item of topics) {
+      jobs.push({ countryCode, topic: item.topic, targetCategory: item.category });
     }
   }
+
+  logAiEvent('research', `Pipeline multi-país: ${jobs.length} job(s) (${articlesPerCountry}/país)`, {
+    metadata: { jobs: jobs.length, articlesPerCountry },
+  });
 
   const results = await runWithConcurrency(jobs, concurrency, async (job) => {
     try {

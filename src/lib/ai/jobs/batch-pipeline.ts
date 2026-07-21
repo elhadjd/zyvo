@@ -1,9 +1,10 @@
 import { runFullPipeline, type PipelineResult } from '../agents/orchestrator';
-import { resolveFreshTopics, resolveDiverseTopics } from '../research-engine/topic-resolver';
+import { resolveBatchTopics } from '../research-engine/topic-resolver';
 import { DEFAULT_RECENT_DAYS } from '../research-engine/topic-dedup';
 import { getEnabledCountryCodes, isCountryEnabled } from '../countries/registry';
 import { logAiEvent } from '../logger';
 import { SITE_AI_COUNTRIES } from '../country-labels';
+import { parseArticlesPerCountry } from './article-count';
 import type { AgentCode, SupportedCountry } from '../types';
 
 export interface BatchPipelineJob {
@@ -74,42 +75,31 @@ function resolveCountries(options: BatchPipelineOptions): SupportedCountry[] {
 
 async function buildJobs(options: BatchPipelineOptions): Promise<BatchPipelineJob[]> {
   const countries = resolveCountries(options);
-  const articlesPerCountry = Math.max(1, Math.min(options.articlesPerCountry ?? 1, 5));
+  const articlesPerCountry = parseArticlesPerCountry(options.articlesPerCountry);
   const recentDays = options.recentDays ?? DEFAULT_RECENT_DAYS;
+  const fixedTopic = options.topic?.trim() || undefined;
   const jobs: BatchPipelineJob[] = [];
-  const usedTopics = new Map<SupportedCountry, Set<string>>();
 
   for (const countryCode of countries) {
-    usedTopics.set(countryCode, new Set());
+    const topics = await resolveBatchTopics(countryCode, articlesPerCountry, {
+      recentDays,
+      fixedTopic,
+    });
 
-    if (options.topic?.trim()) {
-      const topic = options.topic.trim();
-      jobs.push({ countryCode, topic });
-      continue;
+    if (topics.length < articlesPerCountry) {
+      logAiEvent(
+        'research',
+        `Aviso: ${topics.length}/${articlesPerCountry} tópicos para ${countryCode}`,
+        { countryCode, level: 'warn', metadata: { requested: articlesPerCountry, resolved: topics.length } }
+      );
     }
 
-    const useDiverse = articlesPerCountry > 1;
-
-    if (useDiverse) {
-      const diverse = await resolveDiverseTopics(countryCode, articlesPerCountry, { recentDays });
-      for (const item of diverse) {
-        const key = item.topic.toLowerCase();
-        const used = usedTopics.get(countryCode)!;
-        if (used.has(key)) continue;
-        used.add(key);
-        jobs.push({ countryCode, topic: item.topic, targetCategory: item.category });
-      }
-      continue;
-    }
-
-    const topics = await resolveFreshTopics(countryCode, articlesPerCountry, { recentDays });
-
-    for (const topic of topics) {
-      const key = topic.toLowerCase();
-      const used = usedTopics.get(countryCode)!;
-      if (used.has(key)) continue;
-      used.add(key);
-      jobs.push({ countryCode, topic });
+    for (const item of topics) {
+      jobs.push({
+        countryCode,
+        topic: item.topic,
+        targetCategory: item.category,
+      });
     }
   }
 
@@ -117,12 +107,13 @@ async function buildJobs(options: BatchPipelineOptions): Promise<BatchPipelineJo
 }
 
 export async function runBatchPipeline(options: BatchPipelineOptions = {}): Promise<BatchPipelineResult> {
+  const articlesPerCountry = parseArticlesPerCountry(options.articlesPerCountry);
   const jobs = await buildJobs(options);
   const concurrency = Math.max(1, Math.min(options.concurrency ?? 3, 6));
   const publishNow = options.publishNow ?? false;
 
   logAiEvent('research', `Batch pipeline: ${jobs.length} artigo(s) em ${[...new Set(jobs.map((j) => j.countryCode))].join(', ')}`, {
-    metadata: { jobs: jobs.length, publishNow, concurrency },
+    metadata: { jobs: jobs.length, articlesPerCountry, publishNow, concurrency },
   });
 
   const results = await runWithConcurrency(jobs, concurrency, async (job) => {
@@ -170,7 +161,7 @@ export async function runBatchPipeline(options: BatchPipelineOptions = {}): Prom
       success: r.success,
     })),
     countries: [...new Set(jobs.map((j) => j.countryCode))],
-    articlesPerCountry: options.articlesPerCountry ?? 1,
+    articlesPerCountry,
     succeeded,
     failed,
     completedAt: new Date().toISOString(),

@@ -14,6 +14,8 @@ import { logResearchEvent } from './research-logger';
 import {
   DEFAULT_RECENT_DAYS,
   filterUniqueTopics,
+  RECENT_SIMILARITY_THRESHOLD,
+  topicSimilarity,
   wasTopicAlreadyCovered,
 } from './topic-dedup';
 import type { SupportedCountry } from '../types';
@@ -492,6 +494,114 @@ export async function resolveDiverseTopics(
   );
 
   return picked.slice(0, count);
+}
+
+/** Rotate niche seed topics when Google/GSC pools are exhausted — batch-local dedup only */
+function pickRotatedNicheSeeds(
+  countryCode: SupportedCountry,
+  count: number,
+  usedKeys: Set<string>,
+  language: 'fr' | 'pt'
+): DiverseTopicResult[] {
+  const pool: DiverseTopicResult[] = [];
+  for (const niche of CONTENT_NICHES) {
+    for (const topic of getNicheSeedTopics(countryCode, niche)) {
+      pool.push({
+        topic,
+        niche,
+        category: nicheToCategoryLabel(niche, language),
+      });
+    }
+  }
+  if (pool.length === 0) return [];
+
+  const picked: DiverseTopicResult[] = [];
+  const dayOffset = new Date().getDate() + new Date().getMonth() * 31;
+
+  for (let attempt = 0; attempt < pool.length * 2 && picked.length < count; attempt++) {
+    const item = pool[(dayOffset + attempt) % pool.length];
+    const key = normalizeText(item.topic);
+    if (usedKeys.has(key)) continue;
+
+    let tooSimilar = false;
+    for (const existing of picked) {
+      if (topicSimilarity(item.topic, existing.topic) >= RECENT_SIMILARITY_THRESHOLD) {
+        tooSimilar = true;
+        break;
+      }
+    }
+    if (tooSimilar) continue;
+
+    usedKeys.add(key);
+    picked.push(item);
+  }
+
+  return picked;
+}
+
+/**
+ * Guarantee N distinct topics per country for admin batch runs.
+ * Falls back to rotated niche seeds when dedup filters Google/GSC suggestions.
+ */
+export async function resolveBatchTopics(
+  countryCode: SupportedCountry,
+  count: number,
+  options: { recentDays?: number; fixedTopic?: string } = {}
+): Promise<DiverseTopicResult[]> {
+  const recentDays = options.recentDays ?? DEFAULT_RECENT_DAYS;
+  const config = getCountryConfig(countryCode);
+  const language = config?.language === 'pt' ? 'pt' : 'fr';
+  const results: DiverseTopicResult[] = [];
+  const usedKeys = new Set<string>();
+
+  const add = (item: DiverseTopicResult): boolean => {
+    const key = normalizeText(item.topic);
+    if (!key || usedKeys.has(key)) return false;
+    usedKeys.add(key);
+    results.push(item);
+    return true;
+  };
+
+  if (options.fixedTopic?.trim()) {
+    const topic = options.fixedTopic.trim();
+    add({
+      topic,
+      niche: classifyTopicNiche(topic),
+      category: nicheToCategoryLabel(classifyTopicNiche(topic), language),
+    });
+  }
+
+  const needed = () => Math.max(0, count - results.length);
+
+  if (needed() > 0) {
+    const diverse = await resolveDiverseTopics(countryCode, needed(), { recentDays });
+    for (const item of diverse) {
+      add(item);
+      if (needed() <= 0) break;
+    }
+  }
+
+  if (needed() > 0) {
+    const fresh = await resolveFreshTopics(countryCode, needed(), { recentDays });
+    for (const topic of fresh) {
+      const niche = classifyTopicNiche(topic);
+      add({
+        topic,
+        niche,
+        category: nicheToCategoryLabel(niche, language),
+      });
+      if (needed() <= 0) break;
+    }
+  }
+
+  if (needed() > 0) {
+    for (const item of pickRotatedNicheSeeds(countryCode, needed(), usedKeys, language)) {
+      add(item);
+      if (needed() <= 0) break;
+    }
+  }
+
+  return results.slice(0, count);
 }
 
 export async function resolveNextFreshTopic(
