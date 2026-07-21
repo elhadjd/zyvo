@@ -62,17 +62,13 @@ const MODULE_IMAGE_REGISTRY: Record<MarketModuleSlug, ModuleImageSet> = {
     alt: 'ZYVO appointment scheduling — online calendar, staff planning and booking management',
     gallery: [
       `${P}/appointment/zyvo-appointment-scheduling-calendar.png`,
-      `${P}/appointment/zyvo-appointment-online-booking.png`,
-      `${P}/appointment/zyvo-appointment-customer-queue-sms-salon.png`,
     ],
   },
   'customer-queue-management': {
-    hero: `${P}/appointment/zyvo-appointment-customer-queue-sms-salon.png`,
-    alt: 'ZYVO customer queue management — digital walk-in queue with SMS notifications for salons',
+    hero: `${P}/appointment/zyvo-appointment-scheduling-calendar.png`,
+    alt: 'ZYVO customer queue management — appointment scheduling and walk-in queue for salons',
     gallery: [
-      `${P}/appointment/zyvo-appointment-customer-queue-sms-salon.png`,
       `${P}/appointment/zyvo-appointment-scheduling-calendar.png`,
-      `${P}/appointment/zyvo-appointment-online-booking.png`,
     ],
   },
   'marketing-analytics': {
@@ -91,8 +87,10 @@ const MODULE_IMAGE_REGISTRY: Record<MarketModuleSlug, ModuleImageSet> = {
       `${P}/virtual-store/zyvo-virtual-store-public-orders-catalog.png`,
       `${P}/virtual-store/zyvo-virtual-store-cj-dropshipping-integration.png`,
       `${P}/virtual-store/zyvo-virtual-store-aliexpress-dropshipping.png`,
-      `${P}/virtual-store/mobile/zyvo-virtual-store-mobile-catalog.png`,
-      `${P}/virtual-store/mobile/zyvo-virtual-store-mobile-shopping-app.png`,
+      `${P}/virtual-store/mobile/zyvo-virtual-store-mobile-home-page.jpeg`,
+      `${P}/virtual-store/mobile/zyvo-virtual-store-mobile-product-page.jpeg`,
+      `${P}/virtual-store/mobile/zyvo-virtual-store-mobile-cart-page.jpeg`,
+      `${P}/virtual-store/mobile/zyvo-virtual-store-mobile-checkout-page.jpeg`,
     ],
   },
   'financial-management': {
@@ -109,7 +107,6 @@ const MODULE_IMAGE_REGISTRY: Record<MarketModuleSlug, ModuleImageSet> = {
     alt: 'ZYVO invoicing software — billing, payments tracking and VAT-compliant invoices for SMEs',
     gallery: [
       `${P}/invoicing/zyvo-invoicing-billing-payments-tracking.png`,
-      `${P}/invoicing/zyvo-invoicing-price-lists-catalog.png`,
       `${P}/invoicing/zyvo-invoicing-billing-report-summary.png`,
       `${P}/invoicing/zyvo-invoicing-credit-notes-refunds.png`,
       `${P}/invoicing/zyvo-invoicing-installment-payment-plans.png`,
@@ -121,11 +118,7 @@ const MODULE_IMAGE_REGISTRY: Record<MarketModuleSlug, ModuleImageSet> = {
     alt: 'ZYVO purchasing module — supplier orders, procurement and payment tracking',
     gallery: [
       `${P}/purchases/zyvo-purchasing-orders-payments-tracking.png`,
-      `${P}/purchases/zyvo-purchasing-supplier-price-lists.png`,
       `${P}/purchases/zyvo-purchasing-billing-report-summary.png`,
-      `${P}/purchases/zyvo-purchasing-credit-notes-supplier.png`,
-      `${P}/purchases/zyvo-purchasing-installment-purchase-orders.png`,
-      `${P}/purchases/zyvo-purchasing-billing-notes-receipts.png`,
     ],
   },
 };
@@ -140,9 +133,9 @@ export const INTEGRATIONS_HERO_ALT =
   'ZYVO integrations — Meta Facebook Instagram WhatsApp Business marketing platform';
 
 /** Virtual store mobile — for mobile product showcase */
-export const MOBILE_APP_HERO_IMAGE = `${P}/virtual-store/mobile/zyvo-virtual-store-mobile-shopping-app.png`;
+export const MOBILE_APP_HERO_IMAGE = `${P}/virtual-store/mobile/zyvo-virtual-store-mobile-home-page.jpeg`;
 export const MOBILE_APP_HERO_ALT =
-  'ZYVO mobile app — virtual store shopping catalog on smartphone for e-commerce';
+  'ZYVO mobile app — virtual store home page on smartphone for e-commerce shopping';
 
 export function getModuleImages(slug: MarketModuleSlug): ModuleImageSet {
   return MODULE_IMAGE_REGISTRY[slug];
@@ -177,8 +170,9 @@ export function getProductModuleImage(productId: string): ModuleImageSet | undef
       alt: MOBILE_APP_HERO_ALT,
       gallery: [
         MOBILE_APP_HERO_IMAGE,
-        `${P}/virtual-store/mobile/zyvo-virtual-store-mobile-catalog.png`,
-        `${P}/pos/zyvo-pos-pin-security-lock-screen.png`,
+        `${P}/virtual-store/mobile/zyvo-virtual-store-mobile-product-page.jpeg`,
+        `${P}/virtual-store/mobile/zyvo-virtual-store-mobile-cart-page.jpeg`,
+        `${P}/virtual-store/mobile/zyvo-virtual-store-mobile-checkout-page.jpeg`,
       ],
     };
   }
