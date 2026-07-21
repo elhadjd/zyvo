@@ -426,6 +426,7 @@ export const snMarket: MarketConfig = {
         { label: 'Fonctionnalités', href: '/features' },
         { label: 'Tarifs', href: '/pricing' },
         { label: 'FAQ', href: '/faq' },
+        { label: 'Outils gratuits — QR, codes-barres & fiscal', href: '/outils' },
       ],
     },
     {

@@ -12,7 +12,7 @@ import { getPartnershipProgram } from '@/data/partnerships/content';
 import { isPartnershipProgramSlug } from '@/data/partnerships/programs';
 import { buildLocalErpPage } from '@/data/markets/local-erp-pages';
 import { getMergedMarketBlogPosts, getMergedMarketBlogPostBySlug } from '@/lib/markets/blog-server';
-import { resolvePostHeroImage } from '@/lib/ai/services/stock-image-service';
+import { resolvePostHeroImage } from '@/lib/ai/services/stock-image-library';
 import JsonLd from '@/components/JsonLd';
 import {
   getMarketOrganizationSchema,
@@ -24,7 +24,11 @@ import {
   getMarketArticleSchema,
   getFAQSchema,
   getBreadcrumbSchema,
+  getWebApplicationSchema,
 } from '@/data/structured-data';
+import { getTaxConfig, getCalculatorBySlug } from '@/data/tax-calculators/config';
+import { getCodeConfig, getCodeGeneratorBySlug } from '@/data/code-generators/config';
+import { isTaxToolsSlug } from '@/lib/markets/tax-tools-seo';
 import { SITE_URL } from '@/data/site';
 
 interface CountryPageProps {
@@ -162,6 +166,38 @@ function buildPageSchemas(
         })
       );
     }
+  } else if (isTaxToolsSlug(slug)) {
+    const codeConfig = getCodeConfig(marketCode);
+    const taxConfig = getTaxConfig(marketCode);
+    if (slug.length === 1) {
+      schemas.push(
+        getWebApplicationSchema({
+          name: codeConfig.content.hubTitle,
+          description: codeConfig.content.hubDescription,
+          url: `${SITE_URL}${codeConfig.toolsBasePath}`,
+          locale: codeConfig.locale,
+          offers: { price: '0', priceCurrency: taxConfig.currency },
+        }),
+        getFAQSchema([...codeConfig.content.faqs, ...taxConfig.content.faqs.slice(0, 2)])
+      );
+    } else if (slug.length === 2) {
+      const toolSlug = slug[1];
+      const calculator = getCalculatorBySlug(marketCode, toolSlug);
+      const generator = getCodeGeneratorBySlug(marketCode, toolSlug);
+      const tool = calculator ?? generator;
+      if (tool && pageSeo) {
+        schemas.push(
+          getWebApplicationSchema({
+            name: tool.title,
+            description: tool.shortDescription,
+            url: `${SITE_URL}${pageSeo.path}`,
+            locale: codeConfig.locale,
+            offers: { price: '0', priceCurrency: taxConfig.currency },
+          }),
+          getFAQSchema(calculator ? taxConfig.content.faqs : codeConfig.content.faqs)
+        );
+      }
+    }
   }
 
   if (breadcrumbs.length > 1) {
@@ -192,6 +228,8 @@ export default async function CountryPage({ params }: CountryPageProps) {
     industry?: string;
     city?: string;
     program?: string;
+    calculator?: string;
+    calculatorSlug?: string;
     posts?: ReturnType<typeof getMergedMarketBlogPosts>;
     post?: ReturnType<typeof getMergedMarketBlogPostBySlug>;
   }>;
@@ -204,6 +242,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
     industry: resolved.params.industry,
     city: resolved.params.city,
     program: resolved.params.program,
+    calculatorSlug: resolved.params.calculator,
   };
 
   if (slug[0] === 'blog' && slug.length === 1) {

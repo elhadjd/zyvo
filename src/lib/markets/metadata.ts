@@ -9,7 +9,7 @@ import { SN_GEO_TARGETS } from '@/data/markets/sn-seo';
 import { CI_GEO_TARGETS } from '@/data/markets/ci-seo';
 import { SITE_NAME, SITE_URL } from '@/data/site';
 import type { MarketBlogPost } from '@/data/markets/blog/types';
-import { resolvePostHeroImage } from '@/lib/ai/services/stock-image-service';
+import { resolvePostHeroImage } from '@/lib/ai/services/stock-image-library';
 
 function getMarketGeoTargets(marketCode: MarketCode): readonly string[] {
   if (marketCode === 'sn') return SN_GEO_TARGETS;
@@ -255,6 +255,23 @@ export function buildMarketBreadcrumbs(
     crumbs.push({
       name: pageSeo?.breadcrumb ?? slug[1],
       url: `${base}/partnerships/${slug[1]}`,
+    });
+    return crumbs;
+  }
+
+  if (slug[0] === 'outils' && slug.length === 1) {
+    crumbs.push({
+      name: pageSeo?.breadcrumb ?? 'Outils gratuits',
+      url: `${base}/outils`,
+    });
+    return crumbs;
+  }
+
+  if (slug[0] === 'outils' && slug.length === 2) {
+    crumbs.push({ name: 'Outils gratuits', url: `${base}/outils` });
+    crumbs.push({
+      name: pageSeo?.breadcrumb ?? slug[1],
+      url: `${base}/outils/${slug[1]}`,
     });
     return crumbs;
   }

@@ -10,7 +10,8 @@ import BlogShareButtons from '@/components/markets/blog/BlogShareButtons';
 import BlogFaqSection from '@/components/markets/blog/BlogFaqSection';
 import BlogRelatedPosts from '@/components/markets/blog/BlogRelatedPosts';
 import { formatBlogDate, getBlogCategoryStyle } from '@/components/markets/blog/blog-utils';
-import { resolvePostHeroImage } from '@/lib/ai/services/stock-image-service';
+import { resolvePostHeroImage } from '@/lib/ai/services/stock-image-library';
+import BlogHeroImage from '@/components/markets/blog/BlogHeroImage';
 import { SITE_URL } from '@/data/site';
 import type { MarketBlogPost } from '@/data/markets/blog/types';
 
@@ -77,8 +78,7 @@ export default function MarketBlogPostPage({
             <BlogShareButtons url={canonicalUrl} title={post.title} shareLabel={config.shareLabel} />
 
             <figure className="mt-8 -mx-0 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <BlogHeroImage
                 src={hero.url}
                 alt={hero.alt}
                 width={1200}

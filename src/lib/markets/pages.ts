@@ -18,7 +18,11 @@ import ProgrammaticPageServer from '@/views/markets/ProgrammaticPageServer';
 import MarketLocalErpPageServer from '@/views/markets/MarketLocalErpPageServer';
 import MarketPartnershipsPage from '@/views/markets/MarketPartnershipsPage';
 import MarketPartnershipProgramPageServer from '@/views/markets/MarketPartnershipProgramPageServer';
+import MarketTaxToolsHubPage from '@/views/markets/MarketTaxToolsHubPage';
+import MarketToolPage from '@/views/markets/MarketToolPage';
 import { getAllMergedMarketBlogSlugs } from '@/lib/markets/blog-server';
+import { getAllCodeGeneratorSlugs } from '@/data/code-generators/config';
+import { getTaxConfig } from '@/data/tax-calculators/config';
 import { PROGRAMMATIC_INDUSTRIES } from '@/lib/ai/seo-engine/types';
 import { MARKET_SOLUTION_SLUGS } from '@/data/markets/market-modules';
 import { getAllLocalErpParams } from '@/data/markets/local-erp-pages';
@@ -50,6 +54,8 @@ const GN_PAGES: MarketPageDefinition[] = [
   { slug: ['industries'], pageKey: 'solutions', component: MarketSolutionsPage },
   { slug: ['industries', ':industry'], pageKey: 'solutions', component: MarketIndustryPage },
   { slug: ['solutions', ':solution'], pageKey: 'solutions', component: MarketSolutionDetailPage },
+  { slug: ['outils'], pageKey: 'tools', component: MarketTaxToolsHubPage },
+  { slug: ['outils', ':calculator'], pageKey: 'tools', component: MarketToolPage },
 ];
 
 const MARKET_PAGE_REGISTRY: Partial<Record<MarketCode, MarketPageDefinition[]>> = {
@@ -112,6 +118,14 @@ function appendDynamicMarketParams(marketCode: MarketCode, params: { slug: strin
 
   PARTNERSHIP_PROGRAM_SLUGS.forEach((program) => {
     params.push({ slug: ['partnerships', program] });
+  });
+
+  getTaxConfig(marketCode).content.calculators.forEach((calc) => {
+    params.push({ slug: ['outils', calc.slug] });
+  });
+
+  getAllCodeGeneratorSlugs(marketCode).forEach((genSlug) => {
+    params.push({ slug: ['outils', genSlug] });
   });
 }
 

@@ -126,6 +126,14 @@ export const staticPageMetadata = {
     description: 'How ZYVO uses cookies and similar technologies on our website.',
     canonical: '/cookie-policy',
   }),
+  taxTools: buildMetadata({
+    title: 'Free Tax Calculators USA — Income Tax, Paycheck, Sales Tax',
+    description:
+      'Free tax calculators for Americans: federal income tax estimator, paycheck calculator with FICA, sales tax by state, and corporate tax. 100% free — no signup required.',
+    keywords:
+      'free tax calculator, income tax calculator USA, paycheck calculator, sales tax calculator, corporate tax calculator',
+    canonical: '/tools',
+  }),
   notFound: buildMetadata({
     title: 'Page Not Found',
     description: 'The page you are looking for could not be found.',

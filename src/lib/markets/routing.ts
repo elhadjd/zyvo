@@ -24,6 +24,8 @@ const RESERVED_ROOT_SEGMENTS = new Set([
   'terms-of-service',
   'refund-policy',
   'cookie-policy',
+  'tools',
+  'outils',
   'salon-management-software',
   'barbershop-management-software',
   'restaurant-pos-system',
