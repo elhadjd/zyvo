@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 import type { TaxCountryConfig } from '@/data/tax-calculators/types';
 import type { TaxCalculatorId } from '@/data/tax-calculators/types';
+import { getCodeConfig } from '@/data/code-generators/config';
 import TaxCalculatorWidget from './TaxCalculatorWidget';
 
 interface TaxCalculatorPageContentProps {
@@ -25,6 +26,7 @@ export default function TaxCalculatorPageContent({
 }: TaxCalculatorPageContentProps) {
   const isUs = config.code === 'us';
   const otherCalculators = config.content.calculators.filter((c) => c.id !== calculatorId);
+  const codeGenerators = getCodeConfig(config.code).content.generators;
 
   return (
     <div className="space-y-10">
@@ -67,6 +69,15 @@ export default function TaxCalculatorPageContent({
                 className="rounded-full border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-brand-primary hover:text-brand-primary dark:hover:text-brand-accent transition-colors"
               >
                 {calc.title}
+              </Link>
+            ))}
+            {codeGenerators.map((gen) => (
+              <Link
+                key={gen.id}
+                href={`${basePath}/${gen.slug}`}
+                className="rounded-full border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-brand-primary hover:text-brand-primary dark:hover:text-brand-accent transition-colors"
+              >
+                {gen.title}
               </Link>
             ))}
           </div>

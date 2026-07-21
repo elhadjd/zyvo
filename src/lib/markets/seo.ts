@@ -9,6 +9,7 @@ import { CI_HOME_SEO_CONTENT } from '@/data/markets/ci-seo';
 import { getLocalErpPageSeo, isLocalErpSlug } from '@/lib/markets/local-erp-seo';
 import { getPartnershipPageSeo, isPartnershipSlug } from '@/lib/partnerships/seo';
 import { getTaxToolsPageSeo, isTaxToolsSlug } from '@/lib/markets/tax-tools-seo';
+import { getCodeToolsPageSeo } from '@/lib/markets/code-tools-seo';
 
 export type MarketSeoPageMeta = GnSeoPageMeta;
 
@@ -21,6 +22,8 @@ export function getMarketPageSeo(marketCode: MarketCode, slug: string[]): Market
     if (localSeo) return localSeo;
   }
   if (isTaxToolsSlug(slug)) {
+    const codeSeo = getCodeToolsPageSeo(marketCode, slug);
+    if (codeSeo) return codeSeo;
     const taxSeo = getTaxToolsPageSeo(marketCode, slug);
     if (taxSeo) return taxSeo;
   }
@@ -105,9 +108,11 @@ export function getMarketInternalLinkGroups(marketCode: MarketCode) {
       ],
     },
     {
-      title: marketCode === 'us' ? 'Tax Tools' : 'Outils fiscaux gratuits',
+      title: marketCode === 'us' ? 'Free Tools' : 'Outils gratuits',
       paths: [
         'outils',
+        'outils/generateur-qr-code',
+        'outils/generateur-code-barres',
         'outils/calculateur-tva',
         'outils/calculateur-impot-revenu',
         'outils/calculateur-impot-societes',

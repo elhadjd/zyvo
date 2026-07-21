@@ -1,14 +1,18 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import UsTaxCalculatorPage from '@/views/UsTaxCalculatorPage';
+import UsToolPage from '@/views/UsToolPage';
 import JsonLd from '@/components/JsonLd';
 import { getFAQSchema, getWebApplicationSchema } from '@/data/structured-data';
 import { getTaxConfig, getCalculatorBySlug } from '@/data/tax-calculators/config';
+import { getCodeConfig, getCodeGeneratorBySlug } from '@/data/code-generators/config';
 import { getUsTaxToolsSeo } from '@/lib/markets/tax-tools-seo';
+import { getUsCodeToolsSeo } from '@/lib/markets/code-tools-seo';
 import { buildMetadata } from '@/lib/seo';
 import { SITE_URL } from '@/data/site';
 
-const VALID_SLUGS = getTaxConfig('us').content.calculators.map((c) => c.slug);
+const TAX_SLUGS = getTaxConfig('us').content.calculators.map((c) => c.slug);
+const CODE_SLUGS = getCodeConfig('us').content.generators.map((g) => g.slug);
+const VALID_SLUGS = [...TAX_SLUGS, ...CODE_SLUGS];
 
 interface ToolsCalculatorPageProps {
   params: Promise<{ calculator: string }>;
@@ -18,9 +22,16 @@ export function generateStaticParams() {
   return VALID_SLUGS.map((calculator) => ({ calculator }));
 }
 
+function getToolSeo(slug: string) {
+  if (CODE_SLUGS.includes(slug)) {
+    return getUsCodeToolsSeo(slug);
+  }
+  return getUsTaxToolsSeo(slug);
+}
+
 export async function generateMetadata({ params }: ToolsCalculatorPageProps): Promise<Metadata> {
   const { calculator } = await params;
-  const seo = getUsTaxToolsSeo(calculator);
+  const seo = getToolSeo(calculator);
   return buildMetadata({
     title: seo.title,
     description: seo.description,
@@ -37,27 +48,31 @@ export default async function ToolsCalculatorPage({ params }: ToolsCalculatorPag
     notFound();
   }
 
-  const calc = getCalculatorBySlug('us', calculator);
-  const seo = getUsTaxToolsSeo(calculator);
-  const config = getTaxConfig('us');
+  const seo = getToolSeo(calculator);
+  const taxCalc = getCalculatorBySlug('us', calculator);
+  const codeGen = getCodeGeneratorBySlug('us', calculator);
+  const tool = taxCalc ?? codeGen;
 
-  if (!calc) notFound();
+  if (!tool) notFound();
+
+  const codeConfig = getCodeConfig('us');
+  const taxConfig = getTaxConfig('us');
 
   return (
     <>
       <JsonLd
         data={[
           getWebApplicationSchema({
-            name: calc.title,
-            description: calc.shortDescription,
+            name: tool.title,
+            description: tool.shortDescription,
             url: `${SITE_URL}${seo.path}`,
             locale: 'en-US',
             offers: { price: '0', priceCurrency: 'USD' },
           }),
-          getFAQSchema(config.content.faqs),
+          getFAQSchema(taxCalc ? taxConfig.content.faqs : codeConfig.content.faqs),
         ]}
       />
-      <UsTaxCalculatorPage calculatorSlug={calculator} />
+      <UsToolPage calculatorSlug={calculator} />
     </>
   );
 }

@@ -261,14 +261,14 @@ export function buildMarketBreadcrumbs(
 
   if (slug[0] === 'outils' && slug.length === 1) {
     crumbs.push({
-      name: pageSeo?.breadcrumb ?? 'Outils fiscaux',
+      name: pageSeo?.breadcrumb ?? 'Outils gratuits',
       url: `${base}/outils`,
     });
     return crumbs;
   }
 
   if (slug[0] === 'outils' && slug.length === 2) {
-    crumbs.push({ name: 'Outils fiscaux', url: `${base}/outils` });
+    crumbs.push({ name: 'Outils gratuits', url: `${base}/outils` });
     crumbs.push({
       name: pageSeo?.breadcrumb ?? slug[1],
       url: `${base}/outils/${slug[1]}`,

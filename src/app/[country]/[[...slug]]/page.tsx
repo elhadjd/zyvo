@@ -27,6 +27,7 @@ import {
   getWebApplicationSchema,
 } from '@/data/structured-data';
 import { getTaxConfig, getCalculatorBySlug } from '@/data/tax-calculators/config';
+import { getCodeConfig, getCodeGeneratorBySlug } from '@/data/code-generators/config';
 import { isTaxToolsSlug } from '@/lib/markets/tax-tools-seo';
 import { SITE_URL } from '@/data/site';
 
@@ -166,30 +167,34 @@ function buildPageSchemas(
       );
     }
   } else if (isTaxToolsSlug(slug)) {
+    const codeConfig = getCodeConfig(marketCode);
     const taxConfig = getTaxConfig(marketCode);
     if (slug.length === 1) {
       schemas.push(
         getWebApplicationSchema({
-          name: taxConfig.content.hubTitle,
-          description: taxConfig.content.hubDescription,
-          url: `${SITE_URL}${taxConfig.toolsBasePath}`,
-          locale: taxConfig.locale,
+          name: codeConfig.content.hubTitle,
+          description: codeConfig.content.hubDescription,
+          url: `${SITE_URL}${codeConfig.toolsBasePath}`,
+          locale: codeConfig.locale,
           offers: { price: '0', priceCurrency: taxConfig.currency },
         }),
-        getFAQSchema(taxConfig.content.faqs)
+        getFAQSchema([...codeConfig.content.faqs, ...taxConfig.content.faqs.slice(0, 2)])
       );
     } else if (slug.length === 2) {
-      const calculator = getCalculatorBySlug(marketCode, slug[1]);
-      if (calculator && pageSeo) {
+      const toolSlug = slug[1];
+      const calculator = getCalculatorBySlug(marketCode, toolSlug);
+      const generator = getCodeGeneratorBySlug(marketCode, toolSlug);
+      const tool = calculator ?? generator;
+      if (tool && pageSeo) {
         schemas.push(
           getWebApplicationSchema({
-            name: calculator.title,
-            description: calculator.shortDescription,
+            name: tool.title,
+            description: tool.shortDescription,
             url: `${SITE_URL}${pageSeo.path}`,
-            locale: taxConfig.locale,
+            locale: codeConfig.locale,
             offers: { price: '0', priceCurrency: taxConfig.currency },
           }),
-          getFAQSchema(taxConfig.content.faqs)
+          getFAQSchema(calculator ? taxConfig.content.faqs : codeConfig.content.faqs)
         );
       }
     }
