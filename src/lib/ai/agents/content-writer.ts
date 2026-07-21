@@ -1,7 +1,7 @@
 import { desc, eq } from 'drizzle-orm';
 import { deepseekService } from '../services/deepseek-service';
 import { getWriterPrompt } from './prompts';
-import { findSimilarPublishedArticle } from '../research-engine/topic-dedup';
+import { findSimilarPublishedArticle, findArticleBySourceTopic, normalizeTopicKey } from '../research-engine/topic-dedup';
 import { searchKnowledge } from '../research-engine/knowledge-storage';
 import { getCountryConfig } from '../countries';
 import { logAiEvent } from '../logger';
@@ -84,6 +84,18 @@ export async function runContentWriterAgent(ctx: AgentContext): Promise<number |
       );
     }
 
+    if (ctx.topic) {
+      const existingByTopic = findArticleBySourceTopic(ctx.countryCode, ctx.topic);
+      if (existingByTopic) {
+        logAiEvent('content_writer', `Artigo já existe para tópico: ${ctx.topic}`, {
+          countryCode: ctx.countryCode,
+          metadata: { articleId: existingByTopic.id, skipped: true },
+        });
+        completeTask(taskId, 'content_writer', { articleId: existingByTopic.id, skipped: true });
+        return existingByTopic.id;
+      }
+    }
+
     const knowledgeData = entries.map((e) => ({
       title: e.title,
       category: e.category,
@@ -128,34 +140,48 @@ export async function runContentWriterAgent(ctx: AgentContext): Promise<number |
       );
     }
 
+    const sourceTopic = ctx.topic ? normalizeTopicKey(ctx.topic) : null;
+
     let articleId: number | null = null;
 
     if (!ctx.dryRun) {
-      const result = db
-        .insert(contentArticles)
-        .values({
-          countryCode: ctx.countryCode,
-          knowledgeIds,
-          title: article.title,
-          slug,
-          excerpt: article.excerpt,
-          introduction: article.introduction,
-          content: contentParagraphs,
-          faq: article.faq,
-          conclusion: article.conclusion,
-          cta: article.cta,
-          category,
-          author: `Équipe ZYVO ${config.countryName}`,
-          language: config.language,
-          readTime: article.readTime,
-          status: ctx.saveAsDraft ? 'pending_review' : 'draft',
-          taskId,
-          createdAt: timestamp,
-          updatedAt: timestamp,
-        })
-        .run();
+      try {
+        const result = db
+          .insert(contentArticles)
+          .values({
+            countryCode: ctx.countryCode,
+            knowledgeIds,
+            title: article.title,
+            slug,
+            excerpt: article.excerpt,
+            introduction: article.introduction,
+            content: contentParagraphs,
+            faq: article.faq,
+            conclusion: article.conclusion,
+            cta: article.cta,
+            category,
+            author: `Équipe ZYVO ${config.countryName}`,
+            language: config.language,
+            readTime: article.readTime,
+            status: ctx.saveAsDraft ? 'pending_review' : 'draft',
+            sourceTopic,
+            taskId,
+            createdAt: timestamp,
+            updatedAt: timestamp,
+          })
+          .run();
 
-      articleId = Number(result.lastInsertRowid);
+        articleId = Number(result.lastInsertRowid);
+      } catch (insertError) {
+        if (ctx.topic) {
+          const existing = findArticleBySourceTopic(ctx.countryCode, ctx.topic);
+          if (existing) {
+            completeTask(taskId, 'content_writer', { articleId: existing.id, skipped: true });
+            return existing.id;
+          }
+        }
+        throw insertError;
+      }
     }
 
     completeTask(taskId, 'content_writer', {

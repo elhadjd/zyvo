@@ -9,10 +9,10 @@ import { completeJob, failJob, getNextPendingJob, markJobProcessing } from './qu
 import { logAiEvent } from '../logger';
 import type { AgentContext, JobType, SupportedCountry } from '../types';
 
-const JOB_HANDLERS: Record<
+const JOB_HANDLERS: Partial<Record<
   JobType,
   (ctx: AgentContext) => Promise<unknown>
-> = {
+>> = {
   research_content: (ctx) => runResearchAgent(ctx),
   organize_knowledge: (ctx) => runKnowledgeOrganizerAgent(ctx),
   generate_article: (ctx) => runContentWriterAgent(ctx),

@@ -1,89 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Loader2, Play, FileText, Globe, CheckSquare, Square } from 'lucide-react';
 import Link from 'next/link';
 import { COUNTRY_LABELS, SITE_AI_COUNTRY_OPTIONS } from '@/lib/ai/country-labels';
 
-const PIPELINE_STEPS = [
-  'research',
-  'knowledge_organizer',
-  'content_writer',
-  'seo_optimizer',
-  'fact_checker',
-  'editor',
-  'publisher',
-] as const;
-
-interface TopicItem {
-  topic: string;
-  category?: string;
-  niche?: string;
-}
-
-interface BatchJobResult {
+interface BatchJobView {
+  jobId: number;
   countryCode: string;
   topic: string;
-  success: boolean;
-  result: {
-    articleId?: number;
-    stages?: Record<string, { success: boolean; error?: string }>;
-  };
+  status: string;
+  success?: boolean;
+  articleId?: number;
+  error?: string;
 }
 
-async function postPipeline(body: Record<string, unknown>, retries = 2) {
-  let lastError: Error | null = null;
-
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      const res = await fetch('/api/admin/ai-content/run-pipeline', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-
-      let data: Record<string, unknown> = {};
-      try {
-        data = await res.json();
-      } catch {
-        if (res.status === 504 || res.status === 502 || res.status === 503) {
-          lastError = new Error(`Erro HTTP ${res.status} — servidor demorou demasiado. A tentar novamente…`);
-          if (attempt < retries) {
-            await new Promise((resolve) => setTimeout(resolve, 2000 * (attempt + 1)));
-            continue;
-          }
-          throw lastError;
-        }
-        throw new Error(res.ok ? 'Resposta inválida do servidor' : `Erro HTTP ${res.status}`);
-      }
-
-      if (!res.ok) {
-        if ((res.status === 504 || res.status === 502 || res.status === 503) && attempt < retries) {
-          lastError = new Error(String(data.error ?? `Erro HTTP ${res.status}`));
-          await new Promise((resolve) => setTimeout(resolve, 2000 * (attempt + 1)));
-          continue;
-        }
-        throw new Error(String(data.error ?? `Erro HTTP ${res.status}`));
-      }
-
-      return data;
-    } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
-      if (attempt < retries) {
-        await new Promise((resolve) => setTimeout(resolve, 2000 * (attempt + 1)));
-        continue;
-      }
-      throw lastError;
-    }
-  }
-
-  throw lastError ?? new Error('Falha no pedido');
+interface BatchStatusView {
+  id: number;
+  status: string;
+  phase: string;
+  totalJobs: number;
+  completedJobs: number;
+  succeededJobs: number;
+  failedJobs: number;
+  jobs: BatchJobView[];
+  error?: string | null;
+  message?: string;
 }
 
-function pipelineSucceeded(result: BatchJobResult['result']): boolean {
-  const stages = result.stages ?? {};
-  return Object.values(stages).every((stage) => !stage || stage.success);
-}
+const POLL_INTERVAL_MS = 3000;
 
 export default function CreateArticlePage() {
   const [selectedCountries, setSelectedCountries] = useState<string[]>(['gn', 'sn', 'ci']);
@@ -92,9 +37,88 @@ export default function CreateArticlePage() {
   const [articlesPerCountry, setArticlesPerCountry] = useState(1);
   const [publishNow, setPublishNow] = useState(true);
   const [running, setRunning] = useState(false);
-  const [progressLabel, setProgressLabel] = useState<string | null>(null);
+  const [batchId, setBatchId] = useState<number | null>(null);
+  const [batchStatus, setBatchStatus] = useState<BatchStatusView | null>(null);
   const [summary, setSummary] = useState<string | null>(null);
-  const [batchResults, setBatchResults] = useState<BatchJobResult[]>([]);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const activeCountries = allCountries
+    ? SITE_AI_COUNTRY_OPTIONS.map((c) => c.code)
+    : selectedCountries;
+
+  const totalArticles = activeCountries.length * Math.max(1, Math.min(5, articlesPerCountry));
+
+  const stopPolling = useCallback(() => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  }, []);
+
+  const refreshBatch = useCallback(async (id: number, tick = true) => {
+    if (tick) {
+      const tickRes = await fetch('/api/admin/ai-content/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'tick', batchId: id }),
+      });
+      if (tickRes.ok) {
+        const data = (await tickRes.json()) as BatchStatusView;
+        setBatchStatus(data);
+        return data;
+      }
+    }
+
+    const res = await fetch(`/api/admin/ai-content/batch?id=${id}`);
+    if (!res.ok) return null;
+    const data = (await res.json()) as BatchStatusView;
+    setBatchStatus(data);
+    return data;
+  }, []);
+
+  const startPolling = useCallback(
+    (id: number) => {
+      stopPolling();
+      setRunning(true);
+      setBatchId(id);
+
+      void refreshBatch(id, true);
+
+      pollRef.current = setInterval(() => {
+        void refreshBatch(id, true).then((data) => {
+          if (!data) return;
+          if (data.status === 'completed' || data.status === 'failed') {
+            stopPolling();
+            setRunning(false);
+            setSummary(
+              data.status === 'completed'
+                ? `${data.succeededJobs}/${data.totalJobs} artigo(s) gerado(s) em segundo plano`
+                : `Batch terminou com erros: ${data.succeededJobs}/${data.totalJobs} sucesso, ${data.failedJobs} falha(s)`
+            );
+          }
+        });
+      }, POLL_INTERVAL_MS);
+    },
+    [refreshBatch, stopPolling]
+  );
+
+  useEffect(() => {
+    async function resumeActiveBatch() {
+      try {
+        const res = await fetch('/api/admin/ai-content/batch');
+        if (!res.ok) return;
+        const data = (await res.json()) as BatchStatusView;
+        if (data?.id && (data.status === 'pending' || data.status === 'running')) {
+          startPolling(data.id);
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    void resumeActiveBatch();
+    return () => stopPolling();
+  }, [startPolling, stopPolling]);
 
   function toggleCountry(code: string) {
     if (allCountries) {
@@ -115,94 +139,51 @@ export default function CreateArticlePage() {
   async function runPipeline() {
     const countries = allCountries ? SITE_AI_COUNTRY_OPTIONS.map((c) => c.code) : selectedCountries;
     const perCountry = Math.max(1, Math.min(5, articlesPerCountry));
-    const totalArticles = countries.length * perCountry;
 
     if (countries.length === 0) {
       setSummary('Seleccione pelo menos um país.');
       return;
     }
 
-    setRunning(true);
     setSummary(null);
-    setBatchResults([]);
-    setProgressLabel('A preparar geração…');
-
-    const results: BatchJobResult[] = [];
-    let completed = 0;
+    setBatchStatus(null);
 
     try {
-      for (const countryCode of countries) {
-        const label = COUNTRY_LABELS[countryCode] ?? countryCode.toUpperCase();
-        setProgressLabel(`A pesquisar tópicos para ${label}…`);
-
-        const topicData = await postPipeline({
-          action: 'resolve_topics',
-          countryCode,
-          articlesPerCountry: perCountry,
+      const res = await fetch('/api/admin/ai-content/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'start',
+          allCountries,
+          countryCodes: countries,
           topic: topic.trim() || undefined,
+          articlesPerCountry: perCountry,
+          publishNow,
           recentDays: 14,
-        });
+        }),
+      });
 
-        const topics = (topicData.topics ?? []) as TopicItem[];
-        if (topics.length === 0) {
-          throw new Error(`Nenhum tópico encontrado para ${label}. Tente um tema manual.`);
-        }
-
-        for (const item of topics) {
-          completed += 1;
-          setProgressLabel(
-            `A gerar artigo ${completed}/${totalArticles} (${label}): ${item.topic.slice(0, 60)}${item.topic.length > 60 ? '…' : ''}`
-          );
-
-          const pipelineResult = (await postPipeline({
-            action: 'pipeline',
-            countryCode,
-            topic: item.topic,
-            targetCategory: item.category,
-            skipTopicDiscovery: true,
-            publishNow,
-            saveAsDraft: !publishNow,
-            stages: [...PIPELINE_STEPS],
-          })) as BatchJobResult['result'];
-
-          const job: BatchJobResult = {
-            countryCode,
-            topic: item.topic,
-            result: pipelineResult,
-            success: pipelineSucceeded(pipelineResult),
-          };
-
-          results.push(job);
-          setBatchResults([...results]);
-        }
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(String(data.error ?? `Erro HTTP ${res.status}`));
       }
 
-      const published = results.filter((job) => job.success).length;
-      setSummary(
-        `${published}/${results.length} artigo(s) gerado(s) (pedido: ${totalArticles}) — ${countries.map((c) => COUNTRY_LABELS[c] ?? c).join(', ')}`
-      );
+      setSummary('Geração iniciada em segundo plano. Pode fechar esta página — o progresso continua automaticamente.');
+      startPolling(Number(data.batchId));
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Falha no pipeline';
-      const partial = results.filter((job) => job.success).length;
-      setSummary(
-        results.length > 0
-          ? `Erro após ${partial}/${results.length} artigo(s): ${message}`
-          : `Erro: ${message}`
-      );
-      if (results.length > 0) {
-        setBatchResults([...results]);
-      }
-    } finally {
+      const message = error instanceof Error ? error.message : 'Falha ao iniciar batch';
+      setSummary(`Erro: ${message}`);
       setRunning(false);
-      setProgressLabel(null);
     }
   }
 
-  const activeCountries = allCountries
-    ? SITE_AI_COUNTRY_OPTIONS.map((c) => c.code)
-    : selectedCountries;
+  const progressLabel = batchStatus
+    ? batchStatus.phase === 'prepare'
+      ? `A preparar tópicos… (${batchStatus.completedJobs}/${batchStatus.totalJobs || '?'})`
+      : `A gerar artigos em segundo plano… (${batchStatus.completedJobs}/${batchStatus.totalJobs})`
+    : null;
 
-  const totalArticles = activeCountries.length * Math.max(1, Math.min(5, articlesPerCountry));
+  const batchJobs = batchStatus?.jobs ?? [];
 
   return (
     <div className="p-8 max-w-4xl">
@@ -211,7 +192,7 @@ export default function CreateArticlePage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Criar artigos reais</h1>
           <p className="text-gray-500">
-            Um ou vários países — tópicos do Google quando o campo está vazio
+            Geração em segundo plano — pode fechar a página enquanto corre
           </p>
         </div>
       </div>
@@ -236,6 +217,7 @@ export default function CreateArticlePage() {
                   key={opt.code}
                   type="button"
                   onClick={() => toggleCountry(opt.code)}
+                  disabled={running}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm transition-colors ${
                     checked
                       ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
@@ -258,16 +240,14 @@ export default function CreateArticlePage() {
               min={1}
               max={5}
               value={articlesPerCountry}
+              disabled={running}
               onChange={(e) => setArticlesPerCountry(Math.min(5, Math.max(1, Number(e.target.value) || 1)))}
               className="w-full px-3 py-2 border rounded-lg dark:bg-gray-950 dark:border-gray-700"
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Cada artigo usa um nicho diferente: fiscalité, marketing, IA, ventes, gestion… (máx. 5 por país)
-            </p>
           </div>
           <div className="flex items-end">
             <p className="text-sm text-gray-600 dark:text-gray-400 pb-2">
-              Total: <strong>{totalArticles}</strong> artigo(s), um de cada vez
+              Total: <strong>{totalArticles}</strong> artigo(s) em fila
             </p>
           </div>
         </div>
@@ -277,19 +257,18 @@ export default function CreateArticlePage() {
           <input
             type="text"
             value={topic}
+            disabled={running}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="Ex: Comment gérer le stock d'une boutique à Dakar"
             className="w-full px-3 py-2 border rounded-lg dark:bg-gray-950 dark:border-gray-700"
           />
-          <p className="text-xs text-gray-500 mt-1">
-            Vazio = Google Suggest + tendências por nicho (fiscalité, marketing, IA, e-commerce…), excluindo duplicados recentes
-          </p>
         </div>
 
         <label className="flex items-center gap-3 cursor-pointer">
           <input
             type="checkbox"
             checked={publishNow}
+            disabled={running}
             onChange={(e) => setPublishNow(e.target.checked)}
             className="rounded border-gray-300"
           />
@@ -307,14 +286,16 @@ export default function CreateArticlePage() {
       >
         {running ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5" />}
         {running
-          ? progressLabel ?? `A gerar ${totalArticles} artigo(s)…`
+          ? progressLabel ?? 'A processar em segundo plano…'
           : publishNow
             ? `Gerar e publicar ${totalArticles} artigo(s)`
             : `Gerar ${totalArticles} rascunho(s)`}
       </button>
 
-      {running && progressLabel && (
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-8">{progressLabel}</p>
+      {running && batchId && (
+        <p className="text-sm text-blue-600 dark:text-blue-400 mb-4">
+          Batch #{batchId} em execução — pode fechar esta página. O cron continua o processamento.
+        </p>
       )}
 
       {summary && (
@@ -329,44 +310,50 @@ export default function CreateArticlePage() {
         </div>
       )}
 
-      {batchResults.length > 0 && (
+      {batchJobs.length > 0 && (
         <div className="space-y-3 mb-8">
-          <h2 className="font-semibold">Resultados ({batchResults.length})</h2>
-          {batchResults.map((job, index) => {
+          <h2 className="font-semibold">
+            Resultados ({batchStatus?.succeededJobs ?? 0}/{batchStatus?.totalJobs ?? batchJobs.length})
+          </h2>
+          {batchJobs.map((job) => {
             const label = COUNTRY_LABELS[job.countryCode] ?? job.countryCode.toUpperCase();
-            const articleId = job.result.articleId;
-            const published = job.result.stages?.publisher?.success;
+            const done = job.status === 'completed';
+            const runningJob = job.status === 'processing' || job.status === 'pending';
 
             return (
               <div
-                key={`${job.countryCode}-${job.topic}-${index}`}
+                key={job.jobId}
                 className="border rounded-xl p-4 bg-white dark:bg-gray-900"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="font-medium text-sm">
-                      {label} · {job.success ? '✓' : '✗'}
+                      {label} ·{' '}
+                      {runningJob && !done ? (
+                        <span className="text-blue-600">em curso…</span>
+                      ) : job.success ? (
+                        '✓'
+                      ) : done ? (
+                        '✗'
+                      ) : (
+                        '…'
+                      )}
                     </p>
                     <p className="text-xs text-gray-500 mt-1 line-clamp-2">{job.topic}</p>
-                    {!job.success && job.result.stages && (
-                      <p className="text-xs text-red-600 mt-1">
-                        {Object.entries(job.result.stages)
-                          .filter(([, stage]) => stage && !stage.success)
-                          .map(([name, stage]) => `${name}: ${stage?.error ?? 'falhou'}`)
-                          .join(' · ')}
-                      </p>
+                    {job.error && (
+                      <p className="text-xs text-red-600 mt-1">{job.error}</p>
                     )}
                   </div>
                   <div className="flex gap-2 shrink-0">
-                    {articleId && (
+                    {job.articleId && (
                       <Link
-                        href={`/admin/ai-engine/articles/${articleId}`}
+                        href={`/admin/ai-engine/articles/${job.articleId}`}
                         className="text-xs underline"
                       >
-                        #{articleId}
+                        #{job.articleId}
                       </Link>
                     )}
-                    {publishNow && published && (
+                    {publishNow && job.success && (
                       <a
                         href={`/${job.countryCode}/blog`}
                         target="_blank"
@@ -387,8 +374,9 @@ export default function CreateArticlePage() {
       <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg text-sm text-gray-600 dark:text-gray-400">
         <p className="font-medium mb-2">Como funciona:</p>
         <ul className="list-disc list-inside space-y-1">
-          <li>Sem tema: consulta Google Suggest por país e ignora tópicos já publicados (14 dias)</li>
-          <li>Cada artigo é gerado num pedido separado — evita timeouts e mostra progresso em tempo real</li>
+          <li>A geração corre em segundo plano — sem timeouts no browser</li>
+          <li>Cada tópico só pode gerar um artigo (protecção anti-duplicado)</li>
+          <li>O cron <code>/api/cron/batch-pipeline</code> continua batches mesmo com a página fechada</li>
           <li><code>DEEPSEEK_API_KEY</code> obrigatório no ambiente</li>
         </ul>
       </div>

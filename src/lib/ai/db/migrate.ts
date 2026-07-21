@@ -493,6 +493,27 @@ export function runMigrations(dbPath = process.env.DATABASE_PATH ?? DEFAULT_DB_P
     'ALTER TABLE content_articles ADD COLUMN hero_image_url TEXT',
     'ALTER TABLE content_articles ADD COLUMN hero_image_alt TEXT',
     'ALTER TABLE content_articles ADD COLUMN hero_image_credit TEXT',
+    'ALTER TABLE content_articles ADD COLUMN source_topic TEXT',
+    `CREATE TABLE IF NOT EXISTS ai_batch_runs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      status TEXT NOT NULL DEFAULT 'pending',
+      phase TEXT NOT NULL DEFAULT 'prepare',
+      config TEXT,
+      prepared_countries TEXT NOT NULL DEFAULT '[]',
+      total_jobs INTEGER NOT NULL DEFAULT 0,
+      completed_jobs INTEGER NOT NULL DEFAULT 0,
+      succeeded_jobs INTEGER NOT NULL DEFAULT 0,
+      failed_jobs INTEGER NOT NULL DEFAULT 0,
+      error TEXT,
+      created_at TEXT NOT NULL,
+      started_at TEXT,
+      completed_at TEXT
+    )`,
+    'ALTER TABLE ai_jobs ADD COLUMN batch_id INTEGER REFERENCES ai_batch_runs(id)',
+    'ALTER TABLE ai_jobs ADD COLUMN idempotency_key TEXT',
+    'CREATE UNIQUE INDEX IF NOT EXISTS idx_content_articles_source_topic ON content_articles(country_code, source_topic) WHERE source_topic IS NOT NULL',
+    'CREATE INDEX IF NOT EXISTS idx_ai_jobs_batch_id ON ai_jobs(batch_id)',
+    'CREATE UNIQUE INDEX IF NOT EXISTS idx_ai_jobs_idempotency ON ai_jobs(batch_id, idempotency_key) WHERE idempotency_key IS NOT NULL',
   ];
 
   for (const sql of migrations) {

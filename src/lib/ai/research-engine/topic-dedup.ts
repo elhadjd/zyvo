@@ -1,4 +1,4 @@
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, and } from 'drizzle-orm';
 import { getDb } from '../db';
 import { contentArticles, seoMetadata } from '../db/schema';
 import type { SupportedCountry } from '../types';
@@ -221,6 +221,33 @@ export function getRecentArticleTopics(
   return getPublishedArticleCorpus(countryCode)
     .filter((article) => article.createdAt >= cutoff)
     .flatMap((article) => [article.title, article.excerpt, article.keywords]);
+}
+
+export function normalizeTopicKey(topic: string): string {
+  return normalizeText(topic);
+}
+
+export function topicFingerprint(countryCode: string, topic: string): string {
+  return `${countryCode}:${normalizeText(topic)}`;
+}
+
+export function findArticleBySourceTopic(
+  countryCode: SupportedCountry,
+  topic: string
+): { id: number; title: string; slug: string } | undefined {
+  const fingerprint = normalizeText(topic);
+  if (!fingerprint) return undefined;
+
+  const db = getDb();
+  return db
+    .select({
+      id: contentArticles.id,
+      title: contentArticles.title,
+      slug: contentArticles.slug,
+    })
+    .from(contentArticles)
+    .where(and(eq(contentArticles.countryCode, countryCode), eq(contentArticles.sourceTopic, fingerprint)))
+    .get();
 }
 
 export function findSimilarPublishedArticle(
