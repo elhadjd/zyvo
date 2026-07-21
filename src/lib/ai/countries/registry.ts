@@ -43,6 +43,16 @@ export function getEnabledCountryCodes(): SupportedCountry[] {
   return getConfiguredCountryCodes().filter((code) => isCountryEnabled(code));
 }
 
+export function getArticlesPerDay(countryCode: SupportedCountry): number {
+  const dbConfig = getCountryDbConfig(countryCode);
+  return Math.max(1, Math.min(dbConfig?.articlesPerDay ?? 1, 5));
+}
+
+export function getMaxArticlesPerDay(countryCodes: SupportedCountry[]): number {
+  if (countryCodes.length === 0) return 1;
+  return Math.max(...countryCodes.map((code) => getArticlesPerDay(code)));
+}
+
 export function getNextTopicForCountry(countryCode: SupportedCountry): string | undefined {
   const config = COUNTRY_AI_CONFIGS.find((c) => c.countryCode === countryCode);
   if (!config || config.topics.length === 0) return undefined;

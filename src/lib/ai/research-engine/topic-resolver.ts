@@ -1,12 +1,21 @@
-import { desc, eq } from 'drizzle-orm';
-import { getDb } from '../db';
-import { contentArticles, seoMetadata } from '../db/schema';
 import { getCountryConfig } from '../countries';
 import { getNextTopicForCountry } from '../countries/registry';
-import { getTopKeywords } from '../growth-analytics/integrations/google-search-console';
+import {
+  clearSearchConsoleMetrics,
+  fetchSearchConsoleData,
+  getSearchConsoleMetrics,
+  getTopKeywords,
+  isSearchConsoleConfigured,
+  saveSearchConsoleMetrics,
+} from '../growth-analytics/integrations/google-search-console';
 import { getContentOpportunities } from './opportunity-finder';
 import { analyzeTrends } from './trend-analyzer';
 import { logResearchEvent } from './research-logger';
+import {
+  DEFAULT_RECENT_DAYS,
+  filterUniqueTopics,
+  wasTopicAlreadyCovered,
+} from './topic-dedup';
 import type { SupportedCountry } from '../types';
 import {
   CONTENT_NICHES,
@@ -17,9 +26,6 @@ import {
   type ContentNiche,
   type DiverseTopicResult,
 } from './topic-niches';
-
-const DEFAULT_RECENT_DAYS = 14;
-const SIMILARITY_THRESHOLD = 0.5;
 
 const COUNTRY_GOOGLE_GEO: Partial<Record<SupportedCountry, string>> = {
   gn: 'GN',
@@ -44,6 +50,9 @@ const SEED_QUERIES: Partial<Record<SupportedCountry, string[]>> = {
     'vendre en ligne guinée',
     'intelligence artificielle PME guinée',
     'développer entreprise conakry',
+    'paiement impôts en ligne guinée',
+    'facture électronique guinée',
+    'salaire net guinée calcul',
   ],
   sn: [
     'gestion PME dakar',
@@ -59,6 +68,9 @@ const SEED_QUERIES: Partial<Record<SupportedCountry, string[]>> = {
     'vendre en ligne dakar',
     'intelligence artificielle PME sénégal',
     'expansion entreprise dakar',
+    'déclaration TVA en ligne sénégal',
+    'facture proforma sénégal',
+    'gestion stock superette dakar',
   ],
   ci: [
     'gestion PME abidjan',
@@ -74,6 +86,9 @@ const SEED_QUERIES: Partial<Record<SupportedCountry, string[]>> = {
     'e-commerce PME abidjan',
     'intelligence artificielle entreprises CI',
     'croissance PME abidjan',
+    'déclaration fiscale en ligne côte ivoire',
+    'facture FNE côte ivoire',
+    'gestion restaurant abidjan',
   ],
   ao: [
     'criar empresa angola',
@@ -86,6 +101,8 @@ const SEED_QUERIES: Partial<Record<SupportedCountry, string[]>> = {
     'vender online angola',
     'inteligência artificial empresas angola',
     'crescer negócio luanda',
+    'facturação electrónica angola',
+    'gestão stock loja luanda',
   ],
   mz: [
     'criar empresa moçambique',
@@ -97,59 +114,38 @@ const SEED_QUERIES: Partial<Record<SupportedCountry, string[]>> = {
     'vender online moçambique',
     'inteligência artificial PME moçambique',
     'expansão negócio maputo',
+    'facturação electrónica moçambique',
+    'gestão stock loja maputo',
   ],
 };
 
 const BUSINESS_HINTS = [
-  'entreprise',
-  'entreprises',
-  'pme',
-  'gestion',
-  'fiscal',
-  'fiscalité',
-  'fiscalidade',
-  'commerce',
-  'comercial',
-  'marketing',
-  'digital',
-  'logiciel',
-  'software',
-  'caisse',
-  'pos',
-  'stock',
-  'tva',
-  'iva',
-  'impôt',
-  'imposto',
-  'créer',
-  'criar',
-  'entrepreneur',
-  'boutique',
-  'restaurant',
-  'orange',
-  'wave',
-  'money',
-  'syscohada',
-  'ohada',
-  'ninea',
-  'rccm',
-  'facebook',
-  'instagram',
-  'whatsapp',
-  'e-commerce',
-  'ecommerce',
-  'intelligence',
-  'artificielle',
-  'artificial',
-  'croissance',
-  'crescimento',
-  'expansion',
-  'expansão',
-  'publicité',
-  'publicidade',
-  'vendre',
-  'vender',
+  'entreprise', 'entreprises', 'pme', 'gestion', 'fiscal', 'fiscalité', 'fiscalidade',
+  'commerce', 'comercial', 'marketing', 'digital', 'logiciel', 'software', 'caisse', 'pos',
+  'stock', 'tva', 'iva', 'impôt', 'imposto', 'créer', 'criar', 'entrepreneur', 'boutique',
+  'restaurant', 'orange', 'wave', 'money', 'syscohada', 'ohada', 'ninea', 'rccm', 'facebook',
+  'instagram', 'whatsapp', 'e-commerce', 'ecommerce', 'intelligence', 'artificielle',
+  'artificial', 'croissance', 'crescimento', 'expansion', 'expansão', 'publicité',
+  'publicidade', 'vendre', 'vender', 'facture', 'factura', 'déclaration', 'salaire',
 ];
+
+type CandidateSource = 'gsc' | 'google' | 'trend' | 'opportunity' | 'calendar' | 'config' | 'niche';
+
+interface ScoredCandidate {
+  topic: string;
+  score: number;
+  source: CandidateSource;
+}
+
+const SOURCE_WEIGHT: Record<CandidateSource, number> = {
+  gsc: 100,
+  google: 92,
+  trend: 86,
+  opportunity: 78,
+  calendar: 28,
+  config: 24,
+  niche: 18,
+};
 
 function normalizeText(value: string): string {
   return value
@@ -161,88 +157,9 @@ function normalizeText(value: string): string {
     .trim();
 }
 
-function tokenize(value: string): Set<string> {
-  return new Set(
-    normalizeText(value)
-      .split(' ')
-      .filter((w) => w.length > 3)
-  );
-}
-
-export function topicSimilarity(a: string, b: string): number {
-  const wordsA = tokenize(a);
-  const wordsB = tokenize(b);
-  if (wordsA.size === 0 || wordsB.size === 0) return 0;
-
-  let overlap = 0;
-  for (const word of wordsA) {
-    if (wordsB.has(word)) overlap++;
-  }
-  return overlap / Math.max(wordsA.size, wordsB.size);
-}
-
 function isBusinessRelevant(topic: string): boolean {
   const normalized = normalizeText(topic);
   return BUSINESS_HINTS.some((hint) => normalized.includes(hint));
-}
-
-function daysAgoIso(days: number): string {
-  const date = new Date();
-  date.setDate(date.getDate() - days);
-  return date.toISOString();
-}
-
-export function getRecentArticleTopics(
-  countryCode: SupportedCountry,
-  recentDays = DEFAULT_RECENT_DAYS
-): string[] {
-  const db = getDb();
-  const cutoff = daysAgoIso(recentDays);
-
-  const articles = db
-    .select()
-    .from(contentArticles)
-    .orderBy(desc(contentArticles.createdAt))
-    .all()
-    .filter((a) => a.countryCode === countryCode && a.createdAt >= cutoff);
-
-  const topics: string[] = [];
-  for (const article of articles) {
-    topics.push(article.title, article.excerpt);
-
-    const seo = db
-      .select()
-      .from(seoMetadata)
-      .where(eq(seoMetadata.articleId, article.id))
-      .get();
-    if (seo?.keywords) topics.push(seo.keywords);
-  }
-
-  return topics;
-}
-
-export function wasTopicPublishedRecently(
-  countryCode: SupportedCountry,
-  topic: string,
-  recentDays = DEFAULT_RECENT_DAYS
-): boolean {
-  const normalizedTopic = normalizeText(topic);
-  if (!normalizedTopic) return false;
-
-  const recentTopics = getRecentArticleTopics(countryCode, recentDays);
-
-  return recentTopics.some((existing) => {
-    const normalizedExisting = normalizeText(existing);
-    if (!normalizedExisting) return false;
-    if (normalizedExisting.includes(normalizedTopic) || normalizedTopic.includes(normalizedExisting)) {
-      return true;
-    }
-    const topicPrefix = normalizedTopic.slice(0, Math.min(16, normalizedTopic.length));
-    if (topicPrefix.length >= 8 && normalizedExisting.includes(topicPrefix)) {
-      return true;
-    }
-    return topicSimilarity(topic, existing) >= SIMILARITY_THRESHOLD;
-  });
 }
 
 async function fetchGoogleSuggestions(query: string, geo?: string, language = 'fr'): Promise<string[]> {
@@ -279,11 +196,14 @@ export async function fetchGoogleTrendingQueries(countryCode: SupportedCountry):
   const config = getCountryConfig(countryCode);
   const geo = COUNTRY_GOOGLE_GEO[countryCode];
   const language = config?.language ?? 'fr';
-  const seeds = SEED_QUERIES[countryCode] ?? config?.topics ?? [];
+
+  const gscSeeds = getTopKeywords(countryCode, 6).map((row) => row.keyword);
+  const staticSeeds = SEED_QUERIES[countryCode] ?? config?.topics ?? [];
+  const seeds = [...new Set([...gscSeeds, ...staticSeeds])];
 
   const suggestions = new Set<string>();
 
-  for (const seed of seeds.slice(0, 8)) {
+  for (const seed of seeds.slice(0, 12)) {
     const results = await fetchGoogleSuggestions(seed, geo, language);
     for (const item of results) {
       if (item.length >= 8 && item.length <= 120) {
@@ -297,65 +217,126 @@ export async function fetchGoogleTrendingQueries(countryCode: SupportedCountry):
     'topic_resolver',
     'google_suggest',
     `${suggestions.size} sugestões Google recolhidas`,
-    { metadata: { count: suggestions.size } }
+    { metadata: { count: suggestions.size, gscSeeds: gscSeeds.length } }
   );
 
   return [...suggestions];
 }
 
-async function collectTopicCandidates(countryCode: SupportedCountry): Promise<string[]> {
+async function ensureFreshGscKeywords(countryCode: SupportedCountry): Promise<void> {
+  if (!isSearchConsoleConfigured()) return;
+
+  const recent = getSearchConsoleMetrics(countryCode, 2);
+  if (recent.length > 0) return;
+
+  try {
+    const rows = await fetchSearchConsoleData(countryCode);
+    if (rows.length === 0) return;
+
+    clearSearchConsoleMetrics(countryCode);
+    saveSearchConsoleMetrics(rows);
+
+    logResearchEvent(
+      countryCode,
+      'topic_resolver',
+      'gsc_refresh',
+      `${rows.length} keywords GSC actualizados`,
+      { metadata: { count: rows.length } }
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Erro GSC';
+    logResearchEvent(countryCode, 'topic_resolver', 'gsc_refresh_error', message, {
+      level: 'warn',
+    });
+  }
+}
+
+function addCandidate(
+  map: Map<string, ScoredCandidate>,
+  topic: string,
+  source: CandidateSource,
+  bonus = 0
+): void {
+  const trimmed = topic.trim();
+  const key = normalizeText(trimmed);
+  if (!key || key.length < 6) return;
+
+  const score = SOURCE_WEIGHT[source] + bonus + (isBusinessRelevant(trimmed) ? 8 : 0);
+  const existing = map.get(key);
+  if (!existing || score > existing.score) {
+    map.set(key, { topic: trimmed, score, source });
+  }
+}
+
+async function collectScoredCandidates(countryCode: SupportedCountry): Promise<ScoredCandidate[]> {
   const config = getCountryConfig(countryCode);
-  const candidates: string[] = [];
+  const map = new Map<string, ScoredCandidate>();
+
+  await ensureFreshGscKeywords(countryCode);
+
+  for (const row of getTopKeywords(countryCode, 20)) {
+    addCandidate(map, row.keyword, 'gsc', Math.min(20, Math.round(row.clicks / 2)));
+  }
 
   const googleQueries = await fetchGoogleTrendingQueries(countryCode);
-  candidates.push(...googleQueries);
-
-  for (const row of getTopKeywords(countryCode, 12)) {
-    candidates.push(row.keyword);
-  }
-
-  for (const opp of getContentOpportunities(countryCode, 15)) {
-    candidates.push(opp.topic);
-  }
-
-  if (config?.topics) {
-    candidates.push(...config.topics);
+  for (const query of googleQueries) {
+    addCandidate(map, query, 'google');
   }
 
   try {
     const trends = await analyzeTrends(countryCode);
     for (const trend of trends.trends) {
-      candidates.push(trend.topic);
+      const bonus = trend.growth === 'rising' ? 12 : trend.growth === 'stable' ? 4 : 0;
+      addCandidate(map, trend.topic, 'trend', bonus + Math.round(trend.relevance / 10));
     }
-    candidates.push(...trends.emergingTopics, ...trends.seasonalTopics);
+    for (const topic of [...trends.emergingTopics, ...trends.seasonalTopics]) {
+      addCandidate(map, topic, 'trend', 6);
+    }
   } catch {
     // trends optional
   }
 
-  const calendarTopic = getNextTopicForCountry(countryCode);
-  if (calendarTopic) candidates.push(calendarTopic);
-
-  const seen = new Set<string>();
-  const unique: string[] = [];
-
-  for (const raw of candidates) {
-    const topic = raw.trim();
-    const key = normalizeText(topic);
-    if (!key || key.length < 6 || seen.has(key)) continue;
-    seen.add(key);
-    unique.push(topic);
+  for (const opp of getContentOpportunities(countryCode, 20)) {
+    if (opp.status === 'used') continue;
+    addCandidate(map, opp.topic, 'opportunity', Math.round(opp.totalScore / 10));
   }
 
-  return unique;
+  const calendarTopic = getNextTopicForCountry(countryCode);
+  if (calendarTopic) addCandidate(map, calendarTopic, 'calendar');
+
+  if (config?.topics) {
+    for (const topic of config.topics) {
+      addCandidate(map, topic, 'config');
+    }
+  }
+
+  return [...map.values()].sort((a, b) => b.score - a.score);
+}
+
+function configFallbackTopics(
+  countryCode: SupportedCountry,
+  needed: number,
+  alreadyPicked: string[],
+  recentDays: number
+): string[] {
+  const nicheSeeds = getAllNicheSeedTopics(countryCode);
+  const config = getCountryConfig(countryCode);
+  const pool = [...nicheSeeds, ...(config?.topics ?? [])];
+
+  const filtered = filterUniqueTopics(countryCode, pool, {
+    recentDays,
+    exclude: new Set(alreadyPicked.map((topic) => normalizeText(topic))),
+  });
+
+  return filtered.slice(0, needed);
 }
 
 export async function resolveFreshTopics(
   countryCode: SupportedCountry,
   count: number,
-  options: { recentDays?: number; preferBusiness?: boolean } = {}
+  options: { recentDays?: number } = {}
 ): Promise<string[]> {
   const recentDays = options.recentDays ?? DEFAULT_RECENT_DAYS;
-  const preferBusiness = options.preferBusiness ?? true;
 
   logResearchEvent(
     countryCode,
@@ -365,67 +346,35 @@ export async function resolveFreshTopics(
     { metadata: { count, recentDays } }
   );
 
-  const candidates = await collectTopicCandidates(countryCode);
-  const fresh: string[] = [];
-
-  const ranked = preferBusiness
-    ? [
-        ...candidates.filter((c) => isBusinessRelevant(c)),
-        ...candidates.filter((c) => !isBusinessRelevant(c)),
-      ]
-    : candidates;
-
-  for (const topic of ranked) {
-    if (fresh.length >= count) break;
-    if (wasTopicPublishedRecently(countryCode, topic, recentDays)) continue;
-    fresh.push(topic);
-  }
+  const candidates = await collectScoredCandidates(countryCode);
+  const rankedTopics = candidates.map((candidate) => candidate.topic);
+  const fresh = filterUniqueTopics(countryCode, rankedTopics, { recentDays });
 
   if (fresh.length < count) {
     const extras = configFallbackTopics(countryCode, count - fresh.length, fresh, recentDays);
-    if (extras) fresh.push(...extras);
+    fresh.push(...extras);
   }
 
   logResearchEvent(
     countryCode,
     'topic_resolver',
     'resolve_complete',
-    `${fresh.length} tópico(s) seleccionados`,
-    { metadata: { topics: fresh } }
+    `${Math.min(fresh.length, count)} tópico(s) seleccionados`,
+    {
+      metadata: {
+        topics: fresh.slice(0, count),
+        sources: candidates.slice(0, 10).map((c) => ({ topic: c.topic, source: c.source, score: c.score })),
+      },
+    }
   );
 
   return fresh.slice(0, count);
-}
-
-function configFallbackTopics(
-  countryCode: SupportedCountry,
-  needed: number,
-  alreadyPicked: string[],
-  recentDays: number
-): string[] | null {
-  const config = getCountryConfig(countryCode);
-  if (!config) return null;
-
-  const extras: string[] = [];
-  const day = new Date().getDate();
-
-  for (let offset = 0; offset < config.topics.length && extras.length < needed; offset++) {
-    const topic = config.topics[(day + offset) % config.topics.length];
-    if (alreadyPicked.includes(topic)) continue;
-    if (extras.includes(topic)) continue;
-    if (wasTopicPublishedRecently(countryCode, topic, recentDays)) continue;
-    extras.push(topic);
-  }
-
-  return extras.length > 0 ? extras : null;
 }
 
 function groupCandidatesByNiche(
   candidates: string[],
   countryCode: SupportedCountry
 ): Map<ContentNiche, string[]> {
-  const config = getCountryConfig(countryCode);
-  const language = config?.language === 'pt' ? 'pt' : 'fr';
   const grouped = new Map<ContentNiche, string[]>();
 
   for (const niche of CONTENT_NICHES) {
@@ -438,21 +387,15 @@ function groupCandidatesByNiche(
   }
 
   for (const niche of CONTENT_NICHES) {
-    const seeds = getNicheSeedTopics(countryCode, niche);
-    const existing = grouped.get(niche)!;
-    for (const seed of seeds) {
-      if (!existing.includes(seed)) existing.push(seed);
+    const pool = grouped.get(niche)!;
+    if (pool.length === 0) {
+      pool.push(...getNicheSeedTopics(countryCode, niche));
     }
   }
 
-  void language;
   return grouped;
 }
 
-/**
- * Select diverse topics — one per content niche when possible.
- * E.g. 5 articles → fiscalité, marketing, IA, ventes, gestion (not 5 tax articles).
- */
 export async function resolveDiverseTopics(
   countryCode: SupportedCountry,
   count: number,
@@ -470,31 +413,25 @@ export async function resolveDiverseTopics(
     { metadata: { count, recentDays } }
   );
 
-  const candidates = await collectTopicCandidates(countryCode);
-  const nicheSeeds = getAllNicheSeedTopics(countryCode);
-  const allCandidates = [...new Set([...candidates, ...nicheSeeds])];
-
-  const ranked = [
-    ...allCandidates.filter((c) => isBusinessRelevant(c)),
-    ...allCandidates.filter((c) => !isBusinessRelevant(c)),
-  ];
-
-  const byNiche = groupCandidatesByNiche(ranked, countryCode);
+  const scored = await collectScoredCandidates(countryCode);
+  const rankedTopics = scored.map((candidate) => candidate.topic);
+  const byNiche = groupCandidatesByNiche(rankedTopics, countryCode);
   const picked: DiverseTopicResult[] = [];
   const usedTopics = new Set<string>();
-  const usedNiches = new Set<ContentNiche>();
 
-  const nicheOrder = [...CONTENT_NICHES];
-
-  for (const niche of nicheOrder) {
+  for (const niche of CONTENT_NICHES) {
     if (picked.length >= count) break;
-    const pool = byNiche.get(niche) ?? [];
+
+    const pool = filterUniqueTopics(countryCode, byNiche.get(niche) ?? [], {
+      recentDays,
+      exclude: usedTopics,
+    });
+
     for (const topic of pool) {
-      const key = topic.toLowerCase();
+      const key = normalizeText(topic);
       if (usedTopics.has(key)) continue;
-      if (wasTopicPublishedRecently(countryCode, topic, recentDays)) continue;
+
       usedTopics.add(key);
-      usedNiches.add(niche);
       picked.push({
         topic,
         niche,
@@ -505,16 +442,42 @@ export async function resolveDiverseTopics(
   }
 
   if (picked.length < count) {
-    const fresh = await resolveFreshTopics(countryCode, count - picked.length, { recentDays });
-    for (const topic of fresh) {
-      const key = topic.toLowerCase();
+    const remaining = filterUniqueTopics(
+      countryCode,
+      rankedTopics,
+      { recentDays, exclude: usedTopics }
+    );
+
+    for (const topic of remaining) {
+      const key = normalizeText(topic);
       if (usedTopics.has(key)) continue;
-      const niche = classifyTopicNiche(topic);
       usedTopics.add(key);
       picked.push({
         topic,
-        niche,
-        category: nicheToCategoryLabel(niche, language),
+        niche: classifyTopicNiche(topic),
+        category: nicheToCategoryLabel(classifyTopicNiche(topic), language),
+      });
+      if (picked.length >= count) break;
+    }
+  }
+
+  if (picked.length < count) {
+    const extras = configFallbackTopics(
+      countryCode,
+      count - picked.length,
+      picked.map((item) => item.topic),
+      recentDays
+    );
+
+    for (const topic of extras) {
+      const key = normalizeText(topic);
+      if (usedTopics.has(key)) continue;
+      if (wasTopicAlreadyCovered(countryCode, topic, { recentDays })) continue;
+      usedTopics.add(key);
+      picked.push({
+        topic,
+        niche: classifyTopicNiche(topic),
+        category: nicheToCategoryLabel(classifyTopicNiche(topic), language),
       });
       if (picked.length >= count) break;
     }
@@ -538,3 +501,6 @@ export async function resolveNextFreshTopic(
   const topics = await resolveFreshTopics(countryCode, 1, { recentDays });
   return topics[0];
 }
+
+export { wasTopicAlreadyCovered as wasTopicPublishedRecently, topicSimilarity, getRecentArticleTopics } from './topic-dedup';
+export { DEFAULT_RECENT_DAYS } from './topic-dedup';

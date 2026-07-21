@@ -1,5 +1,6 @@
 import { runFullPipeline, type PipelineResult } from '../agents/orchestrator';
 import { resolveFreshTopics, resolveDiverseTopics } from '../research-engine/topic-resolver';
+import { DEFAULT_RECENT_DAYS } from '../research-engine/topic-dedup';
 import { getEnabledCountryCodes, isCountryEnabled } from '../countries/registry';
 import { logAiEvent } from '../logger';
 import { SITE_AI_COUNTRIES } from '../country-labels';
@@ -74,7 +75,7 @@ function resolveCountries(options: BatchPipelineOptions): SupportedCountry[] {
 async function buildJobs(options: BatchPipelineOptions): Promise<BatchPipelineJob[]> {
   const countries = resolveCountries(options);
   const articlesPerCountry = Math.max(1, Math.min(options.articlesPerCountry ?? 1, 5));
-  const recentDays = options.recentDays ?? 14;
+  const recentDays = options.recentDays ?? DEFAULT_RECENT_DAYS;
   const jobs: BatchPipelineJob[] = [];
   const usedTopics = new Map<SupportedCountry, Set<string>>();
 

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { runMultiCountryPipeline } from '@/lib/ai/jobs/multi-country-pipeline';
+import { getMaxArticlesPerDay } from '@/lib/ai/countries/registry';
+import { DEFAULT_RECENT_DAYS } from '@/lib/ai/research-engine/topic-dedup';
 import { syncAllSitemaps } from '@/lib/ai/seo-engine/sitemap-manager';
 import { getPublishedArticleUrls } from '@/lib/ai/seo-engine/sitemap-manager';
 import { submitUrlsToIndexNow, type IndexNowResult } from '@/lib/seo/indexnow';
@@ -29,9 +31,13 @@ export async function GET(request: Request) {
   const notifyIndexNow = searchParams.get('indexnow') !== 'false';
 
   try {
+    const articlesPerCountry = getMaxArticlesPerDay(TRAFFIC_COUNTRIES);
+
     const pipeline = await runMultiCountryPipeline({
       countryCodes: TRAFFIC_COUNTRIES,
       saveAsDraft: false,
+      articlesPerCountry,
+      recentDays: DEFAULT_RECENT_DAYS,
     });
 
     const sitemap = syncAllSitemaps();

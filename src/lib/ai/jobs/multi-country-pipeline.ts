@@ -1,5 +1,6 @@
 import { runFullPipeline, type PipelineResult } from '../agents/orchestrator';
 import { resolveFreshTopics, resolveDiverseTopics } from '../research-engine/topic-resolver';
+import { DEFAULT_RECENT_DAYS } from '../research-engine/topic-dedup';
 import { getEnabledCountryCodes, isCountryEnabled } from '../countries/registry';
 import { logAiEvent } from '../logger';
 import type { AgentCode, SupportedCountry } from '../types';
@@ -52,7 +53,8 @@ export async function runMultiCountryPipeline(
     throw new Error('Nenhum país ativo na configuração. Ative países em /admin/ai-engine/settings');
   }
 
-  const articlesPerCountry = Math.max(1, options.articlesPerCountry ?? 1);
+  const articlesPerCountry = Math.max(1, Math.min(options.articlesPerCountry ?? 1, 5));
+  const recentDays = options.recentDays ?? DEFAULT_RECENT_DAYS;
   const concurrency = Math.max(1, Math.min(options.concurrency ?? 3, 6));
 
   logAiEvent('research', `Pipeline multi-país iniciado: ${countries.join(', ')}`, {
@@ -67,14 +69,14 @@ export async function runMultiCountryPipeline(
 
     if (useDiverse) {
       const diverse = await resolveDiverseTopics(countryCode, articlesPerCountry, {
-        recentDays: options.recentDays ?? 14,
+        recentDays,
       });
       for (const item of diverse) {
         jobs.push({ countryCode, topic: item.topic, targetCategory: item.category });
       }
     } else {
       const topics = await resolveFreshTopics(countryCode, articlesPerCountry, {
-        recentDays: options.recentDays ?? 14,
+        recentDays,
       });
       for (const topic of topics) {
         jobs.push({ countryCode, topic });
