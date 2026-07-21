@@ -2,11 +2,14 @@ import { notFound } from 'next/navigation';
 import DevelopmentServiceDetailPage from '@/views/DevelopmentServiceDetailPage';
 import JsonLd from '@/components/JsonLd';
 import { getServiceBySlug } from '@/data/development-services';
-import { getBreadcrumbSchema, getFAQSchema, getProfessionalServiceSchema } from '@/data/structured-data';
+import { getBreadcrumbSchema } from '@/data/structured-data';
 import { SITE_URL } from '@/data/site';
 import { buildMetadata } from '@/lib/seo';
+import { buildDevelopmentPageSchemas } from '@/lib/development-services/schema';
+import { getMarket } from '@/lib/markets/registry';
 
-const service = getServiceBySlug('custom-software-development')!;
+const SLUG = 'custom-software-development' as const;
+const service = getServiceBySlug(SLUG)!;
 
 export const metadata = buildMetadata({
   title: service.metaTitle,
@@ -17,6 +20,7 @@ export const metadata = buildMetadata({
 
 export default function Page() {
   if (!service) notFound();
+  const market = getMarket('us');
   return (
     <>
       <JsonLd
@@ -26,16 +30,10 @@ export default function Page() {
             { name: 'Development Services', url: `${SITE_URL}/development-services` },
             { name: service.title, url: `${SITE_URL}${service.path}` },
           ]),
-          getProfessionalServiceSchema({
-            name: service.title,
-            description: service.metaDescription,
-            url: `${SITE_URL}${service.path}`,
-            priceFrom: service.priceFrom,
-          }),
-          getFAQSchema(service.faqs),
+          ...buildDevelopmentPageSchemas('us', market, [], SLUG),
         ]}
       />
-      <DevelopmentServiceDetailPage slug="custom-software-development" />
+      <DevelopmentServiceDetailPage slug={SLUG} />
     </>
   );
 }

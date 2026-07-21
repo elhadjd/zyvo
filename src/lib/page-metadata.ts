@@ -1,5 +1,13 @@
 import { buildMetadata } from './seo';
 import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME } from '@/data/site';
+import { getDevelopmentHubContent, getDevelopmentServices } from '@/data/development-services/content';
+import { formatDevPrice } from '@/lib/development-services/format-price';
+
+const usDevHub = getDevelopmentHubContent('us');
+const usDevServices = getDevelopmentServices('us');
+const websiteService = usDevServices.find((s) => s.slug === 'custom-website-development');
+const softwareService = usDevServices.find((s) => s.slug === 'custom-software-development');
+const maintenanceService = usDevServices.find((s) => s.slug === 'website-maintenance-services');
 
 export const staticPageMetadata = {
   home: buildMetadata({
@@ -32,8 +40,8 @@ export const staticPageMetadata = {
   contact: buildMetadata({
     title: 'Get a Free Quote — Websites, Custom Software & ZYVO ERP',
     description:
-      'Request a free project quote from ZYVO. Custom websites from $1,199, business systems from $7,900, maintenance from $79/mo, and ZYVO ERP from $20/mo.',
-    keywords: 'ZYVO contact, free website quote, custom software quote',
+      `Request a free project quote from ZYVO. Custom websites from ${websiteService ? formatDevPrice('us', websiteService.priceFrom) : '$839'}, business systems from ${softwareService ? formatDevPrice('us', softwareService.priceFrom) : '$5,530'}, maintenance from ${maintenanceService ? formatDevPrice('us', maintenanceService.priceFrom) : '$55'}/mo, and ZYVO ERP from $20/mo.`,
+    keywords: 'ZYVO contact, free website quote, custom software quote, affordable web development USA',
     canonical: '/contact',
   }),
   security: buildMetadata({
@@ -72,10 +80,9 @@ export const staticPageMetadata = {
     canonical: '/industries',
   }),
   developmentServices: buildMetadata({
-    title: 'Web Design, Custom Software & Maintenance Services for US Businesses',
-    description:
-      'ZYVO builds custom websites, business software, and admin systems for US small businesses — with SEO optimization and competitive pricing.',
-    keywords: 'web development services USA, custom website development, custom software development',
+    title: usDevHub.metaTitle,
+    description: usDevHub.metaDescription,
+    keywords: usDevHub.keywords,
     canonical: '/development-services',
   }),
   blog: buildMetadata({
