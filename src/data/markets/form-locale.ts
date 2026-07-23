@@ -181,6 +181,8 @@ export interface SignupFormCopy {
   formError: string;
   duplicateEmail: string;
   duplicateCompany: string;
+  invalidMailbox: string;
+  emailDeliveryFailed: string;
   technicalError: string;
   serverUnavailable: string;
   noSignupLink: string;
@@ -223,6 +225,8 @@ const enSignupCopy: SignupFormCopy = {
   formError: 'Something went wrong. Please try again.',
   duplicateEmail: 'This email is already registered. Sign in or use another email.',
   duplicateCompany: 'A company with this name already exists. Try a different name.',
+  invalidMailbox: 'This email address appears invalid or the mailbox does not exist. Check for typos and try again.',
+  emailDeliveryFailed: 'We could not send a confirmation email to this address. Verify the email and try again.',
   technicalError: 'We could not complete your registration right now. Please try again in a few minutes or contact support.',
   serverUnavailable: 'Registration is temporarily unavailable. Please try again shortly.',
   noSignupLink: 'Your account was created but we could not open the dashboard. Check your email or contact support.',
@@ -269,6 +273,8 @@ const frSignupCopy: SignupFormCopy = {
   formError: 'Une erreur est survenue. Veuillez réessayer.',
   duplicateEmail: 'Cet email est déjà enregistré. Connectez-vous ou utilisez un autre email.',
   duplicateCompany: 'Une entreprise avec ce nom existe déjà. Choisissez un autre nom.',
+  invalidMailbox: 'Cette adresse email semble invalide ou la boîte mail n\'existe pas. Vérifiez l\'orthographe et réessayez.',
+  emailDeliveryFailed: 'Impossible d\'envoyer un email de confirmation à cette adresse. Vérifiez l\'email et réessayez.',
   technicalError: 'Impossible de finaliser l\'inscription pour le moment. Réessayez dans quelques minutes ou contactez le support.',
   serverUnavailable: 'L\'inscription est temporairement indisponible. Veuillez réessayer.',
   noSignupLink: 'Votre compte a été créé mais nous n\'avons pas pu ouvrir le tableau de bord. Vérifiez votre email ou contactez le support.',
