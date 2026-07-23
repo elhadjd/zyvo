@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import {
   buildSignupErrorFromPayload,
   extractApiError,
+  extractSignupLink,
+  normalizeSignupLink,
   sanitizeTechnicalMessage,
 } from '../src/lib/api-errors';
 
@@ -57,5 +59,29 @@ const deep = extractApiError({
   },
 });
 assert.ok(deep.message?.includes('subdomain'));
+
+// Success payload — link must not be treated as an error
+const successPayload = extractApiError({
+  success: true,
+  data: {
+    link: 'localhost/api/app/getting-started/eyJpdiI6IkZENkVCYjNkYVJidWdzN3o5RkFiNmc9PSIsInZhbHVlIjoiNTdxQmRORVhVNVlaSWtZV1ZNbVZyQT09',
+  },
+});
+assert.equal(successPayload.message, undefined);
+assert.equal(Object.keys(successPayload.fieldErrors).length, 0);
+
+const extractedLink = extractSignupLink({
+  data: { link: 'app.zyvoerp.com/api/app/getting-started/token123' },
+});
+assert.equal(extractedLink, 'app.zyvoerp.com/api/app/getting-started/token123');
+
+const normalized = normalizeSignupLink('app.zyvoerp.com/api/app/getting-started/token123');
+assert.equal(normalized, 'https://app.zyvoerp.com/api/app/getting-started/token123');
+
+const normalizedLocal = normalizeSignupLink(
+  'localhost/api/app/getting-started/token123',
+  'https://app.zyvoerp.com'
+);
+assert.equal(normalizedLocal, 'https://localhost/api/app/getting-started/token123');
 
 console.log('All api-errors tests passed.');

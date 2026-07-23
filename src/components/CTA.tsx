@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import { ArrowRight, Shield, Mail, Check, ChevronRight, Building } from 'lucide-react';
 import { submitSignup } from '@/lib/api-client';
-import { parseSignupApiError } from '@/lib/api-errors';
+import { extractSignupLink, normalizeSignupLink, parseSignupApiError } from '@/lib/api-errors';
 import { useMarket } from '@/contexts/market-context';
 import LocalizedLink from '@/components/markets/LocalizedLink';
 import { getSignupFormCopy } from '@/data/markets/form-locale';
@@ -77,15 +77,13 @@ const CompanySignupFlow = () => {
             };
 
             const response = await submitSignup(data);
-            const nested = response.data;
-            const signupLink =
-                (nested && typeof nested === 'object' && !Array.isArray(nested)
-                    ? (nested as Record<string, unknown>).link
-                    : undefined) ?? response.link;
+            const signupLink = extractSignupLink(response);
 
-            if (typeof signupLink === 'string' && signupLink.trim()) {
-                setLink(signupLink.trim());
-                window.open(`https://${signupLink.trim()}`, '_blank');
+            if (signupLink) {
+                const appBaseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.zyvoerp.com';
+                const normalizedLink = normalizeSignupLink(signupLink, appBaseUrl);
+                setLink(normalizedLink);
+                window.open(normalizedLink, '_blank');
                 setStep('success');
             } else {
                 setErrors({ form: copy.noSignupLink });
@@ -304,7 +302,7 @@ const CompanySignupFlow = () => {
 
                             <a
                                 target='_blank'
-                                href={`https://${link}`}
+                                href={link}
                                 className="w-full flex items-center justify-center px-6 py-3 bg-brand-primary text-white font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors"
                             >
                                 {copy.goDashboard}

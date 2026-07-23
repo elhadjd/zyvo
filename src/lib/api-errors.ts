@@ -36,6 +36,16 @@ const GENERIC_REQUEST_FAILED = /^request failed$/i;
 const GENERIC_WRAPPER_MESSAGES =
   /the given data was invalid|validation failed|unprocessable entity|bad request|error occurred/i;
 
+const SUCCESS_PAYLOAD_KEYS = new Set([
+  'link',
+  'url',
+  'redirect',
+  'redirect_url',
+  'dashboard_url',
+  'token',
+  'access_token',
+]);
+
 function isSqlLikeMessage(message: string): boolean {
   return SQL_ERROR_PATTERN.test(message);
 }
@@ -190,7 +200,12 @@ function walkPayloadForErrors(
   if (validation) collectValidationErrors(validation, fieldErrors);
 
   const looksLikeFieldErrors = Object.entries(record).every(([key, val]) => {
-    if (['message', 'error', 'data', 'success', 'status', 'code'].includes(key)) return false;
+    if (
+      ['message', 'error', 'data', 'success', 'status', 'code'].includes(key) ||
+      SUCCESS_PAYLOAD_KEYS.has(key)
+    ) {
+      return false;
+    }
     return typeof val === 'string' || (Array.isArray(val) && val.every((item) => typeof item === 'string'));
   });
   if (looksLikeFieldErrors && Object.keys(record).length > 0 && !record.errors) {
@@ -210,6 +225,46 @@ function walkPayloadForErrors(
       walkPayloadForErrors(record[key], fieldErrors, rawMessages, depth + 1);
     }
   }
+}
+
+export function extractSignupLink(payload: unknown): string | undefined {
+  const record = asRecord(payload);
+  if (!record) return undefined;
+
+  const nested = asRecord(record.data);
+  const candidates = [
+    nested?.link,
+    nested?.url,
+    nested?.redirect,
+    nested?.redirect_url,
+    nested?.dashboard_url,
+    record.link,
+    record.url,
+    record.redirect,
+    record.redirect_url,
+    record.dashboard_url,
+  ];
+
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string' && candidate.trim()) {
+      return candidate.trim();
+    }
+  }
+
+  return undefined;
+}
+
+export function normalizeSignupLink(link: string, appBaseUrl = 'https://app.zyvoerp.com'): string {
+  const trimmed = link.trim();
+  if (!trimmed) return appBaseUrl;
+
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+
+  if (trimmed.startsWith('/')) {
+    return `${appBaseUrl.replace(/\/$/, '')}${trimmed}`;
+  }
+
+  return `https://${trimmed}`;
 }
 
 export function extractApiError(payload: unknown): ExtractedApiError {

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { sanitizeApiPayloadForClient } from '@/lib/api-errors';
+import { extractSignupLink, sanitizeApiPayloadForClient } from '@/lib/api-errors';
 import type { MarketCode } from '@/lib/markets/types';
 
 const API_BASE = process.env.ZYVO_API_BASE_URL ?? 'https://app.zyvoerp.com/api';
@@ -56,6 +56,11 @@ export async function POST(request: Request) {
       } catch {
         data = { success: false, message: responseText };
       }
+    }
+
+    const signupLink = extractSignupLink(data);
+    if (response.ok && signupLink) {
+      return NextResponse.json(data, { status: response.status });
     }
 
     const sanitized = sanitizeApiPayloadForClient(data, marketCode);

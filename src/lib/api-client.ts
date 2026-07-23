@@ -1,4 +1,4 @@
-import { ApiRequestError, buildSignupErrorFromPayload, extractApiError } from '@/lib/api-errors';
+import { ApiRequestError, buildSignupErrorFromPayload, extractApiError, extractSignupLink } from '@/lib/api-errors';
 import type { MarketCode } from '@/lib/markets/types';
 
 export const baseApiURL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.zyvoerp.com';
@@ -68,13 +68,9 @@ export async function submitSignup(data: Record<string, unknown>) {
     throw buildSignupErrorFromPayload(payload, marketCode, response.status);
   }
 
-  const nested = payload.data;
-  const link =
-    (nested && typeof nested === 'object' && !Array.isArray(nested)
-      ? (nested as Record<string, unknown>).link
-      : undefined) ?? payload.link;
+  const link = extractSignupLink(payload);
 
-  if (typeof link !== 'string' || !link.trim()) {
+  if (!link) {
     if (extracted.message || Object.keys(extracted.fieldErrors).length > 0) {
       throw buildSignupErrorFromPayload(payload, marketCode, response.status || 400);
     }
