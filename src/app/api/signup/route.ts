@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { extractSignupLink, isSignupRedirectLink, sanitizeApiPayloadForClient } from '@/lib/api-errors';
+import { extractSignupLink, sanitizeApiPayloadForClient } from '@/lib/api-errors';
 import type { MarketCode } from '@/lib/markets/types';
 
 const API_BASE = process.env.ZYVO_API_BASE_URL ?? 'https://app.zyvoerp.com/api';
@@ -53,19 +53,17 @@ export async function POST(request: Request) {
     let data: unknown = { success: response.ok };
 
     if (trimmed) {
-      if (isSignupRedirectLink(trimmed)) {
-        data = { success: true, link: trimmed, message: trimmed };
-      } else {
-        try {
-          const parsed = JSON.parse(trimmed);
-          if (typeof parsed === 'string' && isSignupRedirectLink(parsed)) {
-            data = { success: true, link: parsed.trim(), message: parsed.trim() };
-          } else {
-            data = parsed;
-          }
-        } catch {
-          data = { success: false, message: responseText };
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (typeof parsed === 'string') {
+          const link = extractSignupLink(parsed);
+          data = link ? { success: true, link, message: parsed } : { message: parsed };
+        } else {
+          data = parsed;
         }
+      } catch {
+        const link = extractSignupLink(trimmed);
+        data = link ? { success: true, link, message: trimmed } : { success: false, message: responseText };
       }
     }
 
