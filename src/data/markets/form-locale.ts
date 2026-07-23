@@ -179,6 +179,11 @@ export interface SignupFormCopy {
   taxIdHint: string;
   optional: string;
   formError: string;
+  duplicateEmail: string;
+  duplicateCompany: string;
+  technicalError: string;
+  serverUnavailable: string;
+  noSignupLink: string;
   startTrial: string;
   settingUp: string;
   back: string;
@@ -216,6 +221,11 @@ const enSignupCopy: SignupFormCopy = {
   taxIdHint: 'You can add this later. Not required to start your trial.',
   optional: '(optional)',
   formError: 'Something went wrong. Please try again.',
+  duplicateEmail: 'This email is already registered. Sign in or use another email.',
+  duplicateCompany: 'A company with this name already exists. Try a different name.',
+  technicalError: 'We could not complete your registration right now. Please try again in a few minutes or contact support.',
+  serverUnavailable: 'Registration is temporarily unavailable. Please try again shortly.',
+  noSignupLink: 'Your account was created but we could not open the dashboard. Check your email or contact support.',
   startTrial: 'Start 7-day free trial',
   settingUp: 'Setting up...',
   back: '← Back',
@@ -257,6 +267,11 @@ const frSignupCopy: SignupFormCopy = {
   taxIdHint: 'Vous pourrez l\'ajouter plus tard. Non requis pour l\'essai.',
   optional: '(optionnel)',
   formError: 'Une erreur est survenue. Veuillez réessayer.',
+  duplicateEmail: 'Cet email est déjà enregistré. Connectez-vous ou utilisez un autre email.',
+  duplicateCompany: 'Une entreprise avec ce nom existe déjà. Choisissez un autre nom.',
+  technicalError: 'Impossible de finaliser l\'inscription pour le moment. Réessayez dans quelques minutes ou contactez le support.',
+  serverUnavailable: 'L\'inscription est temporairement indisponible. Veuillez réessayer.',
+  noSignupLink: 'Votre compte a été créé mais nous n\'avons pas pu ouvrir le tableau de bord. Vérifiez votre email ou contactez le support.',
   startTrial: 'Démarrer l\'essai gratuit 7 jours',
   settingUp: 'Création du compte...',
   back: '← Retour',
