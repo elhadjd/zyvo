@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {
   buildSignupErrorFromPayload,
   extractApiError,
+  extractRedirectLinkFromText,
   extractSignupLink,
   isSignupRedirectLink,
   isSignupSuccessPayload,
@@ -62,6 +63,42 @@ const deep = extractApiError({
 });
 assert.ok(deep.message?.includes('subdomain'));
 
+const apiSuccessPayload = {
+  type: 'success',
+  message:
+    'thank you for signing up! feel free to complete your company setup at your convenience.',
+  data: {
+    link: 'localhost/api/app/getting-started/eyJpdiI6ImFZZXdtSFdwTHlZMVRmenloRmpWYnc9PSIsInZhbHVlIjoib0dFT2pCTGZNa3dPanRxMjdjeGUzUT09',
+  },
+  success: true,
+};
+
+const fromStructured = extractSignupLink(apiSuccessPayload);
+assert.equal(
+  fromStructured,
+  'localhost/api/app/getting-started/eyJpdiI6ImFZZXdtSFdwTHlZMVRmenloRmpWYnc9PSIsInZhbHVlIjoib0dFT2pCTGZNa3dPanRxMjdjeGUzUT09'
+);
+
+const fromJsonString = extractSignupLink(JSON.stringify(apiSuccessPayload));
+assert.equal(fromJsonString, fromStructured);
+
+assert.equal(
+  isSignupRedirectLink(JSON.stringify(apiSuccessPayload)),
+  false,
+  'full JSON response must not be treated as redirect link'
+);
+
+const normalizedApi = normalizeSignupLink(fromStructured!);
+assert.equal(
+  normalizedApi,
+  'https://localhost/api/app/getting-started/eyJpdiI6ImFZZXdtSFdwTHlZMVRmenloRmpWYnc9PSIsInZhbHVlIjoib0dFT2pCTGZNa3dPanRxMjdjeGUzUT09'
+);
+
+const messageAsError = extractApiError(apiSuccessPayload);
+assert.equal(messageAsError.message, undefined);
+
+assert.ok(isSignupSuccessPayload(apiSuccessPayload));
+
 // Success payload — link must not be treated as an error
 const successPayload = extractApiError({
   success: true,
@@ -75,17 +112,21 @@ assert.equal(Object.keys(successPayload.fieldErrors).length, 0);
 // API returns redirect URL in message field (common Laravel pattern)
 const messageLink = extractSignupLink({
   success: true,
-  message:
-    'localhost/api/app/getting-started/eyJpdiI6IjdQR0s5dTQvTjRMb2hEcDEwRGJod1E9PSIsInZhbHVlIjoidEFCUk9JYVRBQmdWSEY4dzgyUzJoZz09',
+  message: 'localhost/api/app/getting-started/eyJpdiI6IjdQR0s5dTQvTjRMb2hEcDEwRGJod1E9PSIsInZhbHVlIjoidEFCUk9JYVRBQmdWSEY4dzgyUzJoZz09',
 });
 assert.ok(messageLink?.includes('getting-started'), messageLink);
 
-const messageAsError = extractApiError({
+const embeddedMessageLink = extractRedirectLinkFromText(
+  'Setup complete at localhost/api/app/getting-started/token123 today'
+);
+assert.equal(embeddedMessageLink, 'localhost/api/app/getting-started/token123');
+
+const messageAsError2 = extractApiError({
   success: true,
   message:
     'localhost/api/app/getting-started/eyJpdiI6IjdQR0s5dTQvTjRMb2hEcDEwRGJod1E9PSIsInZhbHVlIjoidEFCUk9JYVRBQmdWSEY4dzgyUzJoZz09',
 });
-assert.equal(messageAsError.message, undefined);
+assert.equal(messageAsError2.message, undefined);
 
 assert.ok(
   isSignupSuccessPayload({

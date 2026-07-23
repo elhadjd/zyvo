@@ -46,11 +46,34 @@ const SUCCESS_PAYLOAD_KEYS = new Set([
   'access_token',
 ]);
 
-const SIGNUP_REDIRECT_PATTERN =
-  /(?:^|\/)(?:api\/)?app\/getting-started\/[A-Za-z0-9+/=_-]+|(?:^|\/)getting-started\/[A-Za-z0-9+/=_-]+/i;
+const SIGNUP_REDIRECT_STRICT_PATTERN =
+  /^(?:https?:\/\/)?(?:[a-z0-9][a-z0-9.-]*(?::\d+)?)?(?:\/api)?\/app\/getting-started\/[A-Za-z0-9+/=_-]+$/i;
+
+const SIGNUP_REDIRECT_EXTRACT_PATTERN =
+  /(?:https?:\/\/)?(?:[a-z0-9][a-z0-9.-]*(?::\d+)?)?(?:\/api)?\/app\/getting-started\/[A-Za-z0-9+/=_-]+/i;
 
 export function isSignupRedirectLink(value: string): boolean {
-  return SIGNUP_REDIRECT_PATTERN.test(value.trim());
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.startsWith('{') || trimmed.startsWith('[')) return false;
+  return SIGNUP_REDIRECT_STRICT_PATTERN.test(trimmed);
+}
+
+export function extractRedirectLinkFromText(value: string): string | undefined {
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+
+  if (isSignupRedirectLink(trimmed)) return trimmed;
+
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    try {
+      return extractSignupLink(JSON.parse(trimmed));
+    } catch {
+      return undefined;
+    }
+  }
+
+  const match = trimmed.match(SIGNUP_REDIRECT_EXTRACT_PATTERN);
+  return match?.[0];
 }
 
 function isSqlLikeMessage(message: string): boolean {
@@ -239,9 +262,8 @@ function walkPayloadForErrors(
 }
 
 export function extractSignupLink(payload: unknown): string | undefined {
-  if (typeof payload === 'string' && payload.trim()) {
-    const trimmed = payload.trim();
-    return isSignupRedirectLink(trimmed) ? trimmed : undefined;
+  if (typeof payload === 'string') {
+    return extractRedirectLinkFromText(payload);
   }
 
   const record = asRecord(payload);
@@ -262,21 +284,20 @@ export function extractSignupLink(payload: unknown): string | undefined {
     record.redirect,
     record.redirect_url,
     record.dashboard_url,
-    record.message,
-    record.msg,
-    record.result,
   ];
 
   for (const candidate of candidates) {
     if (typeof candidate === 'string' && candidate.trim()) {
-      const trimmed = candidate.trim();
-      if (isSignupRedirectLink(trimmed)) return trimmed;
+      const extracted = extractRedirectLinkFromText(candidate);
+      if (extracted) return extracted;
     }
   }
 
-  for (const value of Object.values(record)) {
-    if (typeof value === 'string' && isSignupRedirectLink(value)) {
-      return value.trim();
+  for (const key of ['message', 'msg', 'result'] as const) {
+    const text = record[key];
+    if (typeof text === 'string' && text.trim()) {
+      const extracted = extractRedirectLinkFromText(text);
+      if (extracted) return extracted;
     }
   }
 
@@ -288,19 +309,23 @@ export function isSignupSuccessPayload(payload: unknown): boolean {
 }
 
 export function normalizeSignupLink(link: string, appBaseUrl = 'https://app.zyvoerp.com'): string {
-  const trimmed = link.trim();
-  if (!trimmed) return appBaseUrl;
+  const extracted = extractRedirectLinkFromText(link) ?? link.trim();
+  if (!extracted) return appBaseUrl;
 
-  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (/^https?:\/\//i.test(extracted)) return extracted;
 
-  if (trimmed.startsWith('/')) {
-    return `${appBaseUrl.replace(/\/$/, '')}${trimmed}`;
+  if (extracted.startsWith('/')) {
+    return `${appBaseUrl.replace(/\/$/, '')}${extracted}`;
   }
 
-  return `https://${trimmed}`;
+  return `https://${extracted}`;
 }
 
 export function extractApiError(payload: unknown): ExtractedApiError {
+  if (isSignupSuccessPayload(payload)) {
+    return { fieldErrors: {}, rawMessages: [] };
+  }
+
   const fieldErrors: Record<string, string> = {};
   const rawMessages: string[] = [];
 

@@ -1,4 +1,4 @@
-import { ApiRequestError, buildSignupErrorFromPayload, extractApiError, extractSignupLink, isSignupRedirectLink } from '@/lib/api-errors';
+import { ApiRequestError, buildSignupErrorFromPayload, extractApiError, extractSignupLink } from '@/lib/api-errors';
 import type { MarketCode } from '@/lib/markets/types';
 
 export const baseApiURL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.zyvoerp.com';
@@ -8,18 +8,22 @@ async function parseJsonResponse(response: Response): Promise<Record<string, unk
   if (!text.trim()) return {};
 
   const trimmed = text.trim();
-  if (isSignupRedirectLink(trimmed)) {
-    return { success: true, link: trimmed, message: trimmed };
-  }
 
   try {
-    const data = JSON.parse(text);
-    if (typeof data === 'string' && isSignupRedirectLink(data)) {
-      return { success: true, link: data.trim(), message: data.trim() };
+    const data = JSON.parse(trimmed);
+    if (typeof data === 'string') {
+      const link = extractSignupLink(data);
+      return link ? { success: true, link, message: data } : { message: data };
     }
-    return data && typeof data === 'object' ? (data as Record<string, unknown>) : { message: text };
-  } catch {
+    if (data && typeof data === 'object') {
+      const record = data as Record<string, unknown>;
+      const link = extractSignupLink(record);
+      return link ? { ...record, success: true, link } : record;
+    }
     return { message: text };
+  } catch {
+    const link = extractSignupLink(trimmed);
+    return link ? { success: true, link, message: trimmed } : { message: trimmed };
   }
 }
 
