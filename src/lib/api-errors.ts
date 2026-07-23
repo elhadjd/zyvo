@@ -15,11 +15,21 @@ export interface ExtractedApiError {
 const SQL_ERROR_PATTERN =
   /sqlstate|sql syntax|mysql|sqlite|postgresql|pdo exception|integrity constraint violation|foreign key constraint|unique constraint failed|column .+ cannot be null|table .+ doesn't exist|syntax error|queryexception|connection refused|general error:/i;
 
-const DUPLICATE_EMAIL_PATTERN =
-  /duplicate entry.*@|for key ['"][^'"]*email|users?_email|email.*unique|the email has already been taken|email has already been taken|email.*(already|exist|taken|duplicat|registr)|e-?mail.*(déjà|existe|utilisé)|cet email/i;
+const FILE_PATH_PATTERN = /[A-Za-z]:\\|\/vendor\/|\.php['":\s]|SmtpTransport|symfony\\mailer/i;
 
-const DUPLICATE_COMPANY_PATTERN =
-  /duplicate entry(?!.*@)|for key ['"][^'"]*(company|subdomain|domain|slug|name)|company.*(already|exist|taken|unique)|entreprise.*(déjà|existe)|name has already been taken|subdomain.*(taken|exist)/i;
+/** Strict: DB unique violation on email */
+const SQL_DUPLICATE_EMAIL_PATTERN =
+  /duplicate entry '[^']*@[^']*'|for key ['"][^'"]*email|users?_email_unique|unique.*\bemail\b/i;
+
+/** Strict: DB unique violation on company/subdomain */
+const SQL_DUPLICATE_COMPANY_PATTERN =
+  /duplicate entry '(?![^']*@)[^']*' for key ['"][^'"]*(company|subdomain|domain|slug)|for key ['"][^'"]*(company|subdomain)_/i;
+
+const INVALID_MAILBOX_PATTERN =
+  /mailbox does not exist|550 5\.4\.6|check for typos in the email/i;
+
+const SMTP_DELIVERY_PATTERN =
+  /expected response code ["']?250|smtp|mailer|mail transport|could not be sent/i;
 
 const GENERIC_REQUEST_FAILED = /^request failed$/i;
 
@@ -30,28 +40,75 @@ function isSqlLikeMessage(message: string): boolean {
   return SQL_ERROR_PATTERN.test(message);
 }
 
-function mapKnownMessage(message: string, marketCode: MarketCode): string | null {
-  const copy = getSignupFormCopy(marketCode);
-  if (DUPLICATE_EMAIL_PATTERN.test(message)) return copy.duplicateEmail;
-  if (DUPLICATE_COMPANY_PATTERN.test(message)) return copy.duplicateCompany;
-  return null;
+function containsTechnicalLeak(message: string): boolean {
+  return isSqlLikeMessage(message) || FILE_PATH_PATTERN.test(message);
 }
 
+function extractReadableCore(message: string): string {
+  let text = message.trim();
+
+  const smtpInner = text.match(/with message "([^"]+)"/i);
+  if (smtpInner?.[1]) text = smtpInner[1];
+
+  const reason = text.match(/reason ['"]([^'"]+)['"]/i);
+  if (reason?.[1] && text.length > 120) text = reason[1];
+
+  text = text.replace(/[A-Za-z]:\\[^\s'"]+/g, ' ');
+  text = text.replace(/\s*'file'\s*=>\s*'[^']+'/gi, ' ');
+  text = text.replace(/\s*'line'\s*=>\s*\d+/gi, ' ');
+  text = text.replace(/\/{1,2}[^\s'"]+\.php/gi, ' ');
+  text = text.replace(/\s+/g, ' ').trim();
+
+  return text;
+}
+
+function isInvalidMailboxError(message: string): boolean {
+  return INVALID_MAILBOX_PATTERN.test(message);
+}
+
+function isSmtpDeliveryError(message: string): boolean {
+  return SMTP_DELIVERY_PATTERN.test(message);
+}
+
+function isSqlDuplicateEmail(message: string): boolean {
+  return SQL_DUPLICATE_EMAIL_PATTERN.test(message);
+}
+
+function isSqlDuplicateCompany(message: string): boolean {
+  return SQL_DUPLICATE_COMPANY_PATTERN.test(message);
+}
+
+/**
+ * Map API/server text to a user-facing message.
+ * - Readable API validation text → pass through unchanged
+ * - SQL / SMTP technical leaks → specific localized message per case
+ * - Never guess "duplicate email" from loose keyword matching
+ */
 export function sanitizeTechnicalMessage(message: string, marketCode: MarketCode): string {
   const copy = getSignupFormCopy(marketCode);
   const trimmed = message.trim();
   if (!trimmed || GENERIC_REQUEST_FAILED.test(trimmed)) return copy.formError;
 
-  const known = mapKnownMessage(trimmed, marketCode);
-  if (known) return known;
+  const core = extractReadableCore(trimmed);
 
-  if (isSqlLikeMessage(trimmed)) {
-    if (DUPLICATE_EMAIL_PATTERN.test(trimmed)) return copy.duplicateEmail;
-    if (DUPLICATE_COMPANY_PATTERN.test(trimmed)) return copy.duplicateCompany;
+  if (isInvalidMailboxError(core) || isInvalidMailboxError(trimmed)) {
+    return copy.invalidMailbox;
+  }
+
+  if (containsTechnicalLeak(trimmed)) {
+    if (isSqlDuplicateEmail(trimmed)) return copy.duplicateEmail;
+    if (isSqlDuplicateCompany(trimmed)) return copy.duplicateCompany;
+    if (isSmtpDeliveryError(trimmed) || isSmtpDeliveryError(core)) {
+      return isInvalidMailboxError(core) ? copy.invalidMailbox : copy.emailDeliveryFailed;
+    }
     return copy.technicalError;
   }
 
-  return trimmed;
+  if (isSmtpDeliveryError(core)) {
+    return isInvalidMailboxError(core) ? copy.invalidMailbox : copy.emailDeliveryFailed;
+  }
+
+  return core || trimmed;
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
