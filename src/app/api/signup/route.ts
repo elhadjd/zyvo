@@ -48,7 +48,16 @@ export async function POST(request: Request) {
       body: JSON.stringify(body),
     });
 
-    const data = await response.json().catch(() => ({ success: response.ok }));
+    const responseText = await response.text();
+    let data: unknown = { success: response.ok };
+    if (responseText.trim()) {
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        data = { success: false, message: responseText };
+      }
+    }
+
     const sanitized = sanitizeApiPayloadForClient(data, marketCode);
     return NextResponse.json(sanitized, { status: response.status });
   } catch (error) {

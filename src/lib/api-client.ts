@@ -1,45 +1,29 @@
-import { ApiRequestError } from '@/lib/api-errors';
+import { ApiRequestError, buildSignupErrorFromPayload, extractApiError } from '@/lib/api-errors';
+import type { MarketCode } from '@/lib/markets/types';
 
 export const baseApiURL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.zyvoerp.com';
 
 async function parseJsonResponse(response: Response): Promise<Record<string, unknown>> {
+  const text = await response.text();
+  if (!text.trim()) return {};
+
   try {
-    const data = await response.json();
-    return data && typeof data === 'object' ? (data as Record<string, unknown>) : {};
+    const data = JSON.parse(text);
+    return data && typeof data === 'object' ? (data as Record<string, unknown>) : { message: text };
   } catch {
-    return {};
+    return { message: text };
   }
 }
 
-function extractFieldErrors(payload: Record<string, unknown>): Record<string, string> {
-  const errors = payload.errors;
-  if (!errors || typeof errors !== 'object' || Array.isArray(errors)) return {};
-
-  const mapped: Record<string, string> = {};
-  for (const [field, value] of Object.entries(errors as Record<string, unknown>)) {
-    const message = Array.isArray(value) ? value[0] : value;
-    if (typeof message === 'string' && message.trim()) {
-      mapped[field] = message.trim();
+function resolveMarketCode(data: Record<string, unknown>): MarketCode {
+  const market = data.market;
+  if (typeof market === 'string') {
+    const code = market.toLowerCase();
+    if (code === 'gn' || code === 'sn' || code === 'ci' || code === 'ao' || code === 'us') {
+      return code;
     }
   }
-  return mapped;
-}
-
-function getErrorMessage(payload: Record<string, unknown>): string {
-  if (typeof payload.message === 'string' && payload.message.trim()) {
-    return payload.message.trim();
-  }
-  if (typeof payload.error === 'string' && payload.error.trim()) {
-    return payload.error.trim();
-  }
-  const data = payload.data;
-  if (data && typeof data === 'object' && !Array.isArray(data)) {
-    const nested = data as Record<string, unknown>;
-    if (typeof nested.message === 'string' && nested.message.trim()) {
-      return nested.message.trim();
-    }
-  }
-  return 'Request failed';
+  return 'us';
 }
 
 export async function submitContact(data: {
@@ -58,27 +42,30 @@ export async function submitContact(data: {
   });
   const payload = await parseJsonResponse(response);
   if (!response.ok || payload.success === false) {
-    throw new ApiRequestError(getErrorMessage(payload), response.status, payload);
+    throw buildSignupErrorFromPayload(payload, 'us', response.status);
   }
   return payload;
 }
 
 export async function submitSignup(data: Record<string, unknown>) {
+  const marketCode = resolveMarketCode(data);
+
   const response = await fetch('/api/signup', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  const payload = await parseJsonResponse(response);
-  const fieldErrors = extractFieldErrors(payload);
 
-  if (!response.ok || payload.success === false) {
-    throw new ApiRequestError(
-      getErrorMessage(payload),
-      response.status,
-      payload,
-      fieldErrors
-    );
+  const payload = await parseJsonResponse(response);
+  const extracted = extractApiError(payload);
+  const isFailure =
+    !response.ok ||
+    payload.success === false ||
+    payload.status === 'error' ||
+    payload.status === false;
+
+  if (isFailure) {
+    throw buildSignupErrorFromPayload(payload, marketCode, response.status);
   }
 
   const nested = payload.data;
@@ -88,11 +75,13 @@ export async function submitSignup(data: Record<string, unknown>) {
       : undefined) ?? payload.link;
 
   if (typeof link !== 'string' || !link.trim()) {
-    throw new ApiRequestError(
-      typeof payload.message === 'string' ? payload.message : 'Missing signup link',
-      response.status || 502,
-      payload,
-      fieldErrors
+    if (extracted.message || Object.keys(extracted.fieldErrors).length > 0) {
+      throw buildSignupErrorFromPayload(payload, marketCode, response.status || 400);
+    }
+    throw buildSignupErrorFromPayload(
+      { ...payload, message: extracted.rawMessages[0] },
+      marketCode,
+      response.status || 502
     );
   }
 
