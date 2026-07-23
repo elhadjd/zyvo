@@ -3,6 +3,8 @@ import {
   buildSignupErrorFromPayload,
   extractApiError,
   extractSignupLink,
+  isSignupRedirectLink,
+  isSignupSuccessPayload,
   normalizeSignupLink,
   sanitizeTechnicalMessage,
 } from '../src/lib/api-errors';
@@ -70,10 +72,43 @@ const successPayload = extractApiError({
 assert.equal(successPayload.message, undefined);
 assert.equal(Object.keys(successPayload.fieldErrors).length, 0);
 
+// API returns redirect URL in message field (common Laravel pattern)
+const messageLink = extractSignupLink({
+  success: true,
+  message:
+    'localhost/api/app/getting-started/eyJpdiI6IjdQR0s5dTQvTjRMb2hEcDEwRGJod1E9PSIsInZhbHVlIjoidEFCUk9JYVRBQmdWSEY4dzgyUzJoZz09',
+});
+assert.ok(messageLink?.includes('getting-started'), messageLink);
+
+const messageAsError = extractApiError({
+  success: true,
+  message:
+    'localhost/api/app/getting-started/eyJpdiI6IjdQR0s5dTQvTjRMb2hEcDEwRGJod1E9PSIsInZhbHVlIjoidEFCUk9JYVRBQmdWSEY4dzgyUzJoZz09',
+});
+assert.equal(messageAsError.message, undefined);
+
+assert.ok(
+  isSignupSuccessPayload({
+    message:
+      'localhost/api/app/getting-started/eyJpdiI6IjdQR0s5dTQvTjRMb2hEcDEwRGJod1E9PSIsInZhbHVlIjoidEFCUk9JYVRBQmdWSEY4dzgyUzJoZz09',
+  })
+);
+
+assert.ok(
+  isSignupRedirectLink(
+    'localhost/api/app/getting-started/eyJpdiI6IjdQR0s5dTQvTjRMb2hEcDEwRGJod1E9PSIsInZhbHVlIjoidEFCUk9JYVRBQmdWSEY4dzgyUzJoZz09'
+  )
+);
+
 const extractedLink = extractSignupLink({
   data: { link: 'app.zyvoerp.com/api/app/getting-started/token123' },
 });
 assert.equal(extractedLink, 'app.zyvoerp.com/api/app/getting-started/token123');
+
+const plainStringLink = extractSignupLink(
+  'localhost/api/app/getting-started/eyJpdiI6IjdQR0s5dTQvTjRMb2hEcDEwRGJod1E9PSIsInZhbHVlIjoidEFCUk9JYVRBQmdWSEY4dzgyUzJoZz09'
+);
+assert.ok(plainStringLink?.includes('getting-started'));
 
 const normalized = normalizeSignupLink('app.zyvoerp.com/api/app/getting-started/token123');
 assert.equal(normalized, 'https://app.zyvoerp.com/api/app/getting-started/token123');
