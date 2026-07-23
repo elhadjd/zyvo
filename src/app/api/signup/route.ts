@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { sanitizeApiPayloadForClient } from '@/lib/api-errors';
+import { extractSignupLink, isSignupRedirectLink, sanitizeApiPayloadForClient } from '@/lib/api-errors';
 import type { MarketCode } from '@/lib/markets/types';
 
 const API_BASE = process.env.ZYVO_API_BASE_URL ?? 'https://app.zyvoerp.com/api';
@@ -49,13 +49,32 @@ export async function POST(request: Request) {
     });
 
     const responseText = await response.text();
+    const trimmed = responseText.trim();
     let data: unknown = { success: response.ok };
-    if (responseText.trim()) {
-      try {
-        data = JSON.parse(responseText);
-      } catch {
-        data = { success: false, message: responseText };
+
+    if (trimmed) {
+      if (isSignupRedirectLink(trimmed)) {
+        data = { success: true, link: trimmed, message: trimmed };
+      } else {
+        try {
+          const parsed = JSON.parse(trimmed);
+          if (typeof parsed === 'string' && isSignupRedirectLink(parsed)) {
+            data = { success: true, link: parsed.trim(), message: parsed.trim() };
+          } else {
+            data = parsed;
+          }
+        } catch {
+          data = { success: false, message: responseText };
+        }
       }
+    }
+
+    const signupLink = extractSignupLink(data);
+    if (signupLink) {
+      const record = data && typeof data === 'object' && !Array.isArray(data)
+        ? (data as Record<string, unknown>)
+        : { link: signupLink };
+      return NextResponse.json({ ...record, success: true, link: signupLink }, { status: 200 });
     }
 
     const sanitized = sanitizeApiPayloadForClient(data, marketCode);

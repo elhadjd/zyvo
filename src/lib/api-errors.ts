@@ -36,6 +36,23 @@ const GENERIC_REQUEST_FAILED = /^request failed$/i;
 const GENERIC_WRAPPER_MESSAGES =
   /the given data was invalid|validation failed|unprocessable entity|bad request|error occurred/i;
 
+const SUCCESS_PAYLOAD_KEYS = new Set([
+  'link',
+  'url',
+  'redirect',
+  'redirect_url',
+  'dashboard_url',
+  'token',
+  'access_token',
+]);
+
+const SIGNUP_REDIRECT_PATTERN =
+  /(?:^|\/)(?:api\/)?app\/getting-started\/[A-Za-z0-9+/=_-]+|(?:^|\/)getting-started\/[A-Za-z0-9+/=_-]+/i;
+
+export function isSignupRedirectLink(value: string): boolean {
+  return SIGNUP_REDIRECT_PATTERN.test(value.trim());
+}
+
 function isSqlLikeMessage(message: string): boolean {
   return SQL_ERROR_PATTERN.test(message);
 }
@@ -167,7 +184,9 @@ function walkPayloadForErrors(
 
   if (typeof value === 'string') {
     const trimmed = value.trim();
-    if (trimmed) rawMessages.push(trimmed);
+    if (trimmed && !isSignupRedirectLink(trimmed)) {
+      rawMessages.push(trimmed);
+    }
 
     const parsed = tryParseJsonMessage(trimmed);
     if (parsed) {
@@ -190,7 +209,12 @@ function walkPayloadForErrors(
   if (validation) collectValidationErrors(validation, fieldErrors);
 
   const looksLikeFieldErrors = Object.entries(record).every(([key, val]) => {
-    if (['message', 'error', 'data', 'success', 'status', 'code'].includes(key)) return false;
+    if (
+      ['message', 'error', 'data', 'success', 'status', 'code'].includes(key) ||
+      SUCCESS_PAYLOAD_KEYS.has(key)
+    ) {
+      return false;
+    }
     return typeof val === 'string' || (Array.isArray(val) && val.every((item) => typeof item === 'string'));
   });
   if (looksLikeFieldErrors && Object.keys(record).length > 0 && !record.errors) {
@@ -199,7 +223,9 @@ function walkPayloadForErrors(
 
   for (const key of ['message', 'error', 'msg', 'detail', 'description', 'reason']) {
     const text = firstString(record[key]);
-    if (text) rawMessages.push(text);
+    if (text && !isSignupRedirectLink(text)) {
+      rawMessages.push(text);
+    }
 
     const parsed = text ? tryParseJsonMessage(text) : null;
     if (parsed) walkPayloadForErrors(parsed, fieldErrors, rawMessages, depth + 1);
@@ -210,6 +236,68 @@ function walkPayloadForErrors(
       walkPayloadForErrors(record[key], fieldErrors, rawMessages, depth + 1);
     }
   }
+}
+
+export function extractSignupLink(payload: unknown): string | undefined {
+  if (typeof payload === 'string' && payload.trim()) {
+    const trimmed = payload.trim();
+    return isSignupRedirectLink(trimmed) ? trimmed : undefined;
+  }
+
+  const record = asRecord(payload);
+  if (!record) return undefined;
+
+  const nested = record.data;
+  const nestedRecord = asRecord(nested);
+
+  const candidates = [
+    nestedRecord?.link,
+    nestedRecord?.url,
+    nestedRecord?.redirect,
+    nestedRecord?.redirect_url,
+    nestedRecord?.dashboard_url,
+    typeof nested === 'string' ? nested : undefined,
+    record.link,
+    record.url,
+    record.redirect,
+    record.redirect_url,
+    record.dashboard_url,
+    record.message,
+    record.msg,
+    record.result,
+  ];
+
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string' && candidate.trim()) {
+      const trimmed = candidate.trim();
+      if (isSignupRedirectLink(trimmed)) return trimmed;
+    }
+  }
+
+  for (const value of Object.values(record)) {
+    if (typeof value === 'string' && isSignupRedirectLink(value)) {
+      return value.trim();
+    }
+  }
+
+  return undefined;
+}
+
+export function isSignupSuccessPayload(payload: unknown): boolean {
+  return Boolean(extractSignupLink(payload));
+}
+
+export function normalizeSignupLink(link: string, appBaseUrl = 'https://app.zyvoerp.com'): string {
+  const trimmed = link.trim();
+  if (!trimmed) return appBaseUrl;
+
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+
+  if (trimmed.startsWith('/')) {
+    return `${appBaseUrl.replace(/\/$/, '')}${trimmed}`;
+  }
+
+  return `https://${trimmed}`;
 }
 
 export function extractApiError(payload: unknown): ExtractedApiError {
@@ -267,6 +355,11 @@ export function sanitizeApiPayloadForClient(
   payload: unknown,
   marketCode: MarketCode = 'us'
 ): Record<string, unknown> {
+  if (isSignupSuccessPayload(payload)) {
+    const record = asRecord(payload);
+    return record ? { ...record, success: true } : { success: true };
+  }
+
   const record = asRecord(payload);
   if (!record) {
     return { success: false, message: getSignupFormCopy(marketCode).formError };
@@ -304,6 +397,11 @@ export function parseSignupApiError(
   const copy = getSignupFormCopy(marketCode);
 
   if (error instanceof ApiRequestError) {
+    const signupLink = extractSignupLink(error.data);
+    if (signupLink) {
+      return { formMessage: '', fieldErrors: {} };
+    }
+
     const fromPayload = extractApiError(error.data);
     const fieldErrors: Record<string, string> = { ...error.fieldErrors };
 

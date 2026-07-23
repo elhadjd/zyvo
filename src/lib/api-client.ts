@@ -1,4 +1,4 @@
-import { ApiRequestError, buildSignupErrorFromPayload, extractApiError } from '@/lib/api-errors';
+import { ApiRequestError, buildSignupErrorFromPayload, extractApiError, extractSignupLink, isSignupRedirectLink } from '@/lib/api-errors';
 import type { MarketCode } from '@/lib/markets/types';
 
 export const baseApiURL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.zyvoerp.com';
@@ -7,8 +7,16 @@ async function parseJsonResponse(response: Response): Promise<Record<string, unk
   const text = await response.text();
   if (!text.trim()) return {};
 
+  const trimmed = text.trim();
+  if (isSignupRedirectLink(trimmed)) {
+    return { success: true, link: trimmed, message: trimmed };
+  }
+
   try {
     const data = JSON.parse(text);
+    if (typeof data === 'string' && isSignupRedirectLink(data)) {
+      return { success: true, link: data.trim(), message: data.trim() };
+    }
     return data && typeof data === 'object' ? (data as Record<string, unknown>) : { message: text };
   } catch {
     return { message: text };
@@ -57,6 +65,12 @@ export async function submitSignup(data: Record<string, unknown>) {
   });
 
   const payload = await parseJsonResponse(response);
+  const signupLink = extractSignupLink(payload);
+
+  if (signupLink) {
+    return payload;
+  }
+
   const extracted = extractApiError(payload);
   const isFailure =
     !response.ok ||
@@ -68,13 +82,7 @@ export async function submitSignup(data: Record<string, unknown>) {
     throw buildSignupErrorFromPayload(payload, marketCode, response.status);
   }
 
-  const nested = payload.data;
-  const link =
-    (nested && typeof nested === 'object' && !Array.isArray(nested)
-      ? (nested as Record<string, unknown>).link
-      : undefined) ?? payload.link;
-
-  if (typeof link !== 'string' || !link.trim()) {
+  if (!signupLink) {
     if (extracted.message || Object.keys(extracted.fieldErrors).length > 0) {
       throw buildSignupErrorFromPayload(payload, marketCode, response.status || 400);
     }
