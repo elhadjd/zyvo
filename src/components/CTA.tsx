@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import { ArrowRight, Shield, Mail, Check, ChevronRight, Building } from 'lucide-react';
 import { submitSignup } from '@/lib/api-client';
+import { parseSignupApiError } from '@/lib/api-errors';
 import { useMarket } from '@/contexts/market-context';
 import LocalizedLink from '@/components/markets/LocalizedLink';
 import { getSignupFormCopy } from '@/data/markets/form-locale';
@@ -62,6 +63,7 @@ const CompanySignupFlow = () => {
         }
 
         setLoading(true);
+        setErrors({});
         try {
             const data = {
                 ...companyData,
@@ -75,82 +77,25 @@ const CompanySignupFlow = () => {
             };
 
             const response = await submitSignup(data);
-            const signupLink = response?.data?.data?.link ?? response?.data?.link;
-            if (signupLink) {
-                setLink(`${signupLink}`)
-                window.open(`https://${signupLink}`, '_blank');
+            const nested = response.data;
+            const signupLink =
+                (nested && typeof nested === 'object' && !Array.isArray(nested)
+                    ? (nested as Record<string, unknown>).link
+                    : undefined) ?? response.link;
+
+            if (typeof signupLink === 'string' && signupLink.trim()) {
+                setLink(signupLink.trim());
+                window.open(`https://${signupLink.trim()}`, '_blank');
                 setStep('success');
+            } else {
+                setErrors({ form: copy.noSignupLink });
             }
         } catch (error: unknown) {
-            const apiError = error as {
-                response?: { data?: { errors?: Record<string, string[]>; message?: string } };
-            };
-
-            let errorMessage = copy.formError;
-
-            if (apiError?.response?.data) {
-                const responseData = apiError.response.data;
-
-                // Caso 1: Erro de validação padrão do Laravel
-                if (responseData.errors) {
-                    // Mapear erros de validação para o formato que você quer
-                    const validationErrors: Record<string, string> = {};
-                    const fieldErrors = responseData.errors;
-                    Object.keys(fieldErrors).forEach(field => {
-                        validationErrors[field] = fieldErrors[field][0];
-                    });
-                    setErrors(validationErrors);
-
-                    // Pegar primeira mensagem para o erro geral
-                    errorMessage = Object.values(responseData.errors)[0]?.[0] || errorMessage;
-                }
-                // Caso 2: Sua exceção específica com JSON na message
-                else if (responseData.message) {
-                    try {
-                        // Tenta fazer parse da mensagem (se for JSON)
-                        const parsedMessage = JSON.parse(responseData.message);
-
-                        // Se parsedMessage for um objeto de erros
-                        if (typeof parsedMessage === 'object') {
-                            // Mapear para o state de erros
-                            Object.keys(parsedMessage).forEach(field => {
-                                if (Array.isArray(parsedMessage[field])) {
-                                    setErrors(prev => ({
-                                        ...prev,
-                                        [field]: parsedMessage[field][0]
-                                    }));
-                                    errorMessage = parsedMessage[field][0];
-                                } else if (typeof parsedMessage[field] === 'string') {
-                                    setErrors(prev => ({
-                                        ...prev,
-                                        [field]: parsedMessage[field]
-                                    }));
-                                    errorMessage = parsedMessage[field];
-                                }
-                            });
-                        } else {
-                            errorMessage = parsedMessage;
-                        }
-                    } catch {
-                        // Não é JSON, usar a mensagem como está
-                        errorMessage = responseData.message;
-                    }
-                }
-            }
-            // Caso 3: Erro de rede ou outro
-            else if (error instanceof Error) {
-                errorMessage = error.message;
-            }
-
-            // Definir erro geral do formulário
-            setErrors(prev => ({
-                ...prev,
-                form: errorMessage
-            }));
-
-            // Log para debug
-            console.log('Erro processado:', errorMessage);
-
+            const parsed = parseSignupApiError(error, marketCode);
+            setErrors({
+                ...parsed.fieldErrors,
+                form: parsed.formMessage,
+            });
         } finally {
             setLoading(false);
         }
@@ -199,6 +144,12 @@ const CompanySignupFlow = () => {
                                         <p className="text-red-500 text-sm mt-2">{errors.email}</p>
                                     )}
                                 </div>
+
+                                {errors.form && (
+                                    <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                        <p className="text-red-600 dark:text-red-400 text-sm">{errors.form}</p>
+                                    </div>
+                                )}
 
                                 <button
                                     type="submit"
@@ -279,6 +230,9 @@ const CompanySignupFlow = () => {
                                         <p className="text-xs text-gray-500 mt-1">
                                             {copy.taxIdHint}
                                         </p>
+                                        {errors.nif && (
+                                            <p className="text-red-500 text-sm mt-2">{errors.nif}</p>
+                                        )}
                                     </div>
                                 </div>
 
