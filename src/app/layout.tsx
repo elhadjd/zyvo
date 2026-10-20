@@ -34,7 +34,8 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
   icons: {
-    icon: '/favicon.svg',
+    icon: [{ url: '/images/zyvo-logo.jpg', type: 'image/jpeg' }],
+    apple: '/images/zyvo-logo.jpg',
   },
 };
 
