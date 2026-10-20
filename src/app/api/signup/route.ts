@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
-import { extractSignupLink, sanitizeApiPayloadForClient } from '@/lib/api-errors';
+import { buildExternalSignupUrl } from '@/lib/external-signup';
 import type { MarketCode } from '@/lib/markets/types';
-
-const API_BASE = process.env.ZYVO_API_BASE_URL ?? 'https://app.zyvoerp.com/api';
-const API_KEY = process.env.ZYVO_API_KEY;
+import { getMarket } from '@/lib/markets/registry';
 
 function resolveMarketCode(body: Record<string, unknown>): MarketCode {
   const market = body.market ?? body.country;
@@ -26,62 +24,20 @@ function resolveMarketCode(body: Record<string, unknown>): MarketCode {
   return 'us';
 }
 
+/** Signup is handled on app.zyvoerp.com — this route only returns the external URL. */
 export async function POST(request: Request) {
-  try {
-    const body = (await request.json()) as Record<string, unknown>;
-    const marketCode = resolveMarketCode(body);
+  const body = (await request.json()) as Record<string, unknown>;
+  const marketCode = resolveMarketCode(body);
+  const market = getMarket(marketCode);
+  const redirectUrl = buildExternalSignupUrl(market.countryName);
 
-    if (!API_KEY) {
-      console.error('ZYVO_API_KEY is not configured');
-      return NextResponse.json(
-        sanitizeApiPayloadForClient({ success: false, message: 'Server configuration error' }, marketCode),
-        { status: 500 }
-      );
-    }
-
-    const response = await fetch(`${API_BASE}/app/save-company`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${API_KEY}`,
-      },
-      body: JSON.stringify(body),
-    });
-
-    const responseText = await response.text();
-    const trimmed = responseText.trim();
-    let data: unknown = { success: response.ok };
-
-    if (trimmed) {
-      try {
-        const parsed = JSON.parse(trimmed);
-        if (typeof parsed === 'string') {
-          const link = extractSignupLink(parsed);
-          data = link ? { success: true, link, message: parsed } : { message: parsed };
-        } else {
-          data = parsed;
-        }
-      } catch {
-        const link = extractSignupLink(trimmed);
-        data = link ? { success: true, link, message: trimmed } : { success: false, message: responseText };
-      }
-    }
-
-    const signupLink = extractSignupLink(data);
-    if (signupLink) {
-      const record = data && typeof data === 'object' && !Array.isArray(data)
-        ? (data as Record<string, unknown>)
-        : { link: signupLink };
-      return NextResponse.json({ ...record, success: true, link: signupLink }, { status: 200 });
-    }
-
-    const sanitized = sanitizeApiPayloadForClient(data, marketCode);
-    return NextResponse.json(sanitized, { status: response.status });
-  } catch (error) {
-    console.error('Signup API error:', error);
-    return NextResponse.json(
-      sanitizeApiPayloadForClient({ success: false, message: 'Failed to create company' }, 'us'),
-      { status: 500 }
-    );
-  }
+  return NextResponse.json(
+    {
+      success: true,
+      redirect: redirectUrl,
+      link: redirectUrl,
+      message: 'Redirect to ZYVO app signup',
+    },
+    { status: 200 }
+  );
 }

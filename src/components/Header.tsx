@@ -9,6 +9,8 @@ import { industryLandings } from '../data/industry-landings';
 import { useMarket } from '@/contexts/market-context';
 import LocalizedLink from '@/components/markets/LocalizedLink';
 import CountrySwitcher from '@/components/markets/CountrySwitcher';
+import ZyvoLogo from '@/components/ZyvoLogo';
+import { getExternalSignupUrlForMarket } from '@/lib/external-signup';
 
 const usNavigation = [
   {
@@ -64,7 +66,7 @@ const usNavigation = [
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { isDefaultMarket, market } = useMarket();
+  const { isDefaultMarket, market, marketCode } = useMarket();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -88,6 +90,7 @@ const Header = () => {
 
   const demoLabel = isDefaultMarket ? 'Book a Demo' : 'Demander une démo';
   const trialLabel = isDefaultMarket ? 'Start Free Trial' : 'Essai gratuit';
+  const externalSignupUrl = getExternalSignupUrlForMarket(marketCode);
   const signInLabel = isDefaultMarket ? 'Sign in' : 'Connexion';
 
   const NavLink = isDefaultMarket ? Link : LocalizedLink;
@@ -101,11 +104,7 @@ const Header = () => {
       <nav className="container mx-auto px-4 lg:px-8" aria-label="Main navigation">
         <div className="flex items-center justify-between h-16 sm:h-20">
           <NavLink href="/" className="flex items-center space-x-3" aria-label="ZYVO Home">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-brand-primary flex items-center justify-center">
-              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
+            <ZyvoLogo size={40} className="rounded-lg" priority />
             <span className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
               ZYVO
               {!isDefaultMarket && (
@@ -161,12 +160,14 @@ const Header = () => {
             >
               {signInLabel}
             </a>
-            <NavLink
-              href="/getting-started"
+            <a
+              href={externalSignupUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="px-5 py-2.5 bg-brand-primary text-white text-sm font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors min-h-[40px] flex items-center"
             >
               {trialLabel}
-            </NavLink>
+            </a>
           </div>
 
           <div className="flex lg:hidden items-center gap-2">
@@ -218,13 +219,15 @@ const Header = () => {
                 >
                   {demoLabel}
                 </NavLink>
-                <NavLink
-                  href="/getting-started"
+                <a
+                  href={externalSignupUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="block text-center py-3 bg-brand-primary text-white font-semibold rounded-lg min-h-[48px] flex items-center justify-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {trialLabel}
-                </NavLink>
+                </a>
               </div>
             </div>
           </div>

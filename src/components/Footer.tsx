@@ -6,6 +6,7 @@ import { TRUST_MESSAGE } from '../data/site';
 import { industryLandings } from '../data/industry-landings';
 import { useMarket } from '@/contexts/market-context';
 import LocalizedLink from '@/components/markets/LocalizedLink';
+import ZyvoLogo from '@/components/ZyvoLogo';
 
 const usFooterLinks: Record<string, { label: string; href: string }[]> = {
   Product: [
@@ -114,11 +115,7 @@ const Footer = () => {
         <div className="grid lg:grid-cols-2 gap-12 mb-12">
           <div>
             <NavLink href="/" className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 rounded-lg bg-brand-primary flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
+              <ZyvoLogo size={40} className="rounded-lg" />
               <span className="text-2xl font-bold">
                 ZYVO {!isDefaultMarket && market.flag}
               </span>
